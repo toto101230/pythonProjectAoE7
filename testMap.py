@@ -1,7 +1,7 @@
 import pygame
 
 pygame.init()
-
+#test du git
 screen = pygame.display.set_mode((800, 600))
 
 running = True
