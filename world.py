@@ -5,7 +5,7 @@ from settings import TILE_SIZE
 
 class World:
 
-    def __init__(self,grid_length_x, grid_length_y, width, height):
+    def __init__(self, grid_length_x, grid_length_y, width, height):
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
         self.width = width
@@ -39,12 +39,13 @@ class World:
         minx = min([x for x, y in iso_poly])
         miny = min([y for x, y in iso_poly])
 
-        r = random.randint(1,100)
+        r = random.randint(1, 100)
         if r <= 5:
             tile = "tree"
         elif r <= 8:
             tile = "rock"
-        else: tile = ""
+        else:
+            tile = ""
 
         out = {
             "grid": [grid_x, grid_y],

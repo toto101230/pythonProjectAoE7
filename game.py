@@ -4,12 +4,13 @@ import sys
 from world import World
 from settings import TILE_SIZE
 
+
 class Game:
     def __init__(self, screen, clock):
         self.screen = screen
         self.clock = clock
         self.width, self.height = self.screen.get_size()
-        self.world = World(10, 10, self.width, self.height)
+        self.world = World(100, 100, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
 
     def run(self):
         self.playing = True
@@ -20,14 +21,45 @@ class Game:
             self.draw()
 
     def events(self):
+
+        yBoolM, yBoolP, xBoolM, xBoolP, = False, False, False, False,
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                if event.key == pygame.K_s:
+                    yBoolM = True
+                if event.key == pygame.K_z:
+                    yBoolP = True
+                if event.key == pygame.K_d:
+                    xBoolM = True
+                if event.key == pygame.K_q:
+                    xBoolP = True
+
+            if event.type == pygame.KEYUP:
+
+                if event.key == pygame.K_s:
+                    yBoolM = False
+                if event.key == pygame.K_z:
+                    yBoolP = False
+                if event.key == pygame.K_d:
+                    xBoolM = False
+                if event.key == pygame.K_q:
+                    xBoolP = False
+
+        if yBoolM and self.world.grid_length_y > 0:
+            self.height -= 80
+        if yBoolP and self.world.grid_length_y < 25000:
+            self.height += 80
+        if xBoolM and self.world.grid_length_x > 0:
+            self.width -= 40
+        if xBoolP and self.world.grid_length_x < 25000:
+            self.width += 40
 
     def update(self):
         pass
@@ -37,9 +69,9 @@ class Game:
 
         for x in range(self.world.grid_length_x):
             for y in range(self.world.grid_length_y):
-                sq = self.world.world[x][y]["cart_rect"]
-                rect = pygame.Rect(sq[0][0], sq[0][1], TILE_SIZE, TILE_SIZE)
-                pygame.draw.rect(self.screen, (0, 0, 255), rect, 1)
+                #sq = self.world.world[x][y]["cart_rect"]
+                #rect = pygame.Rect(sq[0][0], sq[0][1], TILE_SIZE, TILE_SIZE)
+                #pygame.draw.rect(self.screen, (0, 0, 255), rect, 1)
 
                 render_pos = self.world.world[x][y]["render_pos"]
                 self.screen.blit(self.world.tiles["grass"], (render_pos[0] + self.width/2, render_pos[1] + self.height/4))
