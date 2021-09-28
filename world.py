@@ -26,14 +26,14 @@ class World:
         return world
 
     def grid_to_world(self, grid_x, grid_y):
-
+        # cube de base (tile)
         rect = [
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE),
             (grid_x * TILE_SIZE + TILE_SIZE, grid_y * TILE_SIZE),
             (grid_x * TILE_SIZE + TILE_SIZE, grid_y * TILE_SIZE + TILE_SIZE),
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE + TILE_SIZE)
         ]
-
+        #
         iso_poly = [self.cart_to_iso(x, y) for x, y in rect]
 
         minx = min([x for x, y in iso_poly])

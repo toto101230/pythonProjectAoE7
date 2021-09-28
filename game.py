@@ -10,7 +10,7 @@ class Game:
         self.screen = screen
         self.clock = clock
         self.width, self.height = self.screen.get_size()
-        self.world = World(64, 64, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
+        self.world = World(40, 40, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False,
 
     def run(self):
@@ -28,6 +28,7 @@ class Game:
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
+
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
@@ -52,13 +53,13 @@ class Game:
                     self.xBoolP = False
 
         if self.yBoolM and self.world.grid_length_y > 0:
-            self.height -= 80
+            self.height -= 100
         if self.yBoolP and self.world.grid_length_y < 25000:
-            self.height += 80
+            self.height += 100
         if self.xBoolM and self.world.grid_length_x > 0:
-            self.width -= 40
+            self.width -= 50
         if self.xBoolP and self.world.grid_length_x < 25000:
-            self.width += 40
+            self.width += 50
 
     def update(self):
         pass
