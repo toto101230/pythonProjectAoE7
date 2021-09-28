@@ -1,1 +1,3 @@
 TILE_SIZE = 64
+
+TILE_WIDTH = 12

@@ -10,7 +10,7 @@ class Game:
         self.screen = screen
         self.clock = clock
         self.width, self.height = self.screen.get_size()
-        self.world = World(100, 100, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
+        self.world = World(64, 64, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False,
 
     def run(self):
