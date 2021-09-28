@@ -11,6 +11,7 @@ class Game:
         self.clock = clock
         self.width, self.height = self.screen.get_size()
         self.world = World(100, 100, self.width, self.height)  #10 et 10 sont longueur et largeur du monde
+        self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False,
 
     def run(self):
         self.playing = True
@@ -21,8 +22,6 @@ class Game:
             self.draw()
 
     def events(self):
-
-        yBoolM, yBoolP, xBoolM, xBoolP, = False, False, False, False,
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -33,32 +32,33 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.key == pygame.K_s:
-                    yBoolM = True
+                    self.yBoolM = True
                 if event.key == pygame.K_z:
-                    yBoolP = True
+                    self.yBoolP = True
                 if event.key == pygame.K_d:
-                    xBoolM = True
+                    self.xBoolM = True
                 if event.key == pygame.K_q:
-                    xBoolP = True
+                    self.xBoolP = True
 
             if event.type == pygame.KEYUP:
 
                 if event.key == pygame.K_s:
-                    yBoolM = False
+                    self.yBoolM = False
                 if event.key == pygame.K_z:
-                    yBoolP = False
+                    self.yBoolP = False
                 if event.key == pygame.K_d:
-                    xBoolM = False
+                    self.xBoolM = False
                 if event.key == pygame.K_q:
-                    xBoolP = False
+                    self.xBoolP = False
 
-        if yBoolM and self.world.grid_length_y > 0:
+        if self.yBoolM and self.world.grid_length_y > 0:
+            print("toto")
             self.height -= 80
-        if yBoolP and self.world.grid_length_y < 25000:
+        if self.yBoolP and self.world.grid_length_y < 25000:
             self.height += 80
-        if xBoolM and self.world.grid_length_x > 0:
+        if self.xBoolM and self.world.grid_length_x > 0:
             self.width -= 40
-        if xBoolP and self.world.grid_length_x < 25000:
+        if self.xBoolP and self.world.grid_length_x < 25000:
             self.width += 40
 
     def update(self):
