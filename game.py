@@ -52,7 +52,6 @@ class Game:
                     self.xBoolP = False
 
         if self.yBoolM and self.world.grid_length_y > 0:
-            print("toto")
             self.height -= 80
         if self.yBoolP and self.world.grid_length_y < 25000:
             self.height += 80
