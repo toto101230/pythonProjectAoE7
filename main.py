@@ -9,7 +9,7 @@ def main():
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Age of Cheap Empires")
-    icon = pygame.image.load("castle.png")
+    icon = pygame.image.load("assets/castle.png")
     pygame.display.set_icon(icon)
 
     running = True

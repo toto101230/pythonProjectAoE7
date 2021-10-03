@@ -3,6 +3,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 
+
 class World:
 
     def __init__(self, grid_length_x, grid_length_y, width, height):
@@ -15,7 +16,6 @@ class World:
         self.tiles = self.load_images()
 
     def create_world(self):
-
         world = []
         for grid_x in range(self.grid_length_x):
             world.append([])
@@ -63,7 +63,7 @@ class World:
         return iso_x, iso_y
 
     def load_images(self):
-        grass = pygame.image.load("tilegraphic.png")
-        rock = pygame.image.load("mountainrocks128x128.png")
-        tree = pygame.image.load("tree64x64.png")
+        grass = pygame.image.load("assets/tilegraphic.png")
+        rock = pygame.image.load("assets/mountainrocks128x128.png")
+        tree = pygame.image.load("assets/tree64x64.png")
         return {"grass": grass, "rock": rock, "tree": tree}
