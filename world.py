@@ -25,7 +25,7 @@ class World:
 
                 render_pos = world_tile["render_pos"]
                 self.grass_tiles.blit(self.tiles["grass"], (render_pos[0] + self.grass_tiles.get_width()/2, render_pos[1]))
-
+        world[10][10]["tile"] = "hdv"
         return world
 
     def grid_to_world(self, grid_x, grid_y):
@@ -72,5 +72,7 @@ class World:
         rock = pygame.image.load("assets/mountainrocks128x128.png").convert_alpha()
         tree = pygame.image.load("assets/tree64x64.png").convert_alpha()
         buisson = pygame.image.load("assets/buisson.png").convert_alpha()
+        hdv = pygame.image.load("assets/hdv.png").convert_alpha()
+        hdv = pygame.transform.scale(hdv, (240,120))
 
-        return {"grass": grass, "rock": rock, "tree": tree, "buisson": buisson}
+        return {"grass": grass, "rock": rock, "tree": tree, "buisson": buisson, "hdv": hdv}
