@@ -79,11 +79,10 @@ class Hud:
         for tile in self.tiles:
             screen.blit(tile["icon"], tile["rect"].topleft)
 
-        pos = self.width - 400
-        for resource in ["wood:", "stone:", "gold:"]:
+        pos = self.width - 550
+        for resource in ["Bois : ", "Pierre : ", "Or : ","Nouriture : "]:
             draw_text(screen, resource, 30, (255, 255, 255), (pos, 0))
-            pos += 100
-
+            pos += 120
     def load_images(self):
 
         tree = pg.image.load("assets/hud/tree.png")
