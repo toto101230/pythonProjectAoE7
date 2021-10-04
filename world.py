@@ -47,6 +47,8 @@ class World:
             tile = "tree"
         elif r <= 8:
             tile = "rock"
+        elif r <= 14:
+            tile = "buisson"
         else:
             tile = ""
 
@@ -69,5 +71,6 @@ class World:
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
         rock = pygame.image.load("assets/mountainrocks128x128.png").convert_alpha()
         tree = pygame.image.load("assets/tree64x64.png").convert_alpha()
+        buisson = pygame.image.load("assets/buisson.png").convert_alpha()
 
-        return {"grass": grass, "rock": rock, "tree": tree}
+        return {"grass": grass, "rock": rock, "tree": tree, "buisson": buisson}
