@@ -5,7 +5,7 @@ from world import World
 from settings import TILE_SIZE
 from utils import draw_text
 from camera import Camera
-
+from hud import Hud
 
 class Game:
     def __init__(self, screen, clock):
@@ -16,10 +16,12 @@ class Game:
 
         self.camera = Camera(self.width, self.height)
 
+        self.hud = Hud(self.width,self.height)
+
     def run(self):
         self.playing = True
         while self.playing:
-            self.clock.tick(120)
+            self.clock.tick(60)
             self.events()
             self.update()
             self.draw()
@@ -39,6 +41,7 @@ class Game:
 
     def update(self):
         self.camera.update()
+        self.hud.update()
 
     def draw(self):
         self.screen.fill((0, 0, 0))
@@ -55,6 +58,8 @@ class Game:
                     self.screen.blit(self.world.tiles[tile],
                                      (render_pos[0] + self.world.grass_tiles.get_width() / 2 + self.camera.scroll.x,
                                       render_pos[1] - (self.world.tiles[tile].get_height() - TILE_SIZE) + self.camera.scroll.y))
+
+        self.hud.draw(self.screen)
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 10))
 
