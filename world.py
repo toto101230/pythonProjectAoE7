@@ -5,7 +5,8 @@ from settings import TILE_SIZE
 
 class World:
 
-    def __init__(self, grid_length_x, grid_length_y, width, height):
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height):
+        self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
         self.width = width
@@ -14,6 +15,23 @@ class World:
         self.grass_tiles = pygame.Surface((self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
         self.tiles = self.load_images()
         self.world = self.create_world()
+
+
+    def update(self):
+        pass
+
+
+    def draw(self,screen, camera):
+        screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
+
+        for x in range(self.grid_length_x):
+            for y in range(self.grid_length_y):
+                render_pos = self.world[x][y]["render_pos"]
+                tile = self.world[x][y]["tile"]
+                if tile != "":
+                    screen.blit(self.tiles[tile],
+                                     (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                      render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
 
     def create_world(self):
         world = []
