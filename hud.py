@@ -12,12 +12,15 @@ class Hud:
         self.hud_colour = (198, 155, 93, 175)
 
         self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
+        self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
         self.resouces_surface.fill(self.hud_colour)
 
         self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
+        self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
         self.build_surface.fill(self.hud_colour)
 
         self.select_surface = pg.Surface((width * 0.3, height * 0.2), pg.SRCALPHA)
+        self.select_rect = self.select_surface.get_rect(topleft= (self.width * 0.35, self.height * 0.79))
         self.select_surface.fill(self.hud_colour)
 
         self.images = self.load_images()
@@ -66,12 +69,6 @@ class Hud:
                     self.selected_tile = tile
 
     def draw(self, screen):
-
-        if self.selected_tile is not None:
-            img = self.selected_tile["image"].copy()
-            img.set_alpha(100)
-            screen.blit(img, pg.mouse.get_pos())
-
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
         screen.blit(self.select_surface, (self.width * 0.35, self.height * 0.79))
@@ -83,6 +80,7 @@ class Hud:
         for resource in ["Bois : ", "Pierre : ", "Or : ","Nouriture : "]:
             draw_text(screen, resource, 30, (255, 255, 255), (pos, 0))
             pos += 120
+
     def load_images(self):
 
         tree = pg.image.load("assets/hud/tree.png")
