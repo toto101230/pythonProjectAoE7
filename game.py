@@ -14,6 +14,7 @@ class Game:
         self.width, self.height = self.screen.get_size()
 
         self.hud = Hud(self.width, self.height)
+
         self.world = World(self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
@@ -43,6 +44,8 @@ class Game:
     def update(self):
         self.camera.update()
         self.hud.update()
+        self.world.update(self.camera)
+
 
     def draw(self):
         self.screen.fill((0, 0, 0))
