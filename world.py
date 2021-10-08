@@ -1,11 +1,15 @@
 import pygame
 import random
 from settings import TILE_SIZE
+from buildings import Lumbermill,Stonemasonry
 
 
 class World:
 
-    def __init__(self, hud, grid_length_x, grid_length_y, width, height):
+    def __init__(self, resource_manager, entities, hud, grid_length_x, grid_length_y, width, height):
+
+        self.resource_manager = resource_manager
+        self.entities = entities
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -15,6 +19,8 @@ class World:
         self.grass_tiles = pygame.Surface((self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
         self.tiles = self.load_images()
         self.world = self.create_world()
+
+        self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
 
         self.temp_tile = None
 
@@ -44,7 +50,15 @@ class World:
                 }
 
                 if mouse_action[0] and not collision:
-                    self.world[grid_pos[0]][grid_pos[1]]["tile"] = self.hud.selected_tile["name"]
+
+                    if self.hud.selected_tile["name"] == "lumbermill":
+                        ent = Lumbermill(render_pos,self.resource_manager)
+                        self.entities.append(ent)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                    elif self.hud.selected_tile["name"] == "stonemasonry":
+                        ent = Stonemasonry(render_pos,self.resource_manager)
+                        self.entities.append(ent)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
                     self.hud.selected_tile = None
 
@@ -55,11 +69,19 @@ class World:
         for x in range(self.grid_length_x):
             for y in range(self.grid_length_y):
                 render_pos = self.world[x][y]["render_pos"]
+                #draw dammier
                 tile = self.world[x][y]["tile"]
                 if tile != "":
                     screen.blit(self.tiles[tile],
                                      (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                       render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
+
+                #draw buildings
+                building = self.buildings[x][y]
+                if building is not None:
+                    screen.blit(building.image,
+                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 render_pos[1] - (building.image.get_height() - TILE_SIZE) + camera.scroll.y))
 
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
