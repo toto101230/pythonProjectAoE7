@@ -12,7 +12,7 @@ class Caserne:
         self.image = pygame.transform.scale(self.image, (186, 156))
         self.name = "caserne"
         self.rect = self.image.get_rect(topleft=pos)
-        self.health = 500
+        self.health = 350
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.counter = 0
@@ -30,7 +30,7 @@ class House:
         self.image = pygame.transform.scale(self.image, (80, 46))
         self.name = "house"
         self.rect = self.image.get_rect(topleft=pos)
-        self.health = 200
+        self.health = 75
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.counter = 0
