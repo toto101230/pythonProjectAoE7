@@ -9,6 +9,7 @@ class Lumbermill:
     def __init__(self, pos, resource_manager):
         image = pygame.image.load("assets/castle.png")
         self.image = image
+        self.image = pygame.transform.scale(self.image, (60, 60))
         self.name = "lumbermill"
         self.rect = self.image.get_rect(topleft=pos)
         self.resource_manager = resource_manager
@@ -25,6 +26,7 @@ class Stonemasonry:
     def __init__(self, pos, resource_manager):
         image = pygame.image.load("assets/hdv.png")
         self.image = image
+        self.image = pygame.transform.scale(self.image, (60, 60))
         self.name = "stonemasonry"
         self.rect = self.image.get_rect(topleft=pos)
         self.resource_manager = resource_manager
