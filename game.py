@@ -6,6 +6,7 @@ from settings import TILE_SIZE
 from utils import draw_text
 from camera import Camera
 from hud import Hud
+from resource_manager import ResourceManager
 
 class Game:
     def __init__(self, screen, clock):
@@ -13,9 +14,13 @@ class Game:
         self.clock = clock
         self.width, self.height = self.screen.get_size()
 
-        self.hud = Hud(self.width, self.height)
+        self.entities = []
 
-        self.world = World(self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
+        self.resources_manager = ResourceManager()
+
+        self.hud = Hud(self.resources_manager,self.width, self.height)
+
+        self.world = World(self.resources_manager,self.entities,self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 
@@ -43,6 +48,7 @@ class Game:
 
     def update(self):
         self.camera.update()
+        for e in self.entities: e.update()
         self.hud.update()
         self.world.update(self.camera)
 
