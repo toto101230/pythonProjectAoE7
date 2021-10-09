@@ -1,7 +1,7 @@
 import pygame
 import random
 from settings import TILE_SIZE
-from buildings import Lumbermill,Stonemasonry
+from buildings import Caserne,House
 
 
 class World:
@@ -23,6 +23,7 @@ class World:
         self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
 
         self.temp_tile = None
+        self.examine_tile = None
 
 
     def update(self, camera):
@@ -30,8 +31,14 @@ class World:
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed()
 
+        if mouse_action[2]:
+            self.examine_tile = None
+            self.hud.examined_tile = None
+
+
         self.temp_tile = None
         if self.hud.selected_tile is not None:
+
             grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
 
             if self.can_place_tile(grid_pos):
@@ -51,16 +58,30 @@ class World:
 
                 if mouse_action[0] and not collision:
 
-                    if self.hud.selected_tile["name"] == "lumbermill":
-                        ent = Lumbermill(render_pos,self.resource_manager)
+                    if self.hud.selected_tile["name"] == "caserne":
+                        ent = Caserne(render_pos, self.resource_manager)
                         self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                    elif self.hud.selected_tile["name"] == "stonemasonry":
-                        ent = Stonemasonry(render_pos,self.resource_manager)
+                    elif self.hud.selected_tile["name"] == "house":
+                        ent = House(render_pos, self.resource_manager)
                         self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
                     self.hud.selected_tile = None
+
+        else:
+
+            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
+
+            if self.can_place_tile(grid_pos):
+                building = self.buildings[grid_pos[0]][grid_pos[1]]
+
+
+                if mouse_action[0] and (building is not None):
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = building
+
+
 
 
     def draw(self,screen, camera):
@@ -75,14 +96,26 @@ class World:
                     screen.blit(self.tiles[tile],
                                      (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                       render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
-
+                    if self.examine_tile is not None:
+                        if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
+                            mask = pygame.mask.from_surface(self.tiles[tile]).outline()
+                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                     y + render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y)
+                                    for x, y in mask]
+                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
                 #draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
                     screen.blit(building.image,
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                  render_pos[1] - (building.image.get_height() - TILE_SIZE) + camera.scroll.y))
-
+                    if self.examine_tile is not None:
+                        if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
+                            mask = pygame.mask.from_surface(building.image).outline()
+                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                     y + render_pos[1] - (building.image.get_height() - TILE_SIZE) + camera.scroll.y)
+                                    for x, y in mask]
+                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
             iso_poly = [(x + self.grass_tiles.get_width()/2 + camera.scroll.x, y + camera.scroll.y) for x, y in iso_poly]
@@ -185,7 +218,6 @@ class World:
 
         return images
 
-        return {"grass": grass, "rock": rock, "tree": tree, "buisson": buisson, "hdv": hdv}
 
 
     def can_place_tile(self, grid_pos):
