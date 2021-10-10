@@ -4,14 +4,15 @@ import pygame
 
 
 
-class Lumbermill:
+class Caserne:
 
     def __init__(self, pos, resource_manager):
-        image = pygame.image.load("assets/castle.png")
+        image = pygame.image.load("assets/caserne.png")
         self.image = image
-        self.image = pygame.transform.scale(self.image, (60, 60))
-        self.name = "lumbermill"
+        self.image = pygame.transform.scale(self.image, (186, 156))
+        self.name = "caserne"
         self.rect = self.image.get_rect(topleft=pos)
+        self.health = 350
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.counter = 0
@@ -21,14 +22,15 @@ class Lumbermill:
 
 
 
-class Stonemasonry:
+class House:
 
     def __init__(self, pos, resource_manager):
-        image = pygame.image.load("assets/hdv.png")
+        image = pygame.image.load("assets/house.png")
         self.image = image
-        self.image = pygame.transform.scale(self.image, (60, 60))
-        self.name = "stonemasonry"
+        self.image = pygame.transform.scale(self.image, (80, 46))
+        self.name = "house"
         self.rect = self.image.get_rect(topleft=pos)
+        self.health = 75
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.counter = 0
