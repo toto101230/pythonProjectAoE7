@@ -60,4 +60,8 @@ class Game:
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 10))
 
+        mouse_pos = pygame.mouse.get_pos()
+        grid_pos = World.mouse_to_grid(self.world, mouse_pos[0], mouse_pos[1], self.camera.scroll)
+        draw_text(self.screen, '{} | {}'.format(grid_pos[0], grid_pos[1]), 25, (255, 255, 255), (150, 5))
+
         pygame.display.flip()
