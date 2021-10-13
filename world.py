@@ -1,7 +1,7 @@
 import pygame
 import random
 from settings import TILE_SIZE
-from buildings import Caserne,House
+from buildings import Caserne, House
 from unite import Villageois
 
 
@@ -17,18 +17,18 @@ class World:
         self.width = width
         self.height = height
 
-        self.grass_tiles = pygame.Surface((self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
+        self.grass_tiles = pygame.Surface(
+            (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
         self.tiles = self.load_images()
         self.world = self.create_world()
 
         self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
-        self.unites = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
+        self.unites = []
 
-        self.unites[10][15] = Villageois((10,15)) #ligne pour tester les villageois
+        self.unites.append(Villageois((10, 15)))  # ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
-
 
     def update(self, camera):
 
@@ -44,7 +44,8 @@ class World:
             if self.can_place_tile(grid_pos):
                 villageois = self.hud.examined_tile
                 if grid_pos != villageois.pos:
-                    if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings, grid_pos) != -1:
+                    if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
+                                            grid_pos) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         return
@@ -88,32 +89,32 @@ class World:
 
             if self.can_place_tile(grid_pos):
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
-                unite = self.unites[grid_pos[0]][grid_pos[1]]
-
+                unite = self.finUnite(grid_pos[0], grid_pos[1])
 
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
 
+                # permet de sélectionner une unité
                 if mouse_action[0] and (unite is not None):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = unite
 
+        for u in self.unites:
+            u.updatepos()
 
-
-
-    def draw(self,screen, camera):
+    def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
 
         for x in range(self.grid_length_x):
             for y in range(self.grid_length_y):
                 render_pos = self.world[x][y]["render_pos"]
-                #draw dammier
+                # draw dammier
                 tile = self.world[x][y]["tile"]
                 if tile != "":
                     screen.blit(self.tiles[tile],
-                                     (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                      render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
+                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
                     if self.examine_tile is not None:
                         if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
                             mask = pygame.mask.from_surface(self.tiles[tile]).outline()
@@ -121,7 +122,7 @@ class World:
                                      y + render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
-                #draw buildings
+                # draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
                     screen.blit(building.image,
@@ -134,23 +135,26 @@ class World:
                                      y + render_pos[1] - (building.image.get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
-                #dessine les unités
-                unite = self.unites[x][y]
-                if unite is not None:
-                    screen.blit(unite.image,
-                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 render_pos[1] - (unite.image.get_height() - TILE_SIZE) + camera.scroll.y))
-                    if self.examine_tile is not None:
-                        if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
-                            mask = pygame.mask.from_surface(unite.image).outline()
-                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                     y + render_pos[1] - (unite.image.get_height() - TILE_SIZE) + camera.scroll.y)
-                                    for x, y in mask]
-                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+        # dessine les unités
+        for u in self.unites:
+            render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
+            pixel = self.cart_to_iso(u.xpixel, u.ypixel)
+            render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
+            screen.blit(u.image,
+                        (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                         render_pos[1] - (u.image.get_height() - TILE_SIZE) + camera.scroll.y))
+            if self.examine_tile is not None:
+                if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
+                    mask = pygame.mask.from_surface(u.image).outline()
+                    mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                             y + render_pos[1] - (u.image.get_height() - TILE_SIZE) + camera.scroll.y)
+                            for x, y in mask]
+                    pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
-            iso_poly = [(x + self.grass_tiles.get_width()/2 + camera.scroll.x, y + camera.scroll.y) for x, y in iso_poly]
+            iso_poly = [(x + self.grass_tiles.get_width() / 2 + camera.scroll.x, y + camera.scroll.y) for x, y in
+                        iso_poly]
             if self.temp_tile["collision"]:
                 pygame.draw.polygon(screen, (255, 0, 0), iso_poly, 3)
             else:
@@ -159,7 +163,7 @@ class World:
             screen.blit(
                 self.temp_tile["image"],
                 (
-                    render_pos[0] + self.grass_tiles.get_width()/2 + camera.scroll.x,
+                    render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                     render_pos[1] - (self.temp_tile["image"].get_height() - TILE_SIZE) + camera.scroll.y
                 )
             )
@@ -173,7 +177,8 @@ class World:
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
-                self.grass_tiles.blit(self.tiles["grass"], (render_pos[0] + self.grass_tiles.get_width()/2, render_pos[1]))
+                self.grass_tiles.blit(self.tiles["grass"],
+                                      (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
         world[10][10]["tile"] = "hdv"
         return world
 
@@ -185,7 +190,7 @@ class World:
             (grid_x * TILE_SIZE + TILE_SIZE, grid_y * TILE_SIZE + TILE_SIZE),
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE + TILE_SIZE)
         ]
-        #
+
         iso_poly = [self.cart_to_iso(x, y) for x, y in rect]
 
         minx = min([x for x, y in iso_poly])
@@ -217,24 +222,22 @@ class World:
         iso_y = (x + y) / 2
         return iso_x, iso_y
 
-
     def mouse_to_grid(self, x, y, scroll):
         # transform to World position(removing camera scroll and offset)
-        world_x = x - scroll.x - self.grass_tiles.get_width()/2
+        world_x = x - scroll.x - self.grass_tiles.get_width() / 2
         world_y = y - scroll.y
         # transform to cart (inverse of cart_to_iso)
-        cart_y = (2*world_y - world_x)/2
+        cart_y = (2 * world_y - world_x) / 2
         cart_x = cart_y + world_x
         # transform to grid coordinates
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
         return grid_x, grid_y
 
-
     def load_images(self):
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
         hdv = pygame.image.load("assets/hdv.png").convert_alpha()
-        hdv = pygame.transform.scale(hdv, (240,120))
+        hdv = pygame.transform.scale(hdv, (240, 120))
 
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
@@ -250,8 +253,6 @@ class World:
 
         return images
 
-
-
     def can_place_tile(self, grid_pos):
         mouse_on_panel = False
         for rect in [self.hud.resources_rect, self.hud.build_rect, self.hud.select_rect]:
@@ -264,3 +265,9 @@ class World:
         else:
             return False
 
+    # recherche s'il y a une unité pour la pos donnée
+    def finUnite(self, x, y):
+        for u in self.unites:
+            if u.pos[0] == x and u.pos[1] == y:
+                return u
+        return None

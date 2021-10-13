@@ -1,4 +1,5 @@
 import pygame
+from settings import TILE_SIZE
 
 
 class Unite:
@@ -9,6 +10,36 @@ class Unite:
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
         self.health = health
+        self.xpixel, self.ypixel = 0, 0
+        self.path = []
+
+    #met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
+    def updatepos(self):
+        if self.path:
+            taille = TILE_SIZE / 2
+            neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+            for neighbour in neighbours:
+                x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
+                if self.path[0][0] == x and self.path[0][1] == y:
+                    self.xpixel = self.xpixel + neighbour[0] * 2
+                    self.ypixel = self.ypixel + neighbour[1] * 2
+                    if self.xpixel < -taille and self.path[0][0] == x:
+                        self.xpixel = taille
+                        self.pos = self.path.pop(0)
+                    elif self.xpixel > taille and self.path[0][0] == x:
+                        self.xpixel = -taille
+                        self.pos = self.path.pop(0)
+
+                    if self.ypixel < -taille and self.path[0][1] == y:
+                        self.ypixel = taille
+                        self.pos = self.path.pop(0)
+                    elif self.ypixel > taille and self.path[0][1] == y:
+                        self.ypixel = -taille
+                        self.pos = self.path.pop(0)
+                    break
+        elif self.xpixel != 0 or self.ypixel != 0:
+            self.xpixel = self.xpixel - 2 if self.xpixel > 0 and self.xpixel != 0 else self.xpixel + 2
+            self.ypixel = self.ypixel - 2 if self.ypixel > 0 and self.ypixel != 0 else self.ypixel + 2
 
 
 class Villageois(Unite):
@@ -16,7 +47,6 @@ class Villageois(Unite):
     def __init__(self, pos):
         Unite.__init__(self, "villageois", pos, 25)
         self.image = pygame.transform.scale(self.image, (40, 67))
-        self.path = []
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
