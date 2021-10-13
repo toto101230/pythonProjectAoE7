@@ -37,6 +37,7 @@ class Unite:
                         self.ypixel = -taille
                         self.pos = self.path.pop(0)
                     break
+
         elif self.xpixel != 0 or self.ypixel != 0:
             self.xpixel = self.xpixel - 2 if self.xpixel > 0 and self.xpixel != 0 else self.xpixel + 2
             self.ypixel = self.ypixel - 2 if self.ypixel > 0 and self.ypixel != 0 else self.ypixel + 2
