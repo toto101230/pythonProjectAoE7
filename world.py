@@ -225,7 +225,7 @@ class World:
         for rect in [self.hud.resources_rect, self.hud.build_rect, self.hud.select_rect]:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
-        world_bounds = (0 <= grid_pos[0] <= self.grid_length_x) and (0 <= grid_pos[1] <= self.grid_length_y)
+        world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
 
         if world_bounds and not mouse_on_panel:
             return True
