@@ -2,6 +2,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 from buildings import Caserne,House
+from unite import Villageois
 
 
 class World:
@@ -21,6 +22,9 @@ class World:
         self.world = self.create_world()
 
         self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
+        self.unites = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
+
+        self.unites[10][15] = Villageois((10,15)) #ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
@@ -35,6 +39,15 @@ class World:
             self.examine_tile = None
             self.hud.examined_tile = None
 
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Villageois):
+            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
+            if self.can_place_tile(grid_pos):
+                villageois = self.hud.examined_tile
+                if grid_pos != villageois.pos:
+                    if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings, grid_pos) != -1:
+                        self.examine_tile = None
+                        self.hud.examined_tile = None
+                        return
 
         self.temp_tile = None
         if self.hud.selected_tile is not None:
@@ -75,11 +88,16 @@ class World:
 
             if self.can_place_tile(grid_pos):
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
+                unite = self.unites[grid_pos[0]][grid_pos[1]]
 
 
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
+
+                if mouse_action[0] and (unite is not None):
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = unite
 
 
 
@@ -116,6 +134,20 @@ class World:
                                      y + render_pos[1] - (building.image.get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+                #dessine les unités
+                unite = self.unites[x][y]
+                if unite is not None:
+                    screen.blit(unite.image,
+                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 render_pos[1] - (unite.image.get_height() - TILE_SIZE) + camera.scroll.y))
+                    if self.examine_tile is not None:
+                        if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
+                            mask = pygame.mask.from_surface(unite.image).outline()
+                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                     y + render_pos[1] - (unite.image.get_height() - TILE_SIZE) + camera.scroll.y)
+                                    for x, y in mask]
+                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
             iso_poly = [(x + self.grass_tiles.get_width()/2 + camera.scroll.x, y + camera.scroll.y) for x, y in iso_poly]
@@ -225,7 +257,7 @@ class World:
         for rect in [self.hud.resources_rect, self.hud.build_rect, self.hud.select_rect]:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
-        world_bounds = (0 <= grid_pos[0] <= self.grid_length_x) and (0 <= grid_pos[1] <= self.grid_length_y)
+        world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
 
         if world_bounds and not mouse_on_panel:
             return True
