@@ -26,6 +26,9 @@ class World:
         self.unites = []
 
         self.unites.append(Villageois((10, 15)))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 14)))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 13)))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 12)))  # ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
@@ -61,7 +64,7 @@ class World:
 
                 render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
                 iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.finUnite(grid_pos[0], grid_pos[1]) is not None
+                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.findUnitePos(grid_pos[0], grid_pos[1]) is not None
 
                 self.temp_tile = {
                     "image": img,
@@ -81,6 +84,7 @@ class World:
                         ent = House(render_pos, self.resource_manager)
                         self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                    self.popEndPath(grid_pos)
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
                     self.hud.selected_tile = None
 
@@ -90,7 +94,7 @@ class World:
 
             if self.can_place_tile(grid_pos):
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
-                unite = self.finUnite(grid_pos[0], grid_pos[1])
+                unite = self.findUnitePos(grid_pos[0], grid_pos[1])
 
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
@@ -103,6 +107,7 @@ class World:
 
         for u in self.unites:
             u.updatepos()
+            u.updateFrame()
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
@@ -267,8 +272,14 @@ class World:
             return False
 
     # recherche s'il y a une unité pour la pos donnée
-    def finUnite(self, x, y):
+    def findUnitePos(self, x, y):
         for u in self.unites:
             if u.pos[0] == x and u.pos[1] == y:
                 return u
         return None
+
+    def popEndPath(self, grid_pos):
+        for u in self.unites:
+            if u.path:
+                if u.path[-1][0] == grid_pos[0] and u.path[-1][1] == grid_pos[1]:
+                    u.path.pop(-1)

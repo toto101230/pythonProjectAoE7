@@ -5,17 +5,21 @@ from settings import TILE_SIZE
 class Unite:
 
     def __init__(self, nom, pos, health):
-        self.image = pygame.image.load("assets/unites/" + nom + ".png")
+        self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png")
+        self.frameNumber = 0
         self.name = nom
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
         self.health = health
         self.xpixel, self.ypixel = 0, 0
         self.path = []
+        self.action = "idle"
 
-    #met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
+    # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
     def updatepos(self):
         if self.path:
+            self.action = "walk"
+            print(self.xpixel, self.ypixel, self.pos)
             taille = TILE_SIZE / 2
             neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
             for neighbour in neighbours:
@@ -39,15 +43,33 @@ class Unite:
                     break
 
         elif self.xpixel != 0 or self.ypixel != 0:
-            self.xpixel = self.xpixel - 2 if self.xpixel > 0 and self.xpixel != 0 else self.xpixel + 2
-            self.ypixel = self.ypixel - 2 if self.ypixel > 0 and self.ypixel != 0 else self.ypixel + 2
+            if -1 <= self.xpixel <= 1:
+                self.xpixel = 0
+            else:
+                self.xpixel = self.xpixel - 2 if self.xpixel > 0 else self.xpixel + 2
+
+            if -1 <= self.ypixel <= 1:
+                self.ypixel = 0
+            else:
+                self.ypixel = self.ypixel - 2 if self.ypixel > 0 else self.ypixel + 2
+        else:
+            self.action = "idle"
+
+    def frame(self):
+        self.frameNumber += 0.3
+        if self.action == "idle" and round(self.frameNumber) >= 6:
+            self.frameNumber = 0
+        self.image = pygame.image.load(
+            "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
+                round(self.frameNumber)) + ".png")
 
 
 class Villageois(Unite):
 
     def __init__(self, pos):
         Unite.__init__(self, "villageois", pos, 25)
-        self.image = pygame.transform.scale(self.image, (40, 67))
+        self.work = "default"
+        self.image = pygame.transform.scale(self.image, (76, 67))
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
@@ -102,3 +124,14 @@ class Villageois(Unite):
                 return -1
 
         print(self.path)
+
+    def updateFrame(self):
+        self.frameNumber += 0.3
+        if self.action == "idle" and round(self.frameNumber) >= 6:
+            self.frameNumber = 0
+        if self.action == "walk" and round(self.frameNumber) >= 15:
+            self.frameNumber = 0
+        self.image = pygame.image.load(
+            "assets/unites/" + self.name + "/" + self.name + "_" + self.work + "_" + self.action + "_" + str(
+                round(self.frameNumber)) + ".png")
+        self.image = pygame.transform.scale(self.image, (76, 67))
