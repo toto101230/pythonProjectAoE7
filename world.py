@@ -107,6 +107,8 @@ class World:
 
         for u in self.unites:
             u.updatepos()
+            if isinstance(u, Villageois):
+                u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
             u.updateFrame()
 
     def draw(self, screen, camera):
@@ -265,11 +267,7 @@ class World:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
-
-        if world_bounds and not mouse_on_panel:
-            return True
-        else:
-            return False
+        return world_bounds and not mouse_on_panel
 
     # recherche s'il y a une unité pour la pos donnée
     def findUnitePos(self, x, y):

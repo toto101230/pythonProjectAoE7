@@ -1,4 +1,6 @@
 import pygame
+
+from resource_manager import ResourceManager
 from settings import TILE_SIZE
 
 
@@ -19,7 +21,6 @@ class Unite:
     def updatepos(self):
         if self.path:
             self.action = "walk"
-            print(self.xpixel, self.ypixel, self.pos)
             taille = TILE_SIZE / 2
             neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
             for neighbour in neighbours:
@@ -40,6 +41,9 @@ class Unite:
                     elif self.ypixel > taille and self.path[0][1] == y:
                         self.ypixel = -taille
                         self.pos = self.path.pop(0)
+
+                    if not self.path:
+                        self.action = "idle"
                     break
 
         elif self.xpixel != 0 or self.ypixel != 0:
@@ -52,8 +56,6 @@ class Unite:
                 self.ypixel = 0
             else:
                 self.ypixel = self.ypixel - 2 if self.ypixel > 0 else self.ypixel + 2
-        else:
-            self.action = "idle"
 
     def frame(self):
         self.frameNumber += 0.3
@@ -70,6 +72,8 @@ class Villageois(Unite):
         Unite.__init__(self, "villageois", pos, 25)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67))
+        self.stockage = 0
+        self.oldPosWork = []
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
@@ -91,6 +95,9 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
                 if world[x][y]["tile"] != "":
+                    if x == self.pos[0] and y == self.pos[1]:
+                        tCout[x][y] = cout + 1
+                        break
                     continue
                 if buildings[x][y] is not None:
                     continue
@@ -106,10 +113,13 @@ class Villageois(Unite):
             valMin = mincout
             for neighbour in neighbours:
                 x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
-
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
                 if world[x][y]["tile"] != "":
+                    if x == pos_end[0] and y == pos_end[1]:
+                        self.defMetier(world[x][y]["tile"])
+                        self.path.append((x, y))
+                        return 0
                     continue
                 if buildings[x][y] is not None:
                     continue
@@ -123,7 +133,7 @@ class Villageois(Unite):
                 self.path = []
                 return -1
 
-        print(self.path)
+        self.defMetier(world[pos_end[0]][pos_end[1]]["tile"])
 
     def updateFrame(self):
         self.frameNumber += 0.3
@@ -131,7 +141,81 @@ class Villageois(Unite):
             self.frameNumber = 0
         if self.action == "walk" and round(self.frameNumber) >= 15:
             self.frameNumber = 0
+
+        ## A enlever lorsque les autres animations seront implémentées
+        # début
+        if self.work != "default":
+            self.frameNumber = 0
+        # fin
+
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.work + "_" + self.action + "_" + str(
                 round(self.frameNumber)) + ".png")
         self.image = pygame.transform.scale(self.image, (76, 67))
+
+    def defMetier(self, title):
+        if self.stockage != 20:
+            if title == "tree":
+                self.work = "lumber"
+            elif title == "buisson":
+                self.work = "forager"
+            elif title == "rock":
+                self.work = "miner"
+            else:
+                self.work = "default"
+            self.stockage = 0
+
+    def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
+        if not self.path:
+            ####### TODO À enlever "and self.pos != (12, 12)" quand l'HDV sera implémenter ou les bâtiments stockage
+            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.pos != (12, 12):
+                self.stockage += 0.02
+                self.action = "gather"
+                if self.stockage > 20:
+                    self.stockage = 20
+                    self.oldPosWork = self.pos
+                    pos_end = self.findStockage(buildings, grid_length_x, grid_length_y)
+                    self.creatPath(grid_length_x, grid_length_y, world, buildings, pos_end)
+
+            ####### TODO À remettre quand l'HDV sera implémenter ou les bâtiments stockage
+            # elif buildings[self.pos[0]][self.pos[1]]["name"] == "hdv":
+            elif self.work != "default" and self.pos == (12, 12):
+                if self.work == "lumber":
+                    resource_manager.resources["wood"] += 20
+                elif self.work == "forager":
+                    resource_manager.resources["food"] += 20
+                elif self.work == "miner":
+                    resource_manager.resources["stone"] += 20
+                self.stockage = 0
+                self.creatPath(grid_length_x, grid_length_y, world, buildings, self.oldPosWork)
+
+        if self.path and self.work != "default" and self.stockage == 20:
+            self.action = "carry"
+
+    def findStockage(self, buildings, grid_length_x, grid_length_y):
+        return (12, 12)
+        ####### TODO À remettre quand l'HDV sera implémenter ou les bâtiments stockage
+        # tCout = [[-1 for x in range(100)] for y in range(100)]
+        #
+        # listCase = [self.pos]
+        # tCout[listCase[0][0]][listCase[0][1]] = 0
+        #
+        # neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        # while listCase:
+        #     cur_pos = listCase.pop(0)
+        #     cout = tCout[cur_pos[0]][cur_pos[1]]
+        #
+        #     for neighbour in neighbours:
+        #         x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+        #
+        #         if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+        #             continue
+        #         if buildings[x][y] is not None:
+        #             if buildings[x][y]["name"] == "hdv":
+        #                 return (x, y)
+        #             pass
+        #
+        #         count = cout + 1
+        #         if tCout[x][y] > count or tCout[x][y] == -1:
+        #             tCout[x][y] = count
+        #             listCase.append((x, y))
