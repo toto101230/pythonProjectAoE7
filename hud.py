@@ -1,4 +1,6 @@
 import pygame as pg
+
+from unite import Villageois
 from utils import draw_text
 
 
@@ -90,6 +92,8 @@ class Hud:
             screen.blit(img_scale, (self.width * 0.35 + 10, self.height * 0.79 + 40))
             draw_text(screen, self.examined_tile.name, 40 , (255, 255, 255), self.select_rect.topleft)
             draw_text(screen, str(self.examined_tile.health), 30 , (255, 255, 255), self.select_rect.center)
+            if isinstance(self.examined_tile, Villageois):
+                draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.select_rect.center[0],self.select_rect.center[1]+20))
 
 
         for tile in self.tiles:
