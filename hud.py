@@ -1,5 +1,6 @@
 import pygame as pg
 from utils import draw_text
+from bouton import Button
 
 
 class Hud:
@@ -30,6 +31,9 @@ class Hud:
 
         self.selected_tile = None
         self.examined_tile = None
+
+        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 70, 70, 70, 'villageois')
+
 
     def create_build_hud(self):
 
@@ -64,6 +68,16 @@ class Hud:
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed()
 
+        if self.examined_tile is not None:
+            if self.unite_bouton.isOver(mouse_pos):
+                self.unite_bouton.color = ('#FFFB00')
+                if mouse_action[0]:
+                    print("toto")
+            else:
+                self.unite_bouton.color = self.unite_bouton.color_de_base
+
+
+
         if mouse_action[2]:
             self.selected_tile = None
 
@@ -81,6 +95,8 @@ class Hud:
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
 
+
+        #si un objet est selectionné
         if self.examined_tile is not None:
             w, h = self.select_rect.width, self.select_rect.height
             screen.blit(self.select_surface, (self.width * 0.35, self.height * 0.79))
@@ -92,10 +108,10 @@ class Hud:
             draw_text(screen, self.examined_tile.name, 60, "#ff0000", self.select_rect.midtop)
             draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.select_rect.center)
 
-            #affichage du bouton
-            img2 = pg.image.load("assets/hud/carre_noir.jpg")
-            img2_scale = pg.transform.scale(img2,(60,60))
-            screen.blit(img2_scale, (self.width * 0.35 +299, self.height * 0.79 + 60))
+            #affichage du bouton unité
+
+            self.unite_bouton.draw(screen)
+
 
 
 
