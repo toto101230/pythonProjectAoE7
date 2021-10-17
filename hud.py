@@ -35,7 +35,7 @@ class Hud:
         self.examined_tile = None
         self.unite_recrut = None
 
-        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 150, 'villageois_recrut')
+        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 60, 'villageois_recrut')
 
 
     def create_build_hud(self):
