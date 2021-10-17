@@ -1,4 +1,6 @@
 import pygame as pg
+
+from unite import Villageois
 from utils import draw_text
 from bouton import Button
 
@@ -105,15 +107,11 @@ class Hud:
             screen.blit(img_scale, (self.width * 0.35 + 10, self.height * 0.79 + 40))
             draw_text(screen, self.examined_tile.name, 60, "#ff0000", self.select_rect.midtop)
             draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.select_rect.center)
+            if isinstance(self.examined_tile, Villageois):
+                draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.select_rect.center[0],self.select_rect.center[1]+20))
 
             #affichage du bouton unité
-
             self.unite_bouton.draw(screen)
-
-
-
-
-
 
         for tile in self.tiles:
             icon = tile["icon"].copy()
