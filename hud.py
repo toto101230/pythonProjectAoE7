@@ -33,6 +33,7 @@ class Hud:
 
         self.selected_tile = None
         self.examined_tile = None
+        self.unite_recrut = None
 
         self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 150, 'villageois_recrut')
 
@@ -71,10 +72,11 @@ class Hud:
         mouse_action = pg.mouse.get_pressed()
 
         if self.examined_tile is not None:
-            if self.unite_bouton.isOver(mouse_pos):
+            if self.unite_bouton.isOver(mouse_pos) and not self.unite_bouton.isPress:
                 self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
-                    print("toto")
+                    self.unite_recrut = self.unite_bouton.text[:-7]
+                    self.unite_bouton.isPress = True
             else:
                 self.unite_bouton.color = self.unite_bouton.color_de_base
 
@@ -83,13 +85,16 @@ class Hud:
 
         for tile in self.tiles:
             if self.resources_manager.is_affordable(tile["name"]):
-                tile["affordable"]= True
+                tile["affordable"] = True
             else:
-                tile["affordable"]= False
+                tile["affordable"] = False
 
             if tile["rect"].collidepoint(mouse_pos) and tile["affordable"]:
                 if mouse_action[0]:
                     self.selected_tile = tile
+
+        if self.unite_bouton.isPress and not mouse_action[0]:
+            self.unite_bouton.isPress = False
 
     def draw(self, screen):
         screen.blit(self.resouces_surface, (0, 0))
