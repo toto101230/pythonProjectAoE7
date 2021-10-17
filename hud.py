@@ -2,6 +2,7 @@ import pygame as pg
 
 from unite import Villageois
 from utils import draw_text
+from bouton import Button
 
 
 class Hud:
@@ -32,6 +33,9 @@ class Hud:
 
         self.selected_tile = None
         self.examined_tile = None
+
+        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 150, 'villageois_recrut')
+
 
     def create_build_hud(self):
 
@@ -66,6 +70,14 @@ class Hud:
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed()
 
+        if self.examined_tile is not None:
+            if self.unite_bouton.isOver(mouse_pos):
+                self.unite_bouton.color = '#FFFB00'
+                if mouse_action[0]:
+                    print("toto")
+            else:
+                self.unite_bouton.color = self.unite_bouton.color_de_base
+
         if mouse_action[2]:
             self.selected_tile = None
 
@@ -80,21 +92,26 @@ class Hud:
                     self.selected_tile = tile
 
     def draw(self, screen):
-        #
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
 
+
+        #si un objet est selectionné
         if self.examined_tile is not None:
             w, h = self.select_rect.width, self.select_rect.height
             screen.blit(self.select_surface, (self.width * 0.35, self.height * 0.79))
+
+            #affichage de l'image du batiment avec son nom et son nombre de vie
             img = self.examined_tile.image.copy()
             img_scale = self.scale_image(img, h=h * 0.7)
             screen.blit(img_scale, (self.width * 0.35 + 10, self.height * 0.79 + 40))
-            draw_text(screen, self.examined_tile.name, 40 , (255, 255, 255), self.select_rect.topleft)
-            draw_text(screen, str(self.examined_tile.health), 30 , (255, 255, 255), self.select_rect.center)
+            draw_text(screen, self.examined_tile.name, 60, "#ff0000", self.select_rect.midtop)
+            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.select_rect.center)
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.select_rect.center[0],self.select_rect.center[1]+20))
 
+            #affichage du bouton unité
+            self.unite_bouton.draw(screen)
 
         for tile in self.tiles:
             icon = tile["icon"].copy()

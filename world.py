@@ -95,7 +95,7 @@ class World:
             if self.can_place_tile(grid_pos):
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
                 unite = self.findUnitePos(grid_pos[0], grid_pos[1])
-
+                
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
