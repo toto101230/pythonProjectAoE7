@@ -118,6 +118,8 @@ class Hud:
             #affichage du bouton unité
             self.unite_bouton.draw(screen)
 
+
+
         for tile in self.tiles:
             icon = tile["icon"].copy()
             if not tile["affordable"]:

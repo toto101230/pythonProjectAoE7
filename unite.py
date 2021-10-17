@@ -68,12 +68,14 @@ class Unite:
 
 class Villageois(Unite):
 
-    def __init__(self, pos):
+    def __init__(self, pos, resource_manager):
         Unite.__init__(self, "villageois", pos, 25)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67))
         self.stockage = 0
         self.oldPosWork = []
+        self.resource_manager = resource_manager
+        self.resource_manager.apply_cost_to_resource(self.name)
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
