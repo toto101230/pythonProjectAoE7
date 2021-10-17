@@ -32,7 +32,7 @@ class Hud:
         self.selected_tile = None
         self.examined_tile = None
 
-        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 70, 70, 70, 'villageois')
+        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 150, 'villageois_recrut')
 
 
     def create_build_hud(self):
@@ -70,13 +70,11 @@ class Hud:
 
         if self.examined_tile is not None:
             if self.unite_bouton.isOver(mouse_pos):
-                self.unite_bouton.color = ('#FFFB00')
+                self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
                     print("toto")
             else:
                 self.unite_bouton.color = self.unite_bouton.color_de_base
-
-
 
         if mouse_action[2]:
             self.selected_tile = None
