@@ -14,6 +14,14 @@ class Batiment:
         self.counter = 0
 
 
+class Hdv(Batiment):
+
+    def __init__(self, pos, resource_manager):
+        Batiment.__init__(self, pos, resource_manager, "hdv", 600)
+        self.image = pygame.transform.scale(self.image, (120, 60))
+
+
+
 class Caserne(Batiment):
 
     def __init__(self, pos, resource_manager):
