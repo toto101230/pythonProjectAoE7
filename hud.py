@@ -123,7 +123,7 @@ class Hud:
         for resource, resource_value in self.resources_manager.resources.items():
             txt = resource + ": " + str(resource_value)
             draw_text(screen,txt,30, (255, 255, 255), (pos,0))
-            pos += 120
+            pos += 200
 
     def load_images(self):
 
