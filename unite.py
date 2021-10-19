@@ -6,9 +6,10 @@ from settings import TILE_SIZE
 
 class Unite:
 
-    def __init__(self, nom, pos, health):
+    def __init__(self, nom, pos, health, place, resource_manager):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png")
         self.frameNumber = 0
+        self.place = place
         self.name = nom
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
@@ -16,6 +17,15 @@ class Unite:
         self.xpixel, self.ypixel = 0, 0
         self.path = []
         self.action = "idle"
+        self.resource_manager = resource_manager
+        self.resource_manager.apply_cost_to_resource(self.name)
+        self.resource_manager.update_population(self.place)
+
+
+
+
+
+
 
 
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
@@ -70,13 +80,13 @@ class Unite:
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager):
-        Unite.__init__(self, "villageois", pos, 25)
+        Unite.__init__(self, "villageois", pos, 25, 1, resource_manager)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67))
         self.stockage = 0
         self.oldPosWork = []
-        self.resource_manager = resource_manager
-        self.resource_manager.apply_cost_to_resource(self.name)
+
+
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
