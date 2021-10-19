@@ -34,3 +34,4 @@ class ResourceManager:
             if cost > self.resources[resource]:
                 affordable = False
         return affordable
+

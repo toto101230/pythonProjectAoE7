@@ -115,6 +115,7 @@ class Hud:
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.select_rect.center[0],self.select_rect.center[1]+20))
 
+        if self.examined_tile is not None and self.examined_tile.name == "hdv":
             #affichage du bouton unité
             self.unite_bouton.draw(screen)
 
