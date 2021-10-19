@@ -27,7 +27,7 @@ class Game:
         self.camera = Camera(self.width, self.height)
 
         self.cheat_enabled = True
-        self.cheat_box = InputBox(1600, 100, 320, 60, self.cheat_enabled, self.resources_manager)
+        self.cheat_box = InputBox(1600, 100, 300, 60, self.cheat_enabled, self.resources_manager)
 
     def run(self):
         self.playing = True
@@ -48,7 +48,8 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 elif event.key == pygame.K_DOLLAR:
-                    self.cheat_box.cheatstate = not self.cheat_box.cheatstate
+                    self.cheat_box.window = not self.cheat_box.window
+                    self.cheat_box.active = False
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
@@ -59,7 +60,6 @@ class Game:
         self.hud.update()
         self.world.update(self.camera)
         self.cheat_box.update()
-
 
     def draw(self):
         self.screen.fill((0, 0, 0))
