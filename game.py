@@ -48,7 +48,6 @@ class Game:
 
     def update(self):
         self.camera.update()
-        for e in self.entities: e.update()
         self.hud.update()
         self.world.update(self.camera)
 

@@ -1,7 +1,7 @@
 import pygame
 import random
 from settings import TILE_SIZE
-from buildings import Caserne, House
+from buildings import Caserne, House, Hdv
 from unite import Villageois
 from resource_manager import ResourceManager
 
@@ -24,6 +24,7 @@ class World:
         self.world = self.create_world()
 
         self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
+        self.buildings[10][10] = Hdv((10, 10), self.resource_manager)
         self.unites = []
 
         self.unites.append(Villageois((10, 15)))  # ligne pour tester les villageois
@@ -194,7 +195,9 @@ class World:
                 render_pos = world_tile["render_pos"]
                 self.grass_tiles.blit(self.tiles["grass"],
                                       (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
-        world[10][10]["tile"] = "hdv"
+
+
+        #world[10][10]["tile"] = "hdv"
         return world
 
     def grid_to_world(self, grid_x, grid_y):
@@ -251,8 +254,6 @@ class World:
 
     def load_images(self):
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
-        hdv = pygame.image.load("assets/hdv.png").convert_alpha()
-        hdv = pygame.transform.scale(hdv, (240, 120))
 
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
@@ -262,8 +263,7 @@ class World:
             "tree": tree,
             "buisson": buisson,
             "rock": rock,
-            "grass": grass,
-            "hdv": hdv
+            "grass": grass
         }
 
         return images
