@@ -27,7 +27,7 @@ class InputBox:
         self.player_rmanage = rmanage
         #self.AI_rmanage = rmanageai
 
-        self.cheatlist = ["ninjalui", "bigdaddy", "steroids", "reveal map", "no fog", "ai_bigdaddy"]
+        self.cheatlist = ["ninjalui", "bigdaddy", "steroids", "reveal map", "no fog", "ai_ninjalui"]
         self.nrofcheat = len(self.cheatlist) # unused atm
         self.window = state
 
@@ -67,8 +67,12 @@ class InputBox:
                 pass
             elif strcmp(message, self.cheatlist[2]):    #steroids
                 pass
+            elif strcmp(message, self.cheatlist[3]):    #reveal map
+                pass
+            elif strcmp(message, self.cheatlist[4]):    #no fog
+                pass
             # uncomment quand ai.py sera intégré
-            # elif strcmp(message, self.cheatlist[6]):
+            # elif strcmp(message, self.cheatlist[5]): #ai_ninjalui
                 # self.ai_rmanage.resources["wood"] += 20000
                 # self.ai_rmanage.resources["stone"] += 20000
                 # self.ai_rmanage.resources["food"] += 20000
