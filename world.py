@@ -3,11 +3,12 @@ import random
 from settings import TILE_SIZE
 from buildings import Caserne, House
 from unite import Villageois
+from resource_manager import ResourceManager
 
 
 class World:
 
-    def __init__(self, resource_manager, entities, hud, grid_length_x, grid_length_y, width, height):
+    def __init__(self, resource_manager : ResourceManager, entities, hud, grid_length_x, grid_length_y, width, height):
 
         self.resource_manager = resource_manager
         self.entities = entities
@@ -28,7 +29,6 @@ class World:
         self.unites.append(Villageois((10, 15)))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 14)))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13)))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 12)))  # ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
@@ -110,6 +110,13 @@ class World:
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
             u.updateFrame()
+
+        if self.hud.unite_recrut is not None:
+            if self.hud.unite_recrut == "villageois" and self.resource_manager.resources["food"] >= 30:
+                pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
+                self.unites.append(Villageois(pos))
+                self.resource_manager.resources["food"] -= 30
+                self.hud.unite_recrut = None
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))

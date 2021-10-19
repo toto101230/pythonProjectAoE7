@@ -3,6 +3,7 @@ import pygame
 
 class Button:
     def __init__(self, color, x, y, text):
+        self.isPress = False
         self.color_de_base = color
         self.color = color
         self.x = x
