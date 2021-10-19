@@ -134,8 +134,8 @@ class Hud:
 
     def load_images(self):
 
-        caserne = pg.image.load("assets/batiments/caserne.png")
-        house = pg.image.load("assets/batiments/house.png")
+        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
+        house = pg.image.load("assets/batiments/house.png").convert_alpha()
 
         images = {
             "caserne" : caserne,

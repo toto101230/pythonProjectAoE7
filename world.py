@@ -255,7 +255,6 @@ class World:
 
     def load_images(self):
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
-
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
         rock = pygame.image.load("assets/hud/rock.png").convert_alpha()

@@ -5,7 +5,7 @@ import pygame
 class Batiment:
 
     def __init__(self, pos, resource_manager, name, health):
-        self.image = pygame.image.load("assets/batiments/" +name+ ".png")
+        self.image = pygame.image.load("assets/batiments/" +name+ ".png").convert_alpha()
         self.name = name
         self.rect = self.image.get_rect(topleft=pos)
         self.health = health
@@ -18,7 +18,7 @@ class Hdv(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "hdv", 600)
-        self.image = pygame.transform.scale(self.image, (120, 60))
+        self.image = pygame.transform.scale(self.image, (120, 60)).convert_alpha()
 
 
 
@@ -26,7 +26,7 @@ class Caserne(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "caserne", 350)
-        self.image = pygame.transform.scale(self.image, (186, 156))
+        self.image = pygame.transform.scale(self.image, (186, 156)).convert_alpha()
 
 
 
@@ -34,6 +34,6 @@ class House(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "house", 75)
-        self.image = pygame.transform.scale(self.image, (80, 46))
+        self.image = pygame.transform.scale(self.image, (80, 46)).convert_alpha()
 
 
