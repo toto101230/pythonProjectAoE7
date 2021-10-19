@@ -2,39 +2,30 @@
 
 import pygame
 
+class Batiment:
+
+    def __init__(self, pos, resource_manager, name, health):
+        self.image = pygame.image.load("assets/batiments/" +name+ ".png")
+        self.name = name
+        self.rect = self.image.get_rect(topleft=pos)
+        self.health = health
+        self.resource_manager = resource_manager
+        self.resource_manager.apply_cost_to_resource(self.name)
+        self.counter = 0
 
 
-class Caserne:
+class Caserne(Batiment):
 
     def __init__(self, pos, resource_manager):
-        image = pygame.image.load("assets/caserne.png")
-        self.image = image
+        Batiment.__init__(self, pos, resource_manager, "caserne", 350)
         self.image = pygame.transform.scale(self.image, (186, 156))
-        self.name = "caserne"
-        self.rect = self.image.get_rect(topleft=pos)
-        self.health = 350
-        self.resource_manager = resource_manager
-        self.resource_manager.apply_cost_to_resource(self.name)
-        self.counter = 0
-
-    def update(self):
-        self.counter += 1
 
 
 
-class House:
+class House(Batiment):
 
     def __init__(self, pos, resource_manager):
-        image = pygame.image.load("assets/house.png")
-        self.image = image
+        Batiment.__init__(self, pos, resource_manager, "house", 75)
         self.image = pygame.transform.scale(self.image, (80, 46))
-        self.name = "house"
-        self.rect = self.image.get_rect(topleft=pos)
-        self.health = 75
-        self.resource_manager = resource_manager
-        self.resource_manager.apply_cost_to_resource(self.name)
-        self.counter = 0
 
-    def update(self):
-        self.counter += 1
 

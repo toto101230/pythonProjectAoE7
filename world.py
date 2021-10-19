@@ -244,7 +244,7 @@ class World:
 
     def load_images(self):
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
-        hdv = pygame.image.load("assets/hdv.png").convert_alpha()
+        hdv = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
         hdv = pygame.transform.scale(hdv, (240, 120))
 
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
