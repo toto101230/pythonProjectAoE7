@@ -129,10 +129,12 @@ class Hud:
 
         caserne = pg.image.load("assets/batiments/caserne.png")
         house = pg.image.load("assets/batiments/house.png")
+        grenier = pg.image.load("assets/batiments/grenier.png")
 
         images = {
             "caserne" : caserne,
-            "house": house
+            "house": house,
+            "grenier": grenier
         }
 
 

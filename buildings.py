@@ -37,3 +37,9 @@ class House(Batiment):
         self.image = pygame.transform.scale(self.image, (80, 46))
 
 
+class Grenier(Batiment):
+
+    def __init__(self, pos, resource_manager):
+        Batiment.__init__(self, pos, resource_manager, "grenier", 350)
+        self.image = pygame.transform.scale(self.image, (225, 225))
+

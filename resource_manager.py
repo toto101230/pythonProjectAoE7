@@ -10,7 +10,7 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 300,
+            "wood": 1000,
             "stone": 300,
             "food" : 300
         }
@@ -19,7 +19,8 @@ class ResourceManager:
         self.costs = {
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
-            "house": {"wood": 30}
+            "house": {"wood": 30},
+            "grenier": {"wood": 130}
         }
 
     def apply_cost_to_resource(self, building):
