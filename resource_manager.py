@@ -30,6 +30,10 @@ class ResourceManager:
             "house": {"wood": 30}
         }
 
+    def stay_place(self):
+        if self.population["population_actuelle"] < self.population["population_maximale"]:
+            return True
+        return False
     def update_population(self, place):
         self.population["population_actuelle"] += place
         print("population : " + str(self.population["population_actuelle"]))
