@@ -24,6 +24,9 @@ class Game:
 
         self.camera = Camera(self.width, self.height)
 
+        #format m m : s s
+        self.time = [(pygame.time.get_ticks()//60000//10), (pygame.time.get_ticks()//60000) % 10, (pygame.time.get_ticks()//10000) % 6, (pygame.time.get_ticks()//1000) % 10]
+
 
     def run(self):
         self.playing = True
@@ -57,10 +60,12 @@ class Game:
         self.world.draw(self.screen, self.camera)
         self.hud.draw(self.screen)
 
-        draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 10))
+        draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 5))
 
         mouse_pos = pygame.mouse.get_pos()
         grid_pos = World.mouse_to_grid(self.world, mouse_pos[0], mouse_pos[1], self.camera.scroll)
         draw_text(self.screen, '{} | {}'.format(grid_pos[0], grid_pos[1]), 25, (255, 255, 255), (150, 5))
+
+        draw_text(self.screen, '{}{}:{}{}'.format(self.time[0], self.time[1], self.time[2], self.time[3]), 25, (255, 255, 255), (230, 5))
 
         pygame.display.flip()
