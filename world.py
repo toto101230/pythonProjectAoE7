@@ -29,7 +29,6 @@ class World:
         self.unites.append(Villageois((10, 15)))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 14)))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13)))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 12)))  # ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
