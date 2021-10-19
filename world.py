@@ -26,6 +26,9 @@ class World:
         self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
         self.unites = []
 
+        self.unites.append(Villageois((10, 14), resource_manager))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 13), resource_manager))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 12), resource_manager))  # ligne pour tester les villageois
 
         self.temp_tile = None
         self.examine_tile = None
@@ -109,16 +112,9 @@ class World:
             u.updateFrame()
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois") :
+            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois"):
                 pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
                 self.unites.append(Villageois(pos,self.resource_manager))
-                self.hud.unite_recrut = None
-
-        if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.resources["food"] >= 50:
-                pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
-                self.unites.append(Villageois(pos,self.resource_manager))
-
                 self.hud.unite_recrut = None
 
 
