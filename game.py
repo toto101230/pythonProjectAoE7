@@ -26,8 +26,8 @@ class Game:
 
         self.camera = Camera(self.width, self.height)
 
-        self.cheat_enabled = True
-        self.cheat_box = InputBox(1600, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.cheat_enabled = False
+        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
 
     def run(self):
         self.playing = True
