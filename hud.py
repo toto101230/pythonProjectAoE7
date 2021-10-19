@@ -9,7 +9,7 @@ class Hud:
 
     def __init__(self, resource_manager, width, height):
 
-        self.resources_manager = resource_manager
+        self.resource_manager = resource_manager
 
         self.width = width
         self.height = height
@@ -77,14 +77,14 @@ class Hud:
                 if mouse_action[0]:
                     self.unite_recrut = self.unite_bouton.text[:-7]
                     self.unite_bouton.isPress = True
-            else:
+            elif self.resource_manager.stay_place():
                 self.unite_bouton.color = self.unite_bouton.color_de_base
 
         if mouse_action[2]:
             self.selected_tile = None
 
         for tile in self.tiles:
-            if self.resources_manager.is_affordable(tile["name"]):
+            if self.resource_manager.is_affordable(tile["name"]):
                 tile["affordable"] = True
             else:
                 tile["affordable"] = False
@@ -117,6 +117,8 @@ class Hud:
 
         if self.examined_tile is not None and self.examined_tile.name == "hdv":
             #affichage du bouton unité
+            if  not self.resource_manager.stay_place():
+                self.unite_bouton.image.set_alpha(150)
             self.unite_bouton.draw(screen)
 
 
@@ -128,7 +130,7 @@ class Hud:
             screen.blit(icon, tile["rect"].topleft)
 
         pos = self.width - 550
-        for resource, resource_value in self.resources_manager.resources.items():
+        for resource, resource_value in self.resource_manager.resources.items():
             txt = resource + ": " + str(resource_value)
             draw_text(screen,txt,30, (255, 255, 255), (pos,0))
             pos += 120
