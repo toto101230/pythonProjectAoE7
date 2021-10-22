@@ -119,11 +119,16 @@ class Hud:
                 icon.set_alpha(100)
             screen.blit(icon, tile["rect"].topleft)
 
-        pos = self.width - 550
-        for resource, resource_value in self.resources_manager.resources.items():
-            txt = resource + ": " + str(resource_value)
-            draw_text(screen,txt,30, (255, 255, 255), (pos,0))
-            pos += 200
+        pos = 10
+        #for resource, resource_value in self.resources_manager.resources.items():
+        #   txt = resource + ": " + str(resource_value)
+        #    draw_text(screen,txt,30, (255, 255, 255), (pos,0))
+        #    pos += 150
+        #txt_units = "nb_units : 3/4"
+        #draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 0))
+        #txt_age = "Age I"
+        #draw_text(screen, txt_age, 30, (255, 255, 255), (pos+200, 0))
+
 
     def load_images(self):
 
@@ -134,9 +139,8 @@ class Hud:
         images = {
             "caserne" : caserne,
             "house": house,
-            "grenier": grenier
+            "grenier": grenier,
         }
-
 
         return images
 

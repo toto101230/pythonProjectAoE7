@@ -18,7 +18,7 @@ class Hdv(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "hdv", 600)
-        self.image = pygame.transform.scale(self.image, (120, 60))
+        self.image = pygame.transform.scale(self.image, (164, 120))
 
 
 
@@ -41,5 +41,5 @@ class Grenier(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "grenier", 350)
-        self.image = pygame.transform.scale(self.image, (225, 225))
+        self.image = pygame.transform.scale(self.image, (162, 122))
 
