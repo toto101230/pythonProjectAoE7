@@ -130,8 +130,8 @@ class Hud:
             txt = str(resource_value)
             draw_text(screen,txt,30, (255, 255, 255), (pos,20))
             pos += 110
-        #txt_units = "nb_units : 3/4"
-        #draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 0))
+        txt_units = "3/4"
+        draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
         #txt_age = "Age I"
         #draw_text(screen, txt_age, 30, (255, 255, 255), (pos+200, 0))
 
