@@ -7,7 +7,7 @@ from abc import ABCMeta
 
 class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, speed, resource_manager: ResourceManager):
+    def __init__(self, nom, pos, health, speed, resource_manager: ResourceManager, player):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.name = nom
@@ -19,6 +19,7 @@ class Unite(metaclass=ABCMeta):
         self.action = "idle"
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
+        self.player = player
 
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
@@ -27,7 +28,7 @@ class Unite(metaclass=ABCMeta):
         list_case = [pos_end]
         t_cout[list_case[0][0]][list_case[0][1]] = 0
 
-        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
 
         while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
             cur_pos = list_case.pop(0)
@@ -75,26 +76,39 @@ class Unite(metaclass=ABCMeta):
         if self.path:
             self.action = "walk"
             taille = TILE_SIZE / 2
-            neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+            neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
             for neighbour in neighbours:
                 x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
                 if self.path[0][0] == x and self.path[0][1] == y:
-                    self.xpixel = self.xpixel + neighbour[0] * 2
-                    self.ypixel = self.ypixel + neighbour[1] * 2
-                    if self.xpixel < -taille and self.path[0][0] == x:
-                        self.xpixel = taille
-                        self.pos = self.path.pop(0)
-                    elif self.xpixel > taille and self.path[0][0] == x:
-                        self.xpixel = -taille
-                        self.pos = self.path.pop(0)
+                    if -taille <= self.xpixel <= taille:
+                        self.xpixel = self.xpixel + int(neighbour[0] * 2)
+                    if -taille <= self.ypixel <= taille:
+                        self.ypixel = self.ypixel + int(neighbour[1] * 2)
+                    deplacement = False
+                    if (self.xpixel < -taille or self.xpixel > taille) and (self.ypixel < -taille or self.ypixel > taille)\
+                            and abs(neighbour[0]) == abs(neighbour[1]) and abs(self.xpixel) == abs(self.ypixel) \
+                            and self.path[0][0] == x and self.path[0][1] == y:
+                        self.xpixel = taille * -neighbour[0]
+                        self.ypixel = taille * -neighbour[1]
+                        deplacement = True
 
-                    if self.ypixel < -taille and self.path[0][1] == y:
-                        self.ypixel = taille
-                        self.pos = self.path.pop(0)
-                    elif self.ypixel > taille and self.path[0][1] == y:
-                        self.ypixel = -taille
-                        self.pos = self.path.pop(0)
+                    elif self.path:
+                        if self.xpixel < -taille and self.path[0][0] == x and abs(neighbour[0]) != abs(neighbour[1]):
+                            self.xpixel = taille
+                            deplacement = True
+                        elif self.xpixel > taille and self.path[0][0] == x and abs(neighbour[0]) != abs(neighbour[1]):
+                            self.xpixel = -taille
+                            deplacement = True
 
+                        if self.ypixel < -taille and self.path[0][1] == y and abs(neighbour[0]) != abs(neighbour[1]):
+                            self.ypixel = taille
+                            deplacement = True
+                        elif self.ypixel > taille and self.path[0][1] == y and abs(neighbour[0]) != abs(neighbour[1]):
+                            self.ypixel = -taille
+                            deplacement = True
+
+                    if deplacement:
+                        self.pos = self.path.pop(0)
                     break
 
         elif self.xpixel != 0 or self.ypixel != 0:
@@ -123,8 +137,8 @@ class Unite(metaclass=ABCMeta):
 
 class Villageois(Unite):
 
-    def __init__(self, pos, resource_manager):
-        super().__init__("villageois", pos, 25, 1.1, resource_manager)
+    def __init__(self, pos, resource_manager, player):
+        super().__init__("villageois", pos, 25, 1.1, resource_manager, player)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
@@ -138,7 +152,7 @@ class Villageois(Unite):
         listCase = [pos_end]
         tCout[listCase[0][0]][listCase[0][1]] = 0
 
-        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
 
         while tCout[self.pos[0]][self.pos[1]] == -1 and listCase:
             cur_pos = listCase.pop(0)
@@ -253,7 +267,7 @@ class Villageois(Unite):
         list_case = [self.pos]
         t_cout[list_case[0][0]][list_case[0][1]] = 0
 
-        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
         while list_case:
             cur_pos = list_case.pop(0)
             cout = t_cout[cur_pos[0]][cur_pos[1]]
@@ -275,6 +289,6 @@ class Villageois(Unite):
 
 
 class Clubman(Unite):
-    def __init__(self, pos, resource_manager):
-        super().__init__("clubman", pos, 40, 1.2, resource_manager)
+    def __init__(self, pos, resource_manager, player):
+        super().__init__("clubman", pos, 40, 1.2, resource_manager, player)
         self.attack = 3

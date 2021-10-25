@@ -27,11 +27,12 @@ class World:
         self.buildings[10][10] = Hdv((10, 10), self.resource_manager)
         self.unites = []
         
-        self.unites.append(Villageois((10, 15), resource_manager))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 14), resource_manager))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 13), resource_manager))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 13), resource_manager, "joueur 2"))  # ligne pour tester les villageois
 
-        self.unites.append(Clubman((12, 15), resource_manager))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), resource_manager, "joueur 1"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), resource_manager, "joueur 2"))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
