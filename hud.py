@@ -17,23 +17,28 @@ class Hud:
         self.hud_colour = (198, 155, 93, 175)
 
         self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
-        self.hud_haut_surface.fill(self.hud_colour)
+        self.hud_haut_rect = self.hud_haut_surface.get_rect(topleft=(0, 0))
+        #self.hud_haut_surface.fill(self.hud_colour)
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
         self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age_surface.fill(self.hud_colour)
+        self.hud_age_rect = self.hud_age_surface.get_rect(topleft=(self.width * 0.8, 0))
+        #self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
-        self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
-        self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
+        #Rectangle ancien HUD
+
+        #self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
+        #self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
         #self.resouces_surface.fill(self.hud_colour)
 
-        self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
-        self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
-        self.build_surface.fill(self.hud_colour)
+        #self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
+        #self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
+        #self.build_surface.fill(self.hud_colour)
 
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
-        self.hud_action_surface.fill(self.hud_colour)
+        self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(width - 413, height - 205))
+        #self.hud_action_surface.fill(self.hud_colour)
         self.hud_action = pg.image.load("assets/hud/hud_action.png")
 
         self.select_surface = pg.Surface((width * 0.3, height * 0.2), pg.SRCALPHA)
@@ -107,8 +112,8 @@ class Hud:
                     self.selected_tile = tile
 
     def draw(self, screen):
-        screen.blit(self.resouces_surface, (0, 0))
-        screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
+        #screen.blit(self.resouces_surface, (0, 0))
+        #screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
         screen.blit(self.hud_haut_surface, (0, 0))
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
