@@ -16,6 +16,10 @@ class Hud:
 
         self.hud_colour = (198, 155, 93, 175)
 
+        self.hud_haut = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
+        #self.hud_haut.fill(self.hud_colour)
+        self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
+
         self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
         self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
         self.resouces_surface.fill(self.hud_colour)
@@ -41,6 +45,7 @@ class Hud:
 
         render_pos = [self.width * 0.84 + 10, self.height * 0.74 + 10]
         object_width = self.build_surface.get_width() // 5
+        self.hud_haut.blit(self.hud_haut, (0, 0))
 
         tiles = []
 
@@ -94,6 +99,7 @@ class Hud:
     def draw(self, screen):
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
+        screen.blit(self.hud_haut, (0, 0))
 
 
         #si un objet est selectionné
@@ -119,11 +125,11 @@ class Hud:
                 icon.set_alpha(100)
             screen.blit(icon, tile["rect"].topleft)
 
-        pos = 10
-        #for resource, resource_value in self.resources_manager.resources.items():
-        #   txt = resource + ": " + str(resource_value)
-        #    draw_text(screen,txt,30, (255, 255, 255), (pos,0))
-        #    pos += 150
+        pos = 75
+        for resource, resource_value in self.resources_manager.resources.items():
+            txt = str(resource_value)
+            draw_text(screen,txt,30, (255, 255, 255), (pos,20))
+            pos += 110
         #txt_units = "nb_units : 3/4"
         #draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 0))
         #txt_age = "Age I"
@@ -136,10 +142,12 @@ class Hud:
         house = pg.image.load("assets/batiments/house.png")
         grenier = pg.image.load("assets/batiments/grenier.png")
 
+
         images = {
             "caserne" : caserne,
             "house": house,
             "grenier": grenier,
+
         }
 
         return images
