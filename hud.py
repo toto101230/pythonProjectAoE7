@@ -21,7 +21,7 @@ class Hud:
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
         self.hud_age = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age.fill(self.hud_colour)
+        #self.hud_age.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
         self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
