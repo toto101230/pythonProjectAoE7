@@ -2,7 +2,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv
-from unite import Villageois
+from unite import Villageois, Soldat
 from resource_manager import ResourceManager
 
 
@@ -30,6 +30,8 @@ class World:
         self.unites.append(Villageois((10, 15), resource_manager))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 14), resource_manager))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13), resource_manager))  # ligne pour tester les villageois
+
+        self.unites.append(Soldat((12, 15), resource_manager))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None

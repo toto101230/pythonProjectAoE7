@@ -6,7 +6,7 @@ from settings import TILE_SIZE
 
 class Unite:
 
-    def __init__(self, nom, pos, health):
+    def __init__(self, nom, pos, health, resource_manager: ResourceManager):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.name = nom
@@ -16,6 +16,8 @@ class Unite:
         self.xpixel, self.ypixel = 0, 0
         self.path = []
         self.action = "idle"
+        self.resource_manager = resource_manager
+        self.resource_manager.apply_cost_to_resource(self.name)
 
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
     def updatepos(self):
@@ -57,9 +59,9 @@ class Unite:
             else:
                 self.ypixel = self.ypixel - 2 if self.ypixel > 0 else self.ypixel + 2
 
-    def frame(self):
+    def updateFrame(self):
         self.frameNumber += 0.3
-        if self.action == "idle" and round(self.frameNumber) >= 6:
+        if self.action == "idle" and round(self.frameNumber) >= 0:
             self.frameNumber = 0
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
@@ -69,13 +71,11 @@ class Unite:
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager):
-        Unite.__init__(self, "villageois", pos, 25)
+        Unite.__init__(self, "villageois", pos, 25, resource_manager)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
         self.oldPosWork = []
-        self.resource_manager = resource_manager
-        self.resource_manager.apply_cost_to_resource(self.name)
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
@@ -219,3 +219,8 @@ class Villageois(Unite):
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
                     list_case.append((x, y))
+
+
+class Soldat(Unite):
+    def __init__(self, pos, resource_manager):
+        Unite.__init__(self, "soldat", pos, 40, resource_manager)

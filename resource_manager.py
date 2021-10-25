@@ -17,7 +17,8 @@ class ResourceManager:
 
         #costs
         self.costs = {
-            "villageois" : {"food" : 50},
+            "villageois": {"food": 50},
+            "soldat": {"food": 50},
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
             "house": {"wood": 30}
