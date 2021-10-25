@@ -2,7 +2,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv
-from unite import Villageois, Soldat
+from unite import Unite, Villageois, Clubman
 from resource_manager import ResourceManager
 
 
@@ -31,7 +31,7 @@ class World:
         self.unites.append(Villageois((10, 14), resource_manager))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13), resource_manager))  # ligne pour tester les villageois
 
-        self.unites.append(Soldat((12, 15), resource_manager))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), resource_manager))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -45,13 +45,12 @@ class World:
             self.examine_tile = None
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Villageois):
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):
             grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
             if self.can_place_tile(grid_pos):
-                villageois = self.hud.examined_tile
-                if grid_pos != villageois.pos:
-                    if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
-                                            grid_pos) != -1:
+                unite = self.hud.examined_tile
+                if grid_pos != unite.pos:
+                    if unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, grid_pos) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         return

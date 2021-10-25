@@ -2,11 +2,12 @@ import pygame
 
 from resource_manager import ResourceManager
 from settings import TILE_SIZE
+from abc import ABCMeta
 
 
-class Unite:
+class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, resource_manager: ResourceManager):
+    def __init__(self, nom, pos, health, speed, resource_manager: ResourceManager):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.name = nom
@@ -18,6 +19,56 @@ class Unite:
         self.action = "idle"
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
+
+    def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
+        self.path = []
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+
+        list_case = [pos_end]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
+
+        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+        while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
+
+            for neighbour in neighbours:
+                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+                if world[x][y]["tile"] != "":
+                    continue
+                if buildings[x][y] is not None:
+                    continue
+
+                count = cout + 1
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
+
+        cell = self.pos
+        mincout = t_cout[cell[0]][cell[1]]
+        while cell != pos_end:
+            val_min = mincout
+            for neighbour in neighbours:
+                x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+                if world[x][y]["tile"] != "":
+                    continue
+                if buildings[x][y] is not None:
+                    continue
+
+                if mincout > t_cout[x][y] != -1:
+                    mincout = t_cout[x][y]
+                    cell = (x, y)
+                    self.path.append(cell)
+                    break
+            if val_min == mincout:
+                self.path = []
+                return -1
 
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
     def updatepos(self):
@@ -44,8 +95,6 @@ class Unite:
                         self.ypixel = -taille
                         self.pos = self.path.pop(0)
 
-                    if not self.path:
-                        self.action = "idle"
                     break
 
         elif self.xpixel != 0 or self.ypixel != 0:
@@ -59,9 +108,13 @@ class Unite:
             else:
                 self.ypixel = self.ypixel - 2 if self.ypixel > 0 else self.ypixel + 2
 
+            if self.ypixel == 0 and self.ypixel == 0:
+                self.action = "idle"
+
+
     def updateFrame(self):
         self.frameNumber += 0.3
-        if self.action == "idle" and round(self.frameNumber) >= 0:
+        if round(self.frameNumber) >= 0:
             self.frameNumber = 0
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
@@ -71,14 +124,14 @@ class Unite:
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager):
-        Unite.__init__(self, "villageois", pos, 25, resource_manager)
+        super().__init__("villageois", pos, 25, 1.1, resource_manager)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
         self.oldPosWork = []
 
     # création du chemin à parcourir (remplie path de tuple des pos)
-    def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
         tCout = [[-1 for x in range(100)] for y in range(100)]
 
@@ -170,7 +223,7 @@ class Villageois(Unite):
             self.stockage = 0
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
-        if not self.path:
+        if not self.path and self.xpixel == 0 and self.ypixel == 0:
             if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None:
                 self.stockage += 0.02
                 self.action = "gather"
@@ -178,7 +231,7 @@ class Villageois(Unite):
                     self.stockage = 20
                     self.oldPosWork = self.pos
                     pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
-                    self.creatPath(grid_length_x, grid_length_y, world, buildings, pos_end)
+                    self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
 
             elif self.work != "default" and buildings[self.pos[0]][self.pos[1]].name == "hdv":
                 if self.stockage == 20:
@@ -189,9 +242,9 @@ class Villageois(Unite):
                     elif self.work == "miner":
                         resource_manager.resources["stone"] += 20
                 self.stockage = 0
-                self.creatPath(grid_length_x, grid_length_y, world, buildings, self.oldPosWork)
+                self.create_path(grid_length_x, grid_length_y, world, buildings, self.oldPosWork)
 
-        if self.path and self.work != "default" and self.stockage == 20:
+        if self.path and self.work != "default" and self.stockage > 0:
             self.action = "carry"
 
     def findstockage(self, buildings, grid_length_x, grid_length_y):
@@ -221,6 +274,7 @@ class Villageois(Unite):
                     list_case.append((x, y))
 
 
-class Soldat(Unite):
+class Clubman(Unite):
     def __init__(self, pos, resource_manager):
-        Unite.__init__(self, "soldat", pos, 40, resource_manager)
+        super().__init__("clubman", pos, 40, 1.2, resource_manager)
+        self.attack = 3
