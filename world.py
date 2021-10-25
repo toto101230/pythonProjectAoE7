@@ -233,6 +233,9 @@ class World:
             "tile": tile,
             "collision": False if tile == "" else True
         }
+        if grid_x == 10 and grid_y == 10:
+            out["tile"] = ""
+            out["collision"] = False
 
         return out
 

@@ -102,7 +102,8 @@ class Villageois(Unite):
                         break
                     continue
                 if buildings[x][y] is not None:
-                    continue
+                    if not (buildings[x][y].name == "hdv" and self.work != "default"):
+                        continue
 
                 count = cout + 1
                 if tCout[x][y] > count or tCout[x][y] == -1:
@@ -124,7 +125,8 @@ class Villageois(Unite):
                         return 0
                     continue
                 if buildings[x][y] is not None:
-                    continue
+                    if not (buildings[x][y].name == "hdv" and self.work != "default"):
+                        continue
 
                 if mincout > tCout[x][y] and tCout[x][y] != -1:
                     mincout = tCout[x][y]
@@ -169,55 +171,51 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
         if not self.path:
-            ####### TODO À enlever "and self.pos != (12, 12)" quand l'HDV sera implémenter ou les bâtiments stockage
-            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.pos != (12, 12):
+            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None:
                 self.stockage += 0.02
                 self.action = "gather"
                 if self.stockage > 20:
                     self.stockage = 20
                     self.oldPosWork = self.pos
-                    pos_end = self.findStockage(buildings, grid_length_x, grid_length_y)
+                    pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
                     self.creatPath(grid_length_x, grid_length_y, world, buildings, pos_end)
 
-            ####### TODO À remettre quand l'HDV sera implémenter ou les bâtiments stockage
-            # elif buildings[self.pos[0]][self.pos[1]]["name"] == "hdv":
-            elif self.work != "default" and self.pos == (12, 12):
-                if self.work == "lumber":
-                    resource_manager.resources["wood"] += 20
-                elif self.work == "forager":
-                    resource_manager.resources["food"] += 20
-                elif self.work == "miner":
-                    resource_manager.resources["stone"] += 20
+            elif self.work != "default" and buildings[self.pos[0]][self.pos[1]].name == "hdv":
+                if self.stockage == 20:
+                    if self.work == "lumber":
+                        resource_manager.resources["wood"] += 20
+                    elif self.work == "forager":
+                        resource_manager.resources["food"] += 20
+                    elif self.work == "miner":
+                        resource_manager.resources["stone"] += 20
                 self.stockage = 0
                 self.creatPath(grid_length_x, grid_length_y, world, buildings, self.oldPosWork)
 
         if self.path and self.work != "default" and self.stockage == 20:
             self.action = "carry"
 
-    def findStockage(self, buildings, grid_length_x, grid_length_y):
-        return (12, 12)
-        ####### TODO À remettre quand l'HDV sera implémenter ou les bâtiments stockage
-        # tCout = [[-1 for x in range(100)] for y in range(100)]
-        #
-        # listCase = [self.pos]
-        # tCout[listCase[0][0]][listCase[0][1]] = 0
-        #
-        # neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
-        # while listCase:
-        #     cur_pos = listCase.pop(0)
-        #     cout = tCout[cur_pos[0]][cur_pos[1]]
-        #
-        #     for neighbour in neighbours:
-        #         x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
-        #
-        #         if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-        #             continue
-        #         if buildings[x][y] is not None:
-        #             if buildings[x][y]["name"] == "hdv":
-        #                 return (x, y)
-        #             pass
-        #
-        #         count = cout + 1
-        #         if tCout[x][y] > count or tCout[x][y] == -1:
-        #             tCout[x][y] = count
-        #             listCase.append((x, y))
+    def findstockage(self, buildings, grid_length_x, grid_length_y):
+        t_cout = [[-1 for x in range(100)] for y in range(100)]
+
+        list_case = [self.pos]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
+
+        neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        while list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
+
+            for neighbour in neighbours:
+                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+                if buildings[x][y] is not None:
+                    if buildings[x][y].name == "hdv":
+                        return (x, y)
+                    pass
+
+                count = cout + 1
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
