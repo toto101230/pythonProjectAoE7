@@ -7,7 +7,7 @@ from abc import ABCMeta
 
 class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, speed, resource_manager: ResourceManager, player):
+    def __init__(self, nom, pos, health, speed, attack, vitesse_attack, resource_manager: ResourceManager, player):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.name = nom
@@ -20,6 +20,9 @@ class Unite(metaclass=ABCMeta):
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.player = player
+        self.attack = attack
+        self.vitesse_attack = vitesse_attack
+        self.tick_attaque = -1
 
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
@@ -85,7 +88,8 @@ class Unite(metaclass=ABCMeta):
                     if -taille <= self.ypixel <= taille:
                         self.ypixel = self.ypixel + int(neighbour[1] * 2)
                     deplacement = False
-                    if (self.xpixel < -taille or self.xpixel > taille) and (self.ypixel < -taille or self.ypixel > taille)\
+                    if (self.xpixel < -taille or self.xpixel > taille) and \
+                            (self.ypixel < -taille or self.ypixel > taille) \
                             and abs(neighbour[0]) == abs(neighbour[1]) and abs(self.xpixel) == abs(self.ypixel) \
                             and self.path[0][0] == x and self.path[0][1] == y:
                         self.xpixel = taille * -neighbour[0]
@@ -125,7 +129,7 @@ class Unite(metaclass=ABCMeta):
             if self.ypixel == 0 and self.ypixel == 0:
                 self.action = "idle"
 
-
+    # met à jour les frames des unités
     def updateFrame(self):
         self.frameNumber += 0.3
         if round(self.frameNumber) >= 0:
@@ -134,11 +138,18 @@ class Unite(metaclass=ABCMeta):
             "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
                 round(self.frameNumber)) + ".png").convert_alpha()
 
+    # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
+    def attaque(self, unites, ticks):
+        for u in unites:
+            if self.pos == u.pos and self.player != u.player and ticks-self.vitesse_attack*1000 > self.tick_attaque:
+                u.health -= self.attack
+                self.tick_attaque += ticks
+
 
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager, player):
-        super().__init__("villageois", pos, 25, 1.1, resource_manager, player)
+        super().__init__("villageois", pos, 25, 1.1, 3, 1.5, resource_manager, player)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
@@ -290,5 +301,6 @@ class Villageois(Unite):
 
 class Clubman(Unite):
     def __init__(self, pos, resource_manager, player):
-        super().__init__("clubman", pos, 40, 1.2, resource_manager, player)
-        self.attack = 3
+        super().__init__("clubman", pos, 40, 1.2, 3, 1.5, resource_manager, player)
+
+

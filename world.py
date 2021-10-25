@@ -31,7 +31,7 @@ class World:
         self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13), resource_manager, "joueur 2"))  # ligne pour tester les villageois
 
-        self.unites.append(Clubman((12, 15), resource_manager, "joueur 1"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 16), resource_manager, "joueur 1"))  # ligne pour tester les soldats
         self.unites.append(Clubman((12, 15), resource_manager, "joueur 2"))  # ligne pour tester les soldats
 
         self.temp_tile = None
@@ -113,6 +113,12 @@ class World:
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
             u.updateFrame()
+            u.attaque(self.unites, pygame.time.get_ticks())
+            if u.health <= 0:
+                self.unites.remove(u)
+                if self.hud.examined_tile == u:
+                    self.examine_tile = None
+                    self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
             if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois"):
