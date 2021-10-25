@@ -16,12 +16,12 @@ class Hud:
 
         self.hud_colour = (198, 155, 93, 175)
 
-        self.hud_haut = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
-        #self.hud_haut.fill(self.hud_colour)
+        self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
+        self.hud_haut_surface.fill(self.hud_colour)
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
-        self.hud_age = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        #self.hud_age.fill(self.hud_colour)
+        self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
+        self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
         self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
@@ -31,6 +31,10 @@ class Hud:
         self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
         self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
         self.build_surface.fill(self.hud_colour)
+
+        self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
+        self.hud_action_surface.fill(self.hud_colour)
+        self.hud_action = pg.image.load("assets/hud/hud_action.png")
 
         self.select_surface = pg.Surface((width * 0.3, height * 0.2), pg.SRCALPHA)
         self.select_rect = self.select_surface.get_rect(topleft= (self.width * 0.35, self.height * 0.79))
@@ -47,10 +51,11 @@ class Hud:
 
     def create_build_hud(self):
 
-        render_pos = [self.width * 0.84 + 10, self.height * 0.74 + 10]
-        object_width = self.build_surface.get_width() // 5
-        self.hud_haut.blit(self.hud_haut, (0, 0))
-        self.hud_age.blit(self.hud_age, (self.width - 290, 0))
+        render_pos = [self.width * 0.70 , self.height * 0.74 + 20]
+        object_width = self.hud_action_surface.get_width() // 10
+        self.hud_haut_surface.blit(self.hud_haut, (0, 0))
+        self.hud_age_surface.blit(self.hud_age, (0, 0))
+        self.hud_action_surface.blit(self.hud_action, (0,0))
 
         tiles = []
 
@@ -71,7 +76,7 @@ class Hud:
                 }
             )
 
-            render_pos[0] += image_scale.get_width() + 10
+            render_pos[0] += image_scale.get_width() + 9
 
         return tiles
 
@@ -104,8 +109,9 @@ class Hud:
     def draw(self, screen):
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
-        screen.blit(self.hud_haut, (0, 0))
-        screen.blit(self.hud_age, (self.width - 290, 0))
+        screen.blit(self.hud_haut_surface, (0, 0))
+        screen.blit(self.hud_age_surface, (self.width - 290, 0))
+        screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
 
 
         #si un objet est selectionné
@@ -138,8 +144,7 @@ class Hud:
             pos += 110
         txt_units = "3/4"
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
-        #txt_age = "Age I"
-        #draw_text(screen, txt_age, 30, (255, 255, 255), (pos+200, 0))
+
 
 
     def load_images(self):
