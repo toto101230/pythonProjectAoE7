@@ -20,9 +20,13 @@ class Hud:
         #self.hud_haut.fill(self.hud_colour)
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
+        self.hud_age = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
+        self.hud_age.fill(self.hud_colour)
+        self.hud_age = pg.image.load("assets/hud/hud_age.png")
+
         self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
         self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
-        self.resouces_surface.fill(self.hud_colour)
+        #self.resouces_surface.fill(self.hud_colour)
 
         self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
         self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
@@ -46,6 +50,7 @@ class Hud:
         render_pos = [self.width * 0.84 + 10, self.height * 0.74 + 10]
         object_width = self.build_surface.get_width() // 5
         self.hud_haut.blit(self.hud_haut, (0, 0))
+        self.hud_age.blit(self.hud_age, (self.width - 290, 0))
 
         tiles = []
 
@@ -100,6 +105,7 @@ class Hud:
         screen.blit(self.resouces_surface, (0, 0))
         screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
         screen.blit(self.hud_haut, (0, 0))
+        screen.blit(self.hud_age, (self.width - 290, 0))
 
 
         #si un objet est selectionné
