@@ -6,6 +6,7 @@ class Camera:
     def __init__(self, width, height):
         self.width = width
         self.height = height
+        self.viewArea = pygame.Rect((0, 0), (self.width, self.height))
 
         self.scroll = pygame.Vector2(-5000, -400)
         self.dx = 0
