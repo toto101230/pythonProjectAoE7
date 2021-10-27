@@ -1,8 +1,7 @@
 import pygame, math
-from world import World
 from settings import TILE_SIZE
 
-GAP = 5
+GAP = 10 # distance entre border et rect map
 MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
 
 # Colours     R    G    B  ALPHA
@@ -41,8 +40,9 @@ class Minimap:
         self.height = height
         self.width = width
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
-        self.border = pygame.transform.scale(self.border, (self.world.grid_length_x + int(self.world.grid_length_x / 10), self.world.grid_length_y + int(self.world.grid_length_y / 10)))
-        self.rect = pygame.Rect((self.world.grid_length_x - GAP*6, self.world.grid_length_y + GAP*6+height/2), (self.world.grid_length_x, self.world.grid_length_y))
+        self.border = pygame.transform.scale(self.border, (self.world.grid_length_x*2+2*GAP, self.world.grid_length_y*2+2*GAP))
+        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()+GAP), (self.world.grid_length_x*2, self.world.grid_length_y*2))
+        self.bordrect = pygame.Rect((0,self.height-self.border.get_height()),(self.world.grid_length_x*2, self.world.grid_length_y*2))
         self.surf = pygame.Surface(self.rect.size).convert()
         self.mapSurf = pygame.Surface(self.rect.size).convert()
         self.mapSurf.fill(DARKGREEN)
@@ -59,7 +59,7 @@ class Minimap:
 
     def draw(self, screen):
         screen.blit(self.surf, self.rect)
-        screen.blit(self.border, (self.rect.left - int(self.world.grid_length_x / 20), self.rect.bottom + int(self.world.grid_length_y / 20)))
+        screen.blit(self.border, self.bordrect)
 
     def update(self):
         for i in range(MINIMAPUPDATESPEED):
