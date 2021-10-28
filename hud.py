@@ -41,6 +41,11 @@ class Hud:
         #self.hud_action_surface.fill(self.hud_colour)
         self.hud_action = pg.image.load("assets/hud/hud_action.png")
 
+        self.hud_info_surface = pg.Surface((width * 0.6, height * 0.29), pg.SRCALPHA)
+        self.hud_info_rect = self.hud_info_surface.get_rect(topleft=(width * 0.077, height - 205))
+        self.hud_info_surface.fill(self.hud_colour)
+        self.hud_info = pg.image.load("assets/hud/hud_info.png")
+
         self.select_surface = pg.Surface((width * 0.3, height * 0.2), pg.SRCALPHA)
         self.select_rect = self.select_surface.get_rect(topleft= (self.width * 0.35, self.height * 0.79))
         self.select_surface.fill(self.hud_colour)
@@ -61,6 +66,7 @@ class Hud:
         self.hud_haut_surface.blit(self.hud_haut, (0, 0))
         self.hud_age_surface.blit(self.hud_age, (0, 0))
         self.hud_action_surface.blit(self.hud_action, (0,0))
+        self.hud_info_surface.blit(self.hud_info, (0, 0))
 
         tiles = []
 
@@ -117,21 +123,22 @@ class Hud:
         screen.blit(self.hud_haut_surface, (0, 0))
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
+        screen.blit(self.hud_info_surface, (self.width * 0.077, self.height - 205))
 
 
         #si un objet est selectionné
         if self.examined_tile is not None:
-            w, h = self.select_rect.width, self.select_rect.height
-            screen.blit(self.select_surface, (self.width * 0.35, self.height * 0.79))
+            w, h = self.hud_info_rect.width, self.hud_info_rect.height
+            screen.blit(self.hud_info_surface, (self.width * 0.077, self.height - 205))
 
             #affichage de l'image du batiment avec son nom et son nombre de vie
             img = self.examined_tile.image.copy()
             img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width * 0.35 + 10, self.height * 0.79 + 40))
-            draw_text(screen, self.examined_tile.name, 60, "#ff0000", self.select_rect.midtop)
-            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.select_rect.center)
+            screen.blit(img_scale, (self.width * 0.077 + 50, self.height - 205 + 40))
+            draw_text(screen, self.examined_tile.name, 50, "#ff0000", self.hud_info_rect.midtop)
+            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.hud_info_rect.center)
             if isinstance(self.examined_tile, Villageois):
-                draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.select_rect.center[0],self.select_rect.center[1]+20))
+                draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.hud_info_rect.center[0],self.hud_info_rect.center[1]+20))
 
             #affichage du bouton unité
             self.unite_bouton.draw(screen)
