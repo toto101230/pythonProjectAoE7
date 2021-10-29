@@ -35,14 +35,19 @@ def pixelsToCell(pixels):
 
 class Minimap:
     def __init__(self, world, camera, width, height):
+        ### SPECS WORLD / CAMERA / SCREEN
         self.world = world
         self.camera = camera
         self.height = height
         self.width = width
+        ### SPECS BORDURE AUTOUR DE MINIMAP
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
         self.border = pygame.transform.scale(self.border, (self.world.grid_length_x*2+2*GAP, self.world.grid_length_y*2+2*GAP))
+        ### SPECS ENDROIT MINIMAP
         self.rect = pygame.Rect((GAP, self.height - self.border.get_height()+GAP), (self.world.grid_length_x*2, self.world.grid_length_y*2))
+        ### SPECS ENDROIT BORDURE
         self.bordrect = pygame.Rect((0,self.height-self.border.get_height()),(self.world.grid_length_x*2, self.world.grid_length_y*2))
+
         self.surf = pygame.Surface(self.rect.size).convert()
         self.mapSurf = pygame.Surface(self.rect.size).convert()
         self.mapSurf.fill(DARKGREEN)
@@ -66,20 +71,23 @@ class Minimap:
             self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (0, 0))
         #self.updateMobBlips()
-        self.surf.blit(self.blipSurf, (0, 0))
+        #self.surf.blit(self.blipSurf, (0, 0))
         self.updateCameraRect()
         #self.handleInput() pour cliquer sur map et se déplacer direct
 
     def updateMapsurf(self):
-        for i in range(100):
+        gridy = self.world.grid_length_y
+        for i in range(gridy):
             self.updateRowOfSurf()
 
     def updateRowOfSurf(self):
-        for y in range(100):
+        gridy = self.world.grid_length_y
+        for y in range(gridy):
             case = self.world.world[self.row][y]["tile"]
+            print(case + " au coords x,y : " + str(self.row) + ":" + str(y))
             if case == "":
+                #colour = None
                 continue
-                # colour = None
             if case == "rock":
                 colour = DARKGREY
             elif case == "tree":
