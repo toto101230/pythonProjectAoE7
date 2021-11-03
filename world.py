@@ -113,9 +113,11 @@ class World:
             u.updateFrame()
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois"):
-                pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
-                self.unites.append(Villageois(pos,self.resource_manager))
+            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois") and self.resource_manager.stay_place():
+                 pos = self.examine_tile[0] + 1, self.examine_tile[1] +1
+                 self.unites.append(Villageois(pos,self.resource_manager))
+                 self.hud.unite_recrut = None
+            else:
                 self.hud.unite_recrut = None
 
 
