@@ -26,16 +26,6 @@ class Hud:
         #self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
-        #Rectangle ancien HUD
-
-        #self.resouces_surface = pg.Surface((width, height * 0.02), pg.SRCALPHA)
-        #self.resources_rect = self.resouces_surface.get_rect(topleft=(0, 0))
-        #self.resouces_surface.fill(self.hud_colour)
-
-        #self.build_surface = pg.Surface((width * 0.15, height * 0.25), pg.SRCALPHA)
-        #self.build_rect = self.build_surface.get_rect(topleft= (self.width * 0.84, self.height * 0.74))
-        #self.build_surface.fill(self.hud_colour)
-
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
         self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(width - 413, height - 205))
         #self.hud_action_surface.fill(self.hud_colour)
@@ -45,10 +35,6 @@ class Hud:
         self.hud_info_rect = self.hud_info_surface.get_rect(topleft=(width * 0.077, height - 205))
         self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
-
-        self.select_surface = pg.Surface((width * 0.3, height * 0.2), pg.SRCALPHA)
-        self.select_rect = self.select_surface.get_rect(topleft= (self.width * 0.35, self.height * 0.79))
-        self.select_surface.fill(self.hud_colour)
 
         self.images = self.load_images()
         self.tiles = self.create_build_hud()
@@ -118,8 +104,6 @@ class Hud:
                     self.selected_tile = tile
 
     def draw(self, screen):
-        #screen.blit(self.resouces_surface, (0, 0))
-        #screen.blit(self.build_surface, (self.width * 0.84, self.height * 0.74))
         screen.blit(self.hud_haut_surface, (0, 0))
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
@@ -135,8 +119,8 @@ class Hud:
             img = self.examined_tile.image.copy()
             img_scale = self.scale_image(img, h=h * 0.7)
             screen.blit(img_scale, (self.width * 0.077 + 50, self.height - 205 + 40))
-            draw_text(screen, self.examined_tile.name, 50, "#ff0000", self.hud_info_rect.midtop)
-            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), self.hud_info_rect.center)
+            draw_text(screen, self.examined_tile.name, 50, "#ff0000", (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1]+40))
+            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.hud_info_rect.center[0],self.hud_info_rect.center[1]+20))
 
