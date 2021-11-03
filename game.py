@@ -27,7 +27,7 @@ class Game:
 
         self.camera = Camera(self.width, self.height)
 
-        self.minimap = Minimap(self.world, self.camera, self.width, self.height)
+        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
 
         self.cheat_enabled = False
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
