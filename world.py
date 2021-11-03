@@ -270,7 +270,6 @@ class World:
         for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
-                print("nono")
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
         return world_bounds and not mouse_on_panel
 
