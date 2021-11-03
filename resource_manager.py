@@ -12,7 +12,7 @@ class ResourceManager:
         self.resources = {
             "wood": 450,
             "stone": 300,
-            "food" : 300
+            "food" : 5000
         }
 
         #population
