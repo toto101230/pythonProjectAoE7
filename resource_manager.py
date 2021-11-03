@@ -37,11 +37,9 @@ class ResourceManager:
 
     def update_population(self, place):
         self.population["population_actuelle"] += place
-        print("population : " + str(self.population["population_actuelle"]))
 
     def update_population_max(self,place):
         self.population["population_maximale"] += place
-        print("population max : " + str(self.population["population_maximale"]))
 
     def apply_cost_to_resource(self, objet):
         for resource, cost in self.costs[objet].items():
