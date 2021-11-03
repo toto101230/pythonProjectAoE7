@@ -9,7 +9,7 @@ class Hud:
 
     def __init__(self, resource_manager, width, height):
 
-        self.resources_manager = resource_manager
+        self.resource_manager = resource_manager
 
         self.width = width
         self.height = height
@@ -41,6 +41,7 @@ class Hud:
 
         self.selected_tile = None
         self.examined_tile = None
+        self.unite_recrut = None
 
         self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
 
@@ -83,25 +84,29 @@ class Hud:
         mouse_action = pg.mouse.get_pressed()
 
         if self.examined_tile is not None:
-            if self.unite_bouton.isOver(mouse_pos):
+            if self.unite_bouton.isOver(mouse_pos) and not self.unite_bouton.isPress:
                 self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
-                    print("toto")
-            else:
+                    self.unite_recrut = self.unite_bouton.text[:-7]
+                    self.unite_bouton.isPress = True
+            elif self.resource_manager.stay_place():
                 self.unite_bouton.color = self.unite_bouton.color_de_base
 
         if mouse_action[2]:
             self.selected_tile = None
 
         for tile in self.tiles:
-            if self.resources_manager.is_affordable(tile["name"]):
-                tile["affordable"]= True
+            if self.resource_manager.is_affordable(tile["name"]):
+                tile["affordable"] = True
             else:
-                tile["affordable"]= False
+                tile["affordable"] = False
 
             if tile["rect"].collidepoint(mouse_pos) and tile["affordable"]:
                 if mouse_action[0]:
                     self.selected_tile = tile
+
+        if self.unite_bouton.isPress and not mouse_action[0]:
+            self.unite_bouton.isPress = False
 
     def draw(self, screen):
         screen.blit(self.hud_haut_surface, (0, 0))
@@ -124,15 +129,19 @@ class Hud:
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]-20))
 
+        if self.examined_tile is not None and self.examined_tile.name == "hdv":
             #affichage du bouton unité
+            if  not self.resource_manager.stay_place():
+                self.unite_bouton.image.set_alpha(150)
             self.unite_bouton.draw(screen)
+
+
 
         for tile in self.tiles:
             icon = tile["icon"].copy()
             if not tile["affordable"]:
                 icon.set_alpha(100)
             screen.blit(icon, tile["rect"].topleft)
-
         pos = 75
         for resource, resource_value in self.resources_manager.resources.items():
             txt = str(resource_value)
@@ -140,14 +149,13 @@ class Hud:
             pos += 110
         txt_units = "3/4"
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
-
-
+        
 
     def load_images(self):
 
-        caserne = pg.image.load("assets/batiments/caserne.png")
-        house = pg.image.load("assets/batiments/house.png")
-        grenier = pg.image.load("assets/batiments/grenier.png")
+        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
+        house = pg.image.load("assets/batiments/house.png").convert_alpha()
+        grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
 
 
         images = {

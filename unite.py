@@ -6,9 +6,10 @@ from settings import TILE_SIZE
 
 class Unite:
 
-    def __init__(self, nom, pos, health):
-        self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png")
+    def __init__(self, nom, pos, health, place, resource_manager):
+        self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
+        self.place = place
         self.name = nom
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
@@ -16,6 +17,16 @@ class Unite:
         self.xpixel, self.ypixel = 0, 0
         self.path = []
         self.action = "idle"
+        self.resource_manager = resource_manager
+        self.resource_manager.apply_cost_to_resource(self.name)
+        self.resource_manager.update_population(self.place)
+
+
+
+
+
+
+
 
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
     def updatepos(self):
@@ -63,17 +74,19 @@ class Unite:
             self.frameNumber = 0
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
-                round(self.frameNumber)) + ".png")
+                round(self.frameNumber)) + ".png").convert_alpha()
 
 
 class Villageois(Unite):
 
-    def __init__(self, pos):
-        Unite.__init__(self, "villageois", pos, 25)
+    def __init__(self, pos, resource_manager):
+        Unite.__init__(self, "villageois", pos, 25, 1, resource_manager)
         self.work = "default"
-        self.image = pygame.transform.scale(self.image, (76, 67))
+        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
         self.oldPosWork = []
+
+
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def creatPath(self, grid_length_x, grid_length_y, world, buildings, pos_end):
@@ -150,8 +163,8 @@ class Villageois(Unite):
 
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.work + "_" + self.action + "_" + str(
-                round(self.frameNumber)) + ".png")
-        self.image = pygame.transform.scale(self.image, (76, 67))
+                round(self.frameNumber)) + ".png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
 
     def defMetier(self, title):
         if self.stockage != 20:
