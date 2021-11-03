@@ -42,7 +42,7 @@ class Hud:
         self.selected_tile = None
         self.examined_tile = None
 
-        self.unite_bouton = Button((0, 255, 0), self.width * 0.35 + 300, self.height * 0.79 + 60, 'villageois_recrut')
+        self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
 
 
     def create_build_hud(self):
@@ -118,11 +118,11 @@ class Hud:
             #affichage de l'image du batiment avec son nom et son nombre de vie
             img = self.examined_tile.image.copy()
             img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width - 1100, self.height - 205 + 40))
+            screen.blit(img_scale, (self.width - 1150, self.height - 205 + 40))
             draw_text(screen, self.examined_tile.name, 50, "#ff0000", (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
-            draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
+            draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
             if isinstance(self.examined_tile, Villageois):
-                draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.hud_info_rect.center[0],self.hud_info_rect.center[1]+20))
+                draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]-20))
 
             #affichage du bouton unité
             self.unite_bouton.draw(screen)
