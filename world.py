@@ -123,10 +123,8 @@ class World:
         if self.hud.unite_recrut is not None:
             if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois"):
                 pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
-                self.unites.append(Villageois(pos,self.resource_manager))
+                self.unites.append(Villageois(pos,self.resource_manager,'Joueur1'))
                 self.hud.unite_recrut = None
-
-
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
