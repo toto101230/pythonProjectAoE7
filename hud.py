@@ -136,14 +136,13 @@ class Hud:
             self.unite_bouton.draw(screen)
 
 
-
         for tile in self.tiles:
             icon = tile["icon"].copy()
             if not tile["affordable"]:
                 icon.set_alpha(100)
             screen.blit(icon, tile["rect"].topleft)
         pos = 75
-        for resource, resource_value in self.resources_manager.resources.items():
+        for resource, resource_value in self.resource_manager.resources.items():
             txt = str(resource_value)
             draw_text(screen,txt,30, (255, 255, 255), (pos,20))
             pos += 110
