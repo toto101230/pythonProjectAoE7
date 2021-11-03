@@ -22,17 +22,17 @@ class Hud:
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
         self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age_rect = self.hud_age_surface.get_rect(topright=(0, 0))
+        self.hud_age_rect = self.hud_age_surface.get_rect(topleft=(self.width - 290, 0))
         #self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
-        self.hud_action_rect = self.hud_action_surface.get_rect(bottomright=(0,0))
+        self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(self.width - 413, self.height - 205))
         #self.hud_action_surface.fill(self.hud_colour)
         self.hud_action = pg.image.load("assets/hud/hud_action.png")
 
         self.hud_info_surface = pg.Surface((width * 0.6, height * 0.29), pg.SRCALPHA)
-        self.hud_info_rect = self.hud_info_surface.get_rect(bottomright=(-200, 0))
+        self.hud_info_rect = self.hud_info_surface.get_rect(topleft=(self.width -1180, self.height - 205))
         #self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
@@ -118,8 +118,8 @@ class Hud:
             #affichage de l'image du batiment avec son nom et son nombre de vie
             img = self.examined_tile.image.copy()
             img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width * 0.077 + 50, self.height - 205 + 40))
-            draw_text(screen, self.examined_tile.name, 50, "#ff0000", (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1]+40))
+            screen.blit(img_scale, (self.width - 1100, self.height - 205 + 40))
+            draw_text(screen, self.examined_tile.name, 50, "#ff0000", (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
             draw_text(screen,str(self.examined_tile.health), 30, (255, 255, 255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30 , (255, 255, 255), (self.hud_info_rect.center[0],self.hud_info_rect.center[1]+20))
