@@ -45,7 +45,6 @@ class ResourceManager:
         for resource, cost in self.costs[objet].items():
             self.resources[resource] -= cost
 
-
     def is_affordable(self, objet):
         affordable = True
         for resource, cost in self.costs[objet].items():
