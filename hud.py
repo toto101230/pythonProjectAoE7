@@ -22,18 +22,18 @@ class Hud:
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
         self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age_rect = self.hud_age_surface.get_rect(topleft=(self.width * 0.8, 0))
+        self.hud_age_rect = self.hud_age_surface.get_rect(topright=(0, 0))
         #self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
 
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
-        self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(width - 413, height - 205))
+        self.hud_action_rect = self.hud_action_surface.get_rect(bottomright=(0,0))
         #self.hud_action_surface.fill(self.hud_colour)
         self.hud_action = pg.image.load("assets/hud/hud_action.png")
 
         self.hud_info_surface = pg.Surface((width * 0.6, height * 0.29), pg.SRCALPHA)
-        self.hud_info_rect = self.hud_info_surface.get_rect(topleft=(width * 0.077, height - 205))
-        self.hud_info_surface.fill(self.hud_colour)
+        self.hud_info_rect = self.hud_info_surface.get_rect(bottomright=(-200, 0))
+        #self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
         self.images = self.load_images()
@@ -107,13 +107,13 @@ class Hud:
         screen.blit(self.hud_haut_surface, (0, 0))
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
-        screen.blit(self.hud_info_surface, (self.width * 0.077, self.height - 205))
+        screen.blit(self.hud_info_surface, (self.width -1180, self.height - 205))
 
 
         #si un objet est selectionné
         if self.examined_tile is not None:
             w, h = self.hud_info_rect.width, self.hud_info_rect.height
-            screen.blit(self.hud_info_surface, (self.width * 0.077, self.height - 205))
+            screen.blit(self.hud_info_surface, (self.width -1180, self.height - 205))
 
             #affichage de l'image du batiment avec son nom et son nombre de vie
             img = self.examined_tile.image.copy()
