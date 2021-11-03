@@ -22,7 +22,7 @@ class Hdv(Batiment):
 
     def __init__(self, pos, resource_manager):
         Batiment.__init__(self, pos, resource_manager, "hdv", 600, 5)
-        self.image = pygame.transform.scale(self.image, (120, 60)).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (164, 120)).convert_alpha()
 
 
 
@@ -40,4 +40,10 @@ class House(Batiment):
         Batiment.__init__(self, pos, resource_manager, "house", 75, 5)
         self.image = pygame.transform.scale(self.image, (80, 46)).convert_alpha()
 
+
+class Grenier(Batiment):
+
+    def __init__(self, pos, resource_manager):
+        Batiment.__init__(self, pos, resource_manager, "grenier", 350)
+        self.image = pygame.transform.scale(self.image, (162, 122))
 

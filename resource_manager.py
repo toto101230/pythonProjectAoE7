@@ -10,9 +10,10 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 450,
-            "stone": 300,
-            "food" : 300
+            "wood": 1000,
+            "food": 300,
+            "gold" : 0,
+            "stone": 300
         }
 
         #population
@@ -27,7 +28,8 @@ class ResourceManager:
             "villageois" : {"food" : 50},
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
-            "house": {"wood": 30}
+            "house": {"wood": 30},
+            "grenier": {"wood": 130}
         }
 
     def stay_place(self):

@@ -1,7 +1,7 @@
 import pygame
 import random
 from settings import TILE_SIZE
-from buildings import Caserne, House, Hdv
+from buildings import Caserne, House, Hdv, Grenier
 from unite import Villageois
 from resource_manager import ResourceManager
 
@@ -83,6 +83,10 @@ class World:
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "house":
                         ent = House(render_pos, self.resource_manager)
+                        self.entities.append(ent)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                    elif self.hud.selected_tile["name"] == "grenier":
+                        ent = Grenier(render_pos, self.resource_manager)
                         self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.popEndPath(grid_pos)
@@ -200,7 +204,7 @@ class World:
                                       (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
 
 
-        #world[10][10]["tile"] = "hdv"
+
         return world
 
     def grid_to_world(self, grid_x, grid_y):
@@ -272,7 +276,7 @@ class World:
 
     def can_place_tile(self, grid_pos):
         mouse_on_panel = False
-        for rect in [self.hud.resources_rect, self.hud.build_rect, self.hud.select_rect]:
+        for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
