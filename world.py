@@ -1,7 +1,7 @@
 import pygame
 import random
 from settings import TILE_SIZE
-from buildings import Caserne, House, Hdv
+from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman
 from resource_manager import ResourceManager
 
@@ -87,6 +87,10 @@ class World:
                         ent = House(render_pos, self.resource_manager)
                         self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                    elif self.hud.selected_tile["name"] == "grenier":
+                        ent = Grenier(render_pos, self.resource_manager)
+                        self.entities.append(ent)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.popEndPath(grid_pos)
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
                     self.hud.selected_tile = None
@@ -121,9 +125,11 @@ class World:
                     self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois"):
-                pos = self.examine_tile[0] + 1, self.examine_tile[1]+1
-                self.unites.append(Villageois(pos,self.resource_manager,'Joueur1'))
+            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois") and self.resource_manager.stay_place():
+                 pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
+                 self.unites.append(Villageois(pos,self.resource_manager,'Joueur1')))
+                 self.hud.unite_recrut = None
+            else:
                 self.hud.unite_recrut = None
 
     def draw(self, screen, camera):
@@ -204,7 +210,7 @@ class World:
                                       (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
 
 
-        #world[10][10]["tile"] = "hdv"
+
         return world
 
     def grid_to_world(self, grid_x, grid_y):
@@ -279,7 +285,7 @@ class World:
 
     def can_place_tile(self, grid_pos):
         mouse_on_panel = False
-        for rect in [self.hud.resources_rect, self.hud.build_rect, self.hud.select_rect]:
+        for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect.collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)

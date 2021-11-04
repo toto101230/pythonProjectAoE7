@@ -6,10 +6,11 @@ from abc import ABCMeta
 
 
 class Unite(metaclass=ABCMeta):
-
-    def __init__(self, nom, pos, health, speed, attack, vitesse_attack, resource_manager: ResourceManager, player):
+  
+    def __init__(self, nom, pos, health, speed, attack, vitesse_attack, place, resource_manager: ResourceManager, player):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
+        self.place = place
         self.name = nom
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
@@ -19,6 +20,7 @@ class Unite(metaclass=ABCMeta):
         self.action = "idle"
         self.resource_manager = resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
+        self.resource_manager.update_population(self.place)
         self.player = player
         self.attack = attack
         self.vitesse_attack = vitesse_attack
@@ -150,7 +152,7 @@ class Unite(metaclass=ABCMeta):
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager, player):
-        super().__init__("villageois", pos, 25, 1.1, 3, 1.5, resource_manager, player)
+        super().__init__("villageois", pos, 25, 1.1, 3, 1.5, 1 resource_manager, player)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
