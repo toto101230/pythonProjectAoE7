@@ -2,7 +2,7 @@ import pygame, math
 from settings import TILE_SIZE
 
 SIZE = 250
-GAP = 10 # distance entre border et rect map
+GAP = 12 # distance entre border et rect map
 MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
 
 # Colours     R    G    B  ALPHA
@@ -44,11 +44,11 @@ class Minimap:
         self.screen = screen
         ### SPECS BORDURE AUTOUR DE MINIMAP
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
-        self.border = pygame.transform.scale(self.border, (SIZE+2*GAP, SIZE+2*GAP))
+        self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
         ### SPECS ENDROIT MINIMAP
-        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()+GAP), (SIZE, SIZE))
+        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()*math.sqrt(2)+GAP), (SIZE, SIZE))
         ### SPECS ENDROIT BORDURE
-        self.bordrect = pygame.Rect((0, self.height-self.border.get_height()), (SIZE, SIZE))
+        self.bordrect = pygame.Rect((2/5*GAP, self.height-self.border.get_height()*math.sqrt(2)), (SIZE, SIZE))
 
         self.surf = pygame.Surface(self.rect.size).convert()
         self.mapSurf = pygame.Surface(self.rect.size).convert()
@@ -70,14 +70,14 @@ class Minimap:
         #self.hoverSurf.set_alpha(30)
 
     def draw(self, screen):
-        screen.blit(pygame.transform.rotate(self.surf, 45), self.rect)
-        screen.blit(self.border, self.bordrect)
+        screen.blit(pygame.transform.rotate(self.surf, -45), self.rect)
+        screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
 
     def update(self):
         for i in range(MINIMAPUPDATESPEED):
             self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (GAP + 1/4*SIZE, GAP + 1/4*SIZE))
-        self.updateCameraRect()
+        #self.updateCameraRect()
         #self.handleInput() pour cliquer sur map et se déplacer direct
 
     def updateMapsurf(self):
