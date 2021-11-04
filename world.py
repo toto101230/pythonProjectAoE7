@@ -2,7 +2,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
-from unite import Villageois
+from unite import Unite, Villageois, Clubman
 from resource_manager import ResourceManager
 
 
@@ -27,9 +27,12 @@ class World:
         self.buildings[10][10] = Hdv((10, 10), self.resource_manager)
         self.unites = []
         
-        self.unites.append(Villageois((10, 15), resource_manager))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 14), resource_manager))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 13), resource_manager))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 13), resource_manager, "joueur 2"))  # ligne pour tester les villageois
+
+        self.unites.append(Clubman((12, 16), resource_manager, "joueur 1"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), resource_manager, "joueur 2"))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -43,13 +46,12 @@ class World:
             self.examine_tile = None
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Villageois):
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):
             grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
             if self.can_place_tile(grid_pos):
-                villageois = self.hud.examined_tile
-                if grid_pos != villageois.pos:
-                    if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
-                                            grid_pos) != -1:
+                unite = self.hud.examined_tile
+                if grid_pos != unite.pos:
+                    if unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, grid_pos) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         return
@@ -115,16 +117,20 @@ class World:
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
             u.updateFrame()
+            u.attaque(self.unites, pygame.time.get_ticks())
+            if u.health <= 0:
+                self.unites.remove(u)
+                if self.hud.examined_tile == u:
+                    self.examine_tile = None
+                    self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
             if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois") and self.resource_manager.stay_place():
-                 pos = self.examine_tile[0] + 1, self.examine_tile[1] +1
-                 self.unites.append(Villageois(pos,self.resource_manager))
+                 pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
+                 self.unites.append(Villageois(pos,self.resource_manager,'Joueur1')))
                  self.hud.unite_recrut = None
             else:
                 self.hud.unite_recrut = None
-
-
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
@@ -239,6 +245,9 @@ class World:
             "tile": tile,
             "collision": False if tile == "" else True
         }
+        if grid_x == 10 and grid_y == 10:
+            out["tile"] = ""
+            out["collision"] = False
 
         return out
 
