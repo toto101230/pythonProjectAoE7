@@ -137,13 +137,14 @@ class Unite(metaclass=ABCMeta):
         self.image = pygame.image.load(
             "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
                 round(self.frameNumber)) + ".png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, ticks):
         for u in unites:
             if self.pos == u.pos and self.player != u.player and ticks - self.vitesse_attack * 1000 > self.tick_attaque:
                 u.health -= self.attack
-                self.tick_attaque += ticks
+                self.tick_attaque = ticks
 
 
 class Villageois(Unite):
