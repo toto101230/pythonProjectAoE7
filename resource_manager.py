@@ -1,10 +1,4 @@
-import pygame
-
-
-
-
 class ResourceManager:
-
 
     def __init__(self):
 
@@ -12,18 +6,18 @@ class ResourceManager:
         self.resources = {
             "wood": 1000,
             "food": 300,
-            "gold" : 0,
+            "gold": 0,
             "stone": 300
         }
 
-        #population
+        # population
         self.population = {
-            "population_actuelle" : 0,
+            "population_actuelle": 0,
             "population_maximale": 0
 
         }
 
-        #costs
+        # costs
         self.costs = {
             "villageois": {"food": 50},
             "clubman": {"food": 50},
@@ -41,7 +35,7 @@ class ResourceManager:
     def update_population(self, place):
         self.population["population_actuelle"] += place
 
-    def update_population_max(self,place):
+    def update_population_max(self, place):
         self.population["population_maximale"] += place
 
     def apply_cost_to_resource(self, objet):
@@ -57,4 +51,3 @@ class ResourceManager:
 
     def popu_isnotmax(self, objet):
         pass
-

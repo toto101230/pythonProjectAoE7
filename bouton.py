@@ -1,7 +1,5 @@
 import pygame
 
-import resource_manager
-
 
 class Button:
     def __init__(self, color, x, y, text):

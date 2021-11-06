@@ -6,8 +6,9 @@ from abc import ABCMeta
 
 
 class Unite(metaclass=ABCMeta):
-  
-    def __init__(self, nom, pos, health, speed, attack, vitesse_attack, place, resource_manager: ResourceManager, player):
+
+    def __init__(self, nom, pos, health, speed, attack, vitesse_attack, place, resource_manager: ResourceManager,
+                 player):
         self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.place = place
@@ -152,7 +153,7 @@ class Unite(metaclass=ABCMeta):
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager, player):
-        super().__init__("villageois", pos, 25, 1.1, 3, 1.5, 1 resource_manager, player)
+        super().__init__("villageois", pos, 25, 1.1, 3, 1.5, 1, resource_manager, player)
         self.work = "default"
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
@@ -161,16 +162,16 @@ class Villageois(Unite):
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
-        tCout = [[-1 for x in range(100)] for y in range(100)]
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
-        listCase = [pos_end]
-        tCout[listCase[0][0]][listCase[0][1]] = 0
+        list_case = [pos_end]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
 
         neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
 
-        while tCout[self.pos[0]][self.pos[1]] == -1 and listCase:
-            cur_pos = listCase.pop(0)
-            cout = tCout[cur_pos[0]][cur_pos[1]]
+        while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
 
             for neighbour in neighbours:
                 x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
@@ -179,23 +180,23 @@ class Villageois(Unite):
                     continue
                 if world[x][y]["tile"] != "":
                     if x == self.pos[0] and y == self.pos[1]:
-                        tCout[x][y] = cout + 1
+                        t_cout[x][y] = cout + 1
                         break
                     continue
                 if buildings[x][y] is not None:
                     if not (buildings[x][y].name == "hdv" and (x, y) == self.pos):
-                        print(tCout[self.pos[0]][self.pos[1]])
+                        print(t_cout[self.pos[0]][self.pos[1]])
                         continue
 
                 count = cout + 1
-                if tCout[x][y] > count or tCout[x][y] == -1:
-                    tCout[x][y] = count
-                    listCase.append((x, y))
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
 
         cell = self.pos
-        mincout = tCout[cell[0]][cell[1]]
+        mincout = t_cout[cell[0]][cell[1]]
         while cell != pos_end:
-            valMin = mincout
+            val_min = mincout
             for neighbour in neighbours:
                 x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
@@ -210,12 +211,12 @@ class Villageois(Unite):
                     if not (buildings[x][y].name == "hdv" and (x, y) == self.pos):
                         continue
 
-                if mincout > tCout[x][y] and tCout[x][y] != -1:
-                    mincout = tCout[x][y]
+                if mincout > t_cout[x][y] and t_cout[x][y] != -1:
+                    mincout = t_cout[x][y]
                     cell = (x, y)
                     self.path.append(cell)
                     break
-            if valMin == mincout:
+            if val_min == mincout:
                 self.path = []
                 return -1
         self.defMetier(world[pos_end[0]][pos_end[1]]["tile"])
@@ -244,24 +245,27 @@ class Villageois(Unite):
 
     def defMetier(self, title):
         if title == "tree":
-            if self.work != "lumber": self.stockage = 0
+            if self.work != "lumber":
+                self.stockage = 0
             self.work = "lumber"
         elif title == "buisson":
-            if self.work != "forager": self.stockage = 0
+            if self.work != "forager":
+                self.stockage = 0
             self.work = "forager"
         elif title == "rock":
-            if self.work != "miner": self.stockage = 0
+            if self.work != "miner":
+                self.stockage = 0
             self.work = "miner"
         elif self.stockage == 0:
             self.work = "default"
 
-    def ifGoodMetier(self, title):
+    def ifgoodmetier(self, title):
         return (title == "tree" and self.work == "lumber") or (title == "buisson" and self.work == "forager") \
                or (title == "rock" and self.work == "miner")
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
         if not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.ifGoodMetier(
+            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.ifgoodmetier(
                     world[self.pos[0]][self.pos[1]]["tile"]):
                 self.stockage += 0.02
                 self.action = "gather"
@@ -271,8 +275,8 @@ class Villageois(Unite):
                     pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
                     self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
 
-            elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] and buildings[self.pos[0]][
-                self.pos[1]].name == "hdv":
+            elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] and \
+                    buildings[self.pos[0]][self.pos[1]].name == "hdv":
                 if self.stockage > 0:
                     if self.work == "lumber":
                         resource_manager.resources["wood"] += round(self.stockage)
@@ -292,7 +296,7 @@ class Villageois(Unite):
             self.action = "carry"
 
     def findstockage(self, buildings, grid_length_x, grid_length_y):
-        t_cout = [[-1 for x in range(100)] for y in range(100)]
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [self.pos]
         t_cout[list_case[0][0]][list_case[0][1]] = 0
@@ -320,4 +324,4 @@ class Villageois(Unite):
 
 class Clubman(Unite):
     def __init__(self, pos, resource_manager, player):
-        super().__init__("clubman", pos, 40, 1.2, 3, 1.5, resource_manager, player)
+        super().__init__("clubman", pos, 40, 1.2, 3, 1.5, 1, resource_manager, player)

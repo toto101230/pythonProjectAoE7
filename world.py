@@ -8,7 +8,7 @@ from resource_manager import ResourceManager
 
 class World:
 
-    def __init__(self, resource_manager : ResourceManager, entities, hud, grid_length_x, grid_length_y, width, height):
+    def __init__(self, resource_manager: ResourceManager, entities, hud, grid_length_x, grid_length_y, width, height):
 
         self.resource_manager = resource_manager
         self.entities = entities
@@ -23,10 +23,10 @@ class World:
         self.tiles = self.load_images()
         self.world = self.create_world()
 
-        self.buildings = [[None for x in range(self.grid_length_x)] for y in range(self.grid_length_y)]
+        self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
         self.buildings[10][10] = Hdv((10, 10), self.resource_manager)
         self.unites = []
-        
+
         self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 13), resource_manager, "joueur 2"))  # ligne pour tester les villageois
@@ -51,7 +51,8 @@ class World:
             if self.can_place_tile(grid_pos):
                 unite = self.hud.examined_tile
                 if grid_pos != unite.pos:
-                    if unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, grid_pos) != -1:
+                    if unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
+                                         grid_pos) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         return
@@ -67,7 +68,9 @@ class World:
 
                 render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
                 iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.findUnitePos(grid_pos[0], grid_pos[1]) is not None
+                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.findUnitePos(grid_pos[0],
+                                                                                                   grid_pos[
+                                                                                                       1]) is not None
 
                 self.temp_tile = {
                     "image": img,
@@ -75,7 +78,6 @@ class World:
                     "iso_poly": iso_poly,
                     "collision": collision
                 }
-
 
                 if mouse_action[0] and not collision:
 
@@ -102,7 +104,7 @@ class World:
             if self.can_place_tile(grid_pos):
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
                 unite = self.findUnitePos(grid_pos[0], grid_pos[1])
-                
+
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
@@ -125,10 +127,11 @@ class World:
                     self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable("villageois") and self.resource_manager.stay_place():
-                 pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
-                 self.unites.append(Villageois(pos,self.resource_manager,'Joueur1')))
-                 self.hud.unite_recrut = None
+            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable(
+                    "villageois") and self.resource_manager.stay_place():
+                pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
+                self.unites.append(Villageois(pos, self.resource_manager, 'Joueur1'))
+                self.hud.unite_recrut = None
             else:
                 self.hud.unite_recrut = None
 
@@ -208,8 +211,6 @@ class World:
                 render_pos = world_tile["render_pos"]
                 self.grass_tiles.blit(self.tiles["grass"],
                                       (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
-
-
 
         return world
 

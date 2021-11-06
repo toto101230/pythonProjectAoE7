@@ -11,6 +11,7 @@ from input import InputBox
 
 class Game:
     def __init__(self, screen, clock):
+        self.playing = True
         self.screen = screen
         self.clock = clock
         self.width, self.height = self.screen.get_size()
@@ -19,9 +20,9 @@ class Game:
 
         self.resources_manager = ResourceManager()
 
-        self.hud = Hud(self.resources_manager,self.width, self.height)
+        self.hud = Hud(self.resources_manager, self.width, self.height)
 
-        self.world = World(self.resources_manager,self.entities,self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.resources_manager, self.entities, self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 
@@ -29,7 +30,6 @@ class Game:
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
 
     def run(self):
-        self.playing = True
         while self.playing:
             self.clock.tick(60)
             self.events()
