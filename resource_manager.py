@@ -5,7 +5,7 @@ class ResourceManager:
         # resources
         self.resources = {
             "wood": 1000,
-            "food": 300,
+            "food": 5000,
             "gold": 0,
             "stone": 300
         }
@@ -14,7 +14,6 @@ class ResourceManager:
         self.population = {
             "population_actuelle": 0,
             "population_maximale": 0
-
         }
 
         # costs
@@ -28,9 +27,7 @@ class ResourceManager:
         }
 
     def stay_place(self):
-        if self.population["population_actuelle"] < self.population["population_maximale"]:
-            return True
-        return False
+        return self.population["population_actuelle"] < self.population["population_maximale"]
 
     def update_population(self, place):
         self.population["population_actuelle"] += place

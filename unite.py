@@ -184,8 +184,7 @@ class Villageois(Unite):
                         break
                     continue
                 if buildings[x][y] is not None:
-                    if not (buildings[x][y].name == "hdv" and (x, y) == self.pos):
-                        print(t_cout[self.pos[0]][self.pos[1]])
+                    if not (buildings[x][y].name == "hdv" and ((x, y) == self.pos or self.work != "default")):
                         continue
 
                 count = cout + 1
@@ -208,7 +207,7 @@ class Villageois(Unite):
                         return 0
                     continue
                 if buildings[x][y] is not None:
-                    if not (buildings[x][y].name == "hdv" and (x, y) == self.pos):
+                    if not (buildings[x][y].name == "hdv" and ((x, y) == self.pos or self.work != "default")):
                         continue
 
                 if mincout > t_cout[x][y] and t_cout[x][y] != -1:

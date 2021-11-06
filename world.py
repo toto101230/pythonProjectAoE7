@@ -8,10 +8,9 @@ from resource_manager import ResourceManager
 
 class World:
 
-    def __init__(self, resource_manager: ResourceManager, entities, hud, grid_length_x, grid_length_y, width, height):
+    def __init__(self, resource_manager: ResourceManager, hud, grid_length_x, grid_length_y, width, height):
 
         self.resource_manager = resource_manager
-        self.entities = entities
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -83,15 +82,12 @@ class World:
 
                     if self.hud.selected_tile["name"] == "caserne":
                         ent = Caserne(render_pos, self.resource_manager)
-                        self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "house":
                         ent = House(render_pos, self.resource_manager)
-                        self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "grenier":
                         ent = Grenier(render_pos, self.resource_manager)
-                        self.entities.append(ent)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.popEndPath(grid_pos)
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
