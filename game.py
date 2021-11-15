@@ -7,6 +7,7 @@ from camera import Camera
 from hud import Hud
 from resource_manager import ResourceManager
 from input import InputBox
+from save import Save
 
 
 class Game:
@@ -16,18 +17,18 @@ class Game:
         self.clock = clock
         self.width, self.height = self.screen.get_size()
 
-        self.entities = []
-
         self.resources_manager = ResourceManager()
 
         self.hud = Hud(self.resources_manager, self.width, self.height)
 
-        self.world = World(self.resources_manager, self.entities, self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.resources_manager, self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 
         self.cheat_enabled = False
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+
+        self.save = Save()
 
     def run(self):
         while self.playing:
@@ -49,6 +50,15 @@ class Game:
                 elif event.key == pygame.K_DOLLAR:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
+                elif event.key == pygame.K_k:
+                    self.save.save(self)
+                elif event.key == pygame.K_l:
+                    self.resources_manager.resources, self.resources_manager.population, self.world.world, \
+                        self.world.buildings, self.world.unites = self.save.load()
+                    self.world.examine_tile = None
+                    self.hud.examined_tile = None
+                    self.hud.selected_tile = None
+                    self.cheat_enabled = False
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
