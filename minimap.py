@@ -1,7 +1,7 @@
 import pygame, math
 from settings import TILE_SIZE
 
-SIZE = 250
+SIZE = 220
 GAP = 12 # distance entre border et rect map
 MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
 
@@ -46,15 +46,15 @@ class Minimap:
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
         self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
         ### SPECS ENDROIT MINIMAP
-        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()*math.sqrt(2)+GAP), (SIZE, SIZE))
+        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()*math.sqrt(2)-GAP), (SIZE, SIZE))
         ### SPECS ENDROIT BORDURE
         self.bordrect = pygame.Rect((2/5*GAP, self.height-self.border.get_height()*math.sqrt(2)), (SIZE, SIZE))
 
         self.surf = pygame.Surface(self.rect.size).convert()
         self.mapSurf = pygame.Surface(self.rect.size).convert()
-        # self.mapSurf.fill(BLACK)
+        #self.mapSurf.fill(BLUE)
         self.newSurf = pygame.Surface(self.rect.size).convert()
-        # self.newSurf.fill(BLACK)
+        #self.newSurf.fill(RED)
 
         ### UPDATE DE LA MINIMAP
         self.row = 0
@@ -70,13 +70,15 @@ class Minimap:
         #self.hoverSurf.set_alpha(30)
 
     def draw(self, screen):
-        screen.blit(pygame.transform.rotate(self.surf, -45), self.rect)
+        pygame.Surface.set_colorkey(self.surf,BLACK)
+        #screen.blit(pygame.transform.scale2x(self.surf),self.rect)
+        screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
 
     def update(self):
         for i in range(MINIMAPUPDATESPEED):
             self.updateRowOfSurf()
-        self.surf.blit(self.mapSurf, (GAP + 1/4*SIZE, GAP + 1/4*SIZE))
+        self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
         #self.updateCameraRect()
         #self.handleInput() pour cliquer sur map et se déplacer direct
 
@@ -106,7 +108,7 @@ class Minimap:
         if self.row > self.world.grid_length_x - 1:
             self.row = 0
             self.mapSurf = self.newSurf.copy()
-            self.newSurf.fill(BLACK)
+            #self.newSurf.fill(BLACK)
 
     # NON INTEGRE AOT
     #def updateMobBlips(self):
