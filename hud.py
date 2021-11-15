@@ -47,9 +47,10 @@ class Hud:
 
     def create_build_hud(self):
 
-        render_pos = [self.hud_action_rect.x + 30, self.hud_action_rect.y + 40]
-        #[self.width - 380, self.height - 165]
-        object_width = self.hud_action_surface.get_width() * 0.1
+        render_pos = [self.hud_action_rect.x * 1.035, self.hud_action_rect.y * 1.08]
+        object_width = self.hud_action_surface.get_width() // 10
+        print(self.width)
+        print(self.hud_action_rect.x)
         self.hud_haut_surface.blit(self.hud_haut, (0, 0))
         self.hud_age_surface.blit(self.hud_age, (0, 0))
         self.hud_action_surface.blit(self.hud_action, (0, 0))
