@@ -46,7 +46,7 @@ class Minimap:
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
         self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
         ### SPECS ENDROIT MINIMAP
-        self.rect = pygame.Rect((GAP, self.height - self.border.get_height()*math.sqrt(2)-GAP), (SIZE, SIZE))
+        self.rect = pygame.Rect((-1/2*SIZE-1.5*GAP, self.height - self.border.get_height()*math.sqrt(2)-GAP), (SIZE, SIZE))
         ### SPECS ENDROIT BORDURE
         self.bordrect = pygame.Rect((2/5*GAP, self.height-self.border.get_height()*math.sqrt(2)), (SIZE, SIZE))
 
