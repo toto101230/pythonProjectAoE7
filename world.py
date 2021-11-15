@@ -185,6 +185,14 @@ class World:
                 )
             )
 
+            rect = pygame.Rect(200,200, 300, 300)
+            pygame.draw.rect(screen, 255, 255, 255, rect, 5)
+            screen.blit(rect, 200, 200)
+
+            #tracer un rectangle de sélection
+
+
+
     def create_world(self):
         world = []
         for grid_x in range(self.grid_length_x):
