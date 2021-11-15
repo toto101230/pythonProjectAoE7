@@ -139,6 +139,10 @@ class World:
                 render_pos = self.world[x][y]["render_pos"]
                 # draw dammier
                 tile = self.world[x][y]["tile"]
+
+                if tile != "" and self.world[x][y]["ressource"] < 0:
+                    tile = ""
+
                 if tile != "":
                     screen.blit(self.tiles[tile],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
@@ -227,12 +231,16 @@ class World:
         r = random.randint(1, 100)
         if r <= 5:
             tile = "tree"
+            ressource = 150
         elif r <= 8:
             tile = "rock"
+            ressource = 250
         elif r <= 14:
             tile = "buisson"
+            ressource = 75
         else:
             tile = ""
+            ressource = 0
 
         out = {
             "grid": [grid_x, grid_y],
@@ -240,11 +248,14 @@ class World:
             "iso_poly": iso_poly,
             "render_pos": [minx, miny],
             "tile": tile,
-            "collision": False if tile == "" else True
+            "collision": False if tile == "" else True,
+            "ressource": ressource
         }
         if grid_x == 10 and grid_y == 10:
             out["tile"] = ""
             out["collision"] = False
+
+
 
         return out
 

@@ -242,16 +242,16 @@ class Villageois(Unite):
                 round(self.frameNumber)) + ".png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
 
-    def defMetier(self, title):
-        if title == "tree":
+    def defMetier(self, tile):
+        if tile == "tree":
             if self.work != "lumber":
                 self.stockage = 0
             self.work = "lumber"
-        elif title == "buisson":
+        elif tile == "buisson":
             if self.work != "forager":
                 self.stockage = 0
             self.work = "forager"
-        elif title == "rock":
+        elif tile == "rock":
             if self.work != "miner":
                 self.stockage = 0
             self.work = "miner"
@@ -264,15 +264,17 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
         if not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.ifgoodmetier(
-                    world[self.pos[0]][self.pos[1]]["tile"]):
+            if self.stockage > 20:
+                self.stockage = 20
+                self.oldPosWork = self.pos
+                pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
+                self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
+
+            elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.ifgoodmetier(
+                    world[self.pos[0]][self.pos[1]]["tile"]) and world[self.pos[0]][self.pos[1]]["ressource"] >= 0:
                 self.stockage += 0.02
+                world[self.pos[0]][self.pos[1]]["ressource"] -= 0.02
                 self.action = "gather"
-                if self.stockage > 20:
-                    self.stockage = 20
-                    self.oldPosWork = self.pos
-                    pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
-                    self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
 
             elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] and \
                     buildings[self.pos[0]][self.pos[1]].name == "hdv":
