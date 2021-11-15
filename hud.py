@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame.image
 
 from unite import Villageois
 from utils import draw_text
@@ -120,7 +121,7 @@ class Hud:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
 
             # affichage de l'image du batiment avec son nom et son nombre de vie
-            img = self.examined_tile.image.copy()
+            img = pygame.image.load("assets/hud/examined_title/"+self.examined_tile.name+".png").convert_alpha()
             img_scale = self.scale_image(img, h=h * 0.7)
             screen.blit(img_scale, (self.width - 1150, self.height - 205 + 40))
             draw_text(screen, self.examined_tile.name, 50, "#ff0000",

@@ -9,12 +9,10 @@ class Unite(metaclass=ABCMeta):
 
     def __init__(self, nom, pos, health, speed, attack, vitesse_attack, place, resource_manager: ResourceManager,
                  player):
-        self.image = pygame.image.load("assets/unites/" + nom + "/" + nom + ".png").convert_alpha()
         self.frameNumber = 0
         self.place = place
         self.name = nom
         self.pos = pos
-        self.rect = self.image.get_rect(topleft=self.pos)
         self.health = health
         self.xpixel, self.ypixel = 0, 0
         self.path = []
@@ -137,10 +135,6 @@ class Unite(metaclass=ABCMeta):
         self.frameNumber += 0.3
         if round(self.frameNumber) >= 0:
             self.frameNumber = 0
-        self.image = pygame.image.load(
-            "assets/unites/" + self.name + "/" + self.name + "_" + self.action + "_" + str(
-                round(self.frameNumber)) + ".png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, ticks):
@@ -155,7 +149,6 @@ class Villageois(Unite):
     def __init__(self, pos, resource_manager, player):
         super().__init__("villageois", pos, 25, 1.1, 3, 1.5, 1, resource_manager, player)
         self.work = "default"
-        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
         self.stockage = 0
         self.oldPosWork = []
 
@@ -237,10 +230,6 @@ class Villageois(Unite):
         if self.work != "default":
             self.frameNumber = 0
         # fin
-        self.image = pygame.image.load(
-            "assets/unites/" + self.name + "/" + self.name + "_" + self.work + "_" + self.action + "_" + str(
-                round(self.frameNumber)) + ".png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (76, 67)).convert_alpha()
 
     def defMetier(self, tile):
         if tile == "tree":
