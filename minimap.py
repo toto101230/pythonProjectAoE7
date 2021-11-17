@@ -1,7 +1,7 @@
 import pygame, math
 from settings import TILE_SIZE
 
-SIZE = 220
+SIZE = 200
 GAP = 12 # distance entre border et rect map
 MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
 
@@ -44,9 +44,9 @@ class Minimap:
         self.screen = screen
         ### SPECS BORDURE AUTOUR DE MINIMAP
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
-        self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
+        self.border = pygame.transform.scale(self.border, (SIZE+2*GAP-3, SIZE+2*GAP-3))
         ### SPECS ENDROIT MINIMAP
-        self.rect = pygame.Rect((-1/2*SIZE-1.5*GAP, self.height - self.border.get_height()*math.sqrt(2)-GAP), (SIZE, SIZE))
+        self.rect = pygame.Rect((-1/2*SIZE-1/2*GAP-1, self.height - self.border.get_height()*math.sqrt(2)-1/2*GAP-4), (SIZE, SIZE))
         ### SPECS ENDROIT BORDURE
         self.bordrect = pygame.Rect((2/5*GAP, self.height-self.border.get_height()*math.sqrt(2)), (SIZE, SIZE))
 
@@ -71,9 +71,9 @@ class Minimap:
 
     def draw(self, screen):
         pygame.Surface.set_colorkey(self.surf,BLACK)
-        #screen.blit(pygame.transform.scale2x(self.surf),self.rect)
-        screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
+        screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
+        #screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
 
     def update(self):
         for i in range(MINIMAPUPDATESPEED):
