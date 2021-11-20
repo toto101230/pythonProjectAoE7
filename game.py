@@ -62,8 +62,7 @@ class Game:
         self.hud.update()
         self.world.update(self.camera)
         self.cheat_box.update()
-        if pygame.mouse.get_pressed()[0]:
-            self.group.update()
+        self.group.update()
 
     def draw(self):
         self.screen.fill((0, 0, 0))
