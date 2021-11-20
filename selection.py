@@ -24,3 +24,6 @@ class Selection:
             if self.init_pos is not None:
                 self.rec_coord = (self.init_pos[0], self.init_pos[1], pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])  #coordonnées sur l'écran du rectangle tracé
             self.init_pos = None
+
+        if pygame.mouse.get_pressed()[2]:
+            self.rec_coord = None

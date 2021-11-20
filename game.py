@@ -65,7 +65,7 @@ class Game:
         self.world.update(self.camera)
         self.cheat_box.update()
         self.selection.update()
-        self.group.update()
+        self.group.update(self.selection, self.world, self.camera)
 
     def draw(self):
         self.screen.fill((0, 0, 0))
