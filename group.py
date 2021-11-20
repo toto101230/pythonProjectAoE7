@@ -22,6 +22,5 @@ class Group:
 
         if pygame.mouse.get_pressed()[2]:  # deselection de toutes les unites
             if self.selected != []:
-                print(self.selected)
                 self.selected.clear()
 
