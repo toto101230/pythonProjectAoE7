@@ -9,6 +9,7 @@ from hud import Hud
 from resource_manager import ResourceManager
 from input import InputBox
 from group import Group
+from selection import Selection
 
 
 class Game:
@@ -28,6 +29,7 @@ class Game:
         self.camera = Camera(self.width, self.height)
 
         self.group = Group()
+        self.selection = Selection()
 
         self.cheat_enabled = False
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
@@ -62,6 +64,7 @@ class Game:
         self.hud.update()
         self.world.update(self.camera)
         self.cheat_box.update()
+        self.selection.update()
         self.group.update()
 
     def draw(self):
@@ -70,7 +73,7 @@ class Game:
         self.hud.draw(self.screen)
         self.cheat_box.draw(self.screen)
         if pygame.mouse.get_pressed()[0]:
-            self.group.draw(self.screen)
+            self.selection.draw(self.screen)
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 5))
 
