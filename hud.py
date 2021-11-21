@@ -48,9 +48,9 @@ class Hud:
 
     def create_build_hud(self):
 
-        render_pos = [self.hud_action_rect.x + 30 * 1280 / self.width , self.hud_action_rect.y + 40 * 1280 / self.width]
-        #(867 * 1.035 / self.hud_action_rect.x)
-        #(515 * 1.08 / self.hud_action_rect.y)
+        render_pos = [self.hud_action_rect.x + 30 * 1280 / self.width, self.hud_action_rect.y + 40 * 1280 / self.width]
+        # (867 * 1.035 / self.hud_action_rect.x)
+        # (515 * 1.08 / self.hud_action_rect.y)
         object_width = self.hud_action_surface.get_width() // (10 * self.width / 1280)
         self.hud_haut_surface.blit(self.hud_haut, (0, 0))
         self.hud_age_surface.blit(self.hud_age, (0, 0))
@@ -82,7 +82,7 @@ class Hud:
     def update(self):
 
         mouse_pos = pg.mouse.get_pos()
-        mouse_action = pg.mouse.get_pressed()
+        mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
             if self.unite_bouton.isOver(mouse_pos) and not self.unite_bouton.isPress:

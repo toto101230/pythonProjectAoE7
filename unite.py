@@ -1,3 +1,5 @@
+from time import time
+
 import pygame
 
 from resource_manager import ResourceManager
@@ -24,6 +26,8 @@ class Unite(metaclass=ABCMeta):
         self.attack = attack
         self.vitesse_attack = vitesse_attack
         self.tick_attaque = -1
+        self.attackB = False
+        self.attack_cooldown_event = pygame.USEREVENT + 1
 
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
@@ -76,7 +80,7 @@ class Unite(metaclass=ABCMeta):
                 return -1
 
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
-    def updatepos(self):
+    def updatepos(self, world):
         if self.path:
             self.action = "walk"
             taille = TILE_SIZE / 2
@@ -131,23 +135,36 @@ class Unite(metaclass=ABCMeta):
                 self.action = "idle"
 
     # met à jour les frames des unités
-    def updateFrame(self):
+    def update_frame(self):
         self.frameNumber += 0.3
         if round(self.frameNumber) >= 0:
             self.frameNumber = 0
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
-    def attaque(self, unites, ticks):
-        for u in unites:
-            if self.pos == u.pos and self.player != u.player and ticks - self.vitesse_attack * 1000 > self.tick_attaque:
-                u.health -= self.attack
-                self.tick_attaque = ticks
+    def attaque(self, unites, batiments):
+        if time() - self.tick_attaque > self.vitesse_attack:
+            for u in unites:
+                if self.pos == u.pos and self.player != u.player:
+                    u.health -= self.attack
+                    self.attackB = True
+                    pygame.time.set_timer(self.attack_cooldown_event, 250)
+
+            neighbours = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]]
+            for neighbour in neighbours:
+                x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
+                if batiments[x][y] and self.player != batiments[x][y].player:
+                    batiments[x][y].health -= self.attack
+                    self.attackB = True
+
+            if self.attackB:
+                self.tick_attaque = time()
 
 
 class Villageois(Unite):
 
     def __init__(self, pos, resource_manager, player):
         super().__init__("villageois", pos, 25, 1.1, 3, 1.5, 1, resource_manager, player)
+        self.time_recup_ressource = -1
         self.work = "default"
         self.stockage = 0
         self.oldPosWork = []
@@ -177,7 +194,7 @@ class Villageois(Unite):
                         break
                     continue
                 if buildings[x][y] is not None:
-                    if not (buildings[x][y].name == "hdv" and ((x, y) == self.pos or self.work != "default")):
+                    if not ((buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") and ((x, y) == self.pos or self.work != "default")):
                         continue
 
                 count = cout + 1
@@ -195,12 +212,12 @@ class Villageois(Unite):
                     continue
                 if world[x][y]["tile"] != "":
                     if x == pos_end[0] and y == pos_end[1]:
-                        self.defMetier(world[x][y]["tile"])
+                        self.def_metier(world[x][y]["tile"])
                         self.path.append((x, y))
                         return 0
                     continue
                 if buildings[x][y] is not None:
-                    if not (buildings[x][y].name == "hdv" and ((x, y) == self.pos or self.work != "default")):
+                    if not ((buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") and ((x, y) == self.pos or self.work != "default")):
                         continue
 
                 if mincout > t_cout[x][y] and t_cout[x][y] != -1:
@@ -211,14 +228,14 @@ class Villageois(Unite):
             if val_min == mincout:
                 self.path = []
                 return -1
-        self.defMetier(world[pos_end[0]][pos_end[1]]["tile"])
+        self.def_metier(world[pos_end[0]][pos_end[1]]["tile"])
 
-    def updatepos(self):
-        super().updatepos()
-        if self.stockage > 0:
+    def updatepos(self, world):
+        super().updatepos(world)
+        if self.stockage > 0 and 20 >= self.stockage > 0 and world[self.pos[0]][self.pos[1]]["tile"] == "":
             self.action = "carry"
 
-    def updateFrame(self):
+    def update_frame(self):
         self.frameNumber += 0.3
         if self.action == "idle" and round(self.frameNumber) >= 6:
             self.frameNumber = 0
@@ -231,7 +248,7 @@ class Villageois(Unite):
             self.frameNumber = 0
         # fin
 
-    def defMetier(self, tile):
+    def def_metier(self, tile):
         if tile == "tree":
             if self.work != "lumber":
                 self.stockage = 0
@@ -260,13 +277,15 @@ class Villageois(Unite):
                 self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
 
             elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] is None and self.ifgoodmetier(
-                    world[self.pos[0]][self.pos[1]]["tile"]) and world[self.pos[0]][self.pos[1]]["ressource"] >= 0:
-                self.stockage += 0.02
-                world[self.pos[0]][self.pos[1]]["ressource"] -= 0.02
+                    world[self.pos[0]][self.pos[1]]["tile"]) and world[self.pos[0]][self.pos[1]]["ressource"] >= 0 and \
+                    time() - self.time_recup_ressource > 1:
+                self.stockage += 1
+                world[self.pos[0]][self.pos[1]]["ressource"] -= 1
                 self.action = "gather"
+                self.time_recup_ressource = time()
 
             elif self.work != "default" and buildings[self.pos[0]][self.pos[1]] and \
-                    buildings[self.pos[0]][self.pos[1]].name == "hdv":
+                    (buildings[self.pos[0]][self.pos[1]].name == "hdv" or buildings[self.pos[0]][self.pos[1]].name == "grenier"):
                 if self.stockage > 0:
                     if self.work == "lumber":
                         resource_manager.resources["wood"] += round(self.stockage)
@@ -282,7 +301,7 @@ class Villageois(Unite):
                     self.action = "idle"
                     self.work = "default"
 
-        if self.path and self.work != "default" and self.stockage > 0:
+        if self.path and self.work != "default" and 20 >= self.stockage > 0 and world[self.pos[0]][self.pos[1]]["tile"] == "":
             self.action = "carry"
 
     def findstockage(self, buildings, grid_length_x, grid_length_y):
@@ -302,7 +321,7 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
                 if buildings[x][y] is not None:
-                    if buildings[x][y].name == "hdv":
+                    if buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier":
                         return (x, y)
                     pass
 

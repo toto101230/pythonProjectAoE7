@@ -22,7 +22,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
         self.text = text
-        self.text_surface = font.render(text, 1, self.color)
+        self.text_surface = font.render(text, True, self.color)
         self.active = False
         self.player_rmanage = rmanage
         # self.AI_rmanage = rmanageai
@@ -57,7 +57,7 @@ class InputBox:
                     else:
                         self.text += event.unicode
 
-                    self.text_surface = font.render(self.text, 1, self.color)
+                    self.text_surface = font.render(self.text, True, self.color)
 
             if strcmp(message, self.cheatlist[0]):  # ninjalui
                 self.player_rmanage.resources["wood"] += 10000
