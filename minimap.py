@@ -1,33 +1,10 @@
-import pygame, math
-from settings import TILE_SIZE
+import pygame
+import math
+from settings import *
 
 SIZE = 200
-GAP = 12 # distance entre border et rect map
+GAP = 13 # distance entre border et rect map
 MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
-
-# Colours     R    G    B  ALPHA
-WHITE     = (255, 255, 255)
-BLACK     = (  0,   0,   0)
-RED       = (230,  70,  70)
-BRIGHTRED = (255,   0,   0)
-DARKRED   = (220,   0,   0)
-BLUE      = (  0,   0, 255)
-SKYBLUE   = (135, 206, 250)
-PASTELBLUE= (119, 158, 203)
-DARKBLUE  = (  0,  35, 102)
-YELLOW    = (255, 250,  17)
-GREEN     = (110, 255, 100)
-ORANGE    = (255, 165,   0)
-DARKGREEN = ( 60, 160,  60)
-DARKGREY  = ( 60,  60,  60)
-LIGHTGREY = (180, 180, 180)
-BROWN     = (139,  69,  19)
-DARKBROWN = (100,  30,   0)
-BROWNBLACK= ( 50,  0,    0)
-GREYBROWN = (160, 110,  90)
-CREAM     = (255, 255, 204)
-COLOURKEY = (  1,   2,   3)
-
 
 def pixelsToCell(pixels):
     x, y = pixels
@@ -44,17 +21,17 @@ class Minimap:
         self.screen = screen
         ### SPECS BORDURE AUTOUR DE MINIMAP
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
-        self.border = pygame.transform.scale(self.border, (SIZE+2*GAP-3, SIZE+2*GAP-3))
+        self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
         ### SPECS ENDROIT MINIMAP
-        self.rect = pygame.Rect((-1/2*SIZE-1/2*GAP-1, self.height - self.border.get_height()*math.sqrt(2)-1/2*GAP-4), (SIZE, SIZE))
+        self.rect = pygame.Rect((GAP-4, self.height - self.border.get_height()*math.sqrt(2)+GAP-4), (SIZE, SIZE))
+
         ### SPECS ENDROIT BORDURE
-        self.bordrect = pygame.Rect((2/5*GAP, self.height-self.border.get_height()*math.sqrt(2)), (SIZE, SIZE))
+        self.bordrect = pygame.Rect((0, self.height-self.border.get_height()*math.sqrt(2)), (1, 1))
 
         self.surf = pygame.Surface(self.rect.size).convert()
+        self.crop = pygame.Surface((0,0))
         self.mapSurf = pygame.Surface(self.rect.size).convert()
-        #self.mapSurf.fill(BLUE)
         self.newSurf = pygame.Surface(self.rect.size).convert()
-        #self.newSurf.fill(RED)
 
         ### UPDATE DE LA MINIMAP
         self.row = 0
@@ -72,13 +49,16 @@ class Minimap:
     def draw(self, screen):
         pygame.Surface.set_colorkey(self.surf,BLACK)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
-        screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
-        #screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
+        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45),
+                                              (SIZE / 2 + 2 * GAP, GAP + 3, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
+        screen.blit(self.crop,self.rect)
+        #screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
 
     def update(self):
         for i in range(MINIMAPUPDATESPEED):
             self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
+
         #self.updateCameraRect()
         #self.handleInput() pour cliquer sur map et se déplacer direct
 
@@ -108,7 +88,6 @@ class Minimap:
         if self.row > self.world.grid_length_x - 1:
             self.row = 0
             self.mapSurf = self.newSurf.copy()
-            #self.newSurf.fill(BLACK)
 
     # NON INTEGRE AOT
     #def updateMobBlips(self):
