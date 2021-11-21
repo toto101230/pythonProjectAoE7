@@ -53,12 +53,13 @@ class Game:
                 elif event.key == pygame.K_k:
                     self.save.save(self)
                 elif event.key == pygame.K_l:
-                    self.resources_manager.resources, self.resources_manager.population, self.world.world, \
-                        self.world.buildings, self.world.unites = self.save.load()
-                    self.world.examine_tile = None
-                    self.hud.examined_tile = None
-                    self.hud.selected_tile = None
-                    self.cheat_enabled = False
+                    if self.save.hasload():
+                        self.resources_manager.resources, self.resources_manager.population, self.world.world, \
+                            self.world.buildings, self.world.unites = self.save.load()
+                        self.world.examine_tile = None
+                        self.hud.examined_tile = None
+                        self.hud.selected_tile = None
+                        self.cheat_enabled = False
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
