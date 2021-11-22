@@ -148,7 +148,7 @@ class Hud:
             txt = str(resource_value)
             draw_text(screen, txt, 30, (255, 255, 255), (pos, 20))
             pos += 110
-        txt_units = "3/4"
+        txt_units = str(self.resource_manager.population["population_actuelle"]) + "/" + str(self.resource_manager.population["population_maximale"])
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
 
     def load_images(self):
@@ -156,8 +156,14 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
+        #tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
+        #buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
+        #rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
 
         images = {
+            #"buisson": buisson,
+            #"rock": rock,
+            #"tree": tree,
             "caserne": caserne,
             "house": house,
             "grenier": grenier,
