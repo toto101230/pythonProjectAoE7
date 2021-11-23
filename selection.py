@@ -1,4 +1,5 @@
 import pygame
+import math
 
 white = (255, 255, 255)
 
@@ -13,7 +14,7 @@ class Selection:
         pygame.draw.rect(screen, white, self.rect_form, 4)
 
     def update(self):
-        if pygame.mouse.get_pressed()[0]: #clic gauche appuyé
+        if pygame.mouse.get_pressed()[0] and pygame.key.get_pressed()[pygame.K_LCTRL]: #clic gauche appuyé
             if self.init_pos is None:
                 self.init_pos = pygame.mouse.get_pos()
                 self.rect_form = pygame.Rect(self.init_pos[0], self.init_pos[1], 0, 0)

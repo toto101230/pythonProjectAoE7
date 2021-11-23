@@ -72,7 +72,7 @@ class Game:
         self.world.draw(self.screen, self.camera)
         self.hud.draw(self.screen)
         self.cheat_box.draw(self.screen)
-        if pygame.mouse.get_pressed()[0]:
+        if pygame.mouse.get_pressed()[0] and pygame.key.get_pressed()[pygame.K_LCTRL]:
             self.selection.draw(self.screen)
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 5))
