@@ -99,13 +99,13 @@ class World:
 
             if self.can_place_tile(grid_pos):
 
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"]
+                collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
                 unite = self.findUnitePos(grid_pos[0], grid_pos[1])
 
-                if mouse_action[0] and (collision is not None):
+                if mouse_action[0] and (collision != ''):
                     self.examine_tile = grid_pos
-                    #self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
+                    self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
                 if mouse_action[0] and (building is not None):
                     self.examine_tile = grid_pos
