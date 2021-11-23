@@ -29,6 +29,7 @@ class Group:
                 for u in world.unites:
                     if self.is_in_selection(u, A, B, C, D):
                         self.selected.append(u)
+                        world.examined_unites_tile.append(u.pos)
                 if len(self.selected):
                     print(str(len(self.selected)) + " unite(s) selected")
 

@@ -33,6 +33,7 @@ class World:
 
         self.temp_tile = None
         self.examine_tile = None
+        self.examined_unites_tile = []
 
     def update(self, camera):
 
@@ -41,6 +42,7 @@ class World:
 
         if mouse_action[2]:
             self.examine_tile = None
+            self.examined_unites_tile = []
             self.hud.examined_tile = None
 
         if mouse_action[0] and isinstance(self.hud.examined_tile, Villageois):
@@ -51,6 +53,7 @@ class World:
                     if villageois.creatPath(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
                                             grid_pos) != -1:
                         self.examine_tile = None
+                        self.examined_unites_tile = []
                         self.hud.examined_tile = None
                         return
 
@@ -103,7 +106,7 @@ class World:
 
                 # permet de sélectionner une unité
                 if mouse_action[0] and (unite is not None):
-                    self.examine_tile = grid_pos
+                    self.examined_unites_tile.append(grid_pos)
                     self.hud.examined_tile = unite
 
         for u in self.unites:
@@ -160,13 +163,14 @@ class World:
             screen.blit(u.image,
                         (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                          render_pos[1] - (u.image.get_height() - TILE_SIZE) + camera.scroll.y))
-            if self.examine_tile is not None:
-                if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
-                    mask = pygame.mask.from_surface(u.image).outline()
-                    mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                             y + render_pos[1] - (u.image.get_height() - TILE_SIZE) + camera.scroll.y)
-                            for x, y in mask]
-                    pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+            if self.examined_unites_tile != []:
+                for uni in self.examined_unites_tile:
+                    if (u.pos[0] == uni[0]) and (u.pos[1] == uni[1]):
+                        mask = pygame.mask.from_surface(u.image).outline()
+                        mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 y + render_pos[1] - (u.image.get_height() - TILE_SIZE) + camera.scroll.y)
+                                for x, y in mask]
+                        pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
@@ -184,12 +188,6 @@ class World:
                     render_pos[1] - (self.temp_tile["image"].get_height() - TILE_SIZE) + camera.scroll.y
                 )
             )
-
-            rect = pygame.Rect(200,200, 300, 300)
-            pygame.draw.rect(screen, 255, 255, 255, rect, 5)
-            screen.blit(rect, 200, 200)
-
-            #tracer un rectangle de sélection
 
 
 
