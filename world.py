@@ -292,6 +292,10 @@ class World:
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
         rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
 
+        rock = pygame.transform.scale(rock, (104, 88)).convert_alpha()
+        tree = pygame.transform.scale(tree, (152, 240)).convert_alpha()
+        buisson = pygame.transform.scale(buisson, (76, 100)).convert_alpha()
+
         images = {
             "tree": tree,
             "buisson": buisson,
