@@ -24,6 +24,10 @@ class Unite(metaclass=ABCMeta):
         self.attack = attack
         self.vitesse_attack = vitesse_attack
         self.tick_attaque = -1
+        image = pygame.image.load("assets/unites/villageois/villageois.png").convert_alpha()
+        self.rect = image.get_rect()
+        self.hitbox = self.rect.inflate(-40, -20)
+
 
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []

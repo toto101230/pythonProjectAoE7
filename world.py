@@ -83,6 +83,9 @@ class World:
                     if self.hud.selected_tile["name"] == "caserne":
                         ent = Caserne(render_pos, self.resource_manager)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0]+1][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
+                        self.buildings[grid_pos[0]+1][grid_pos[1] + 1] = ent
                     elif self.hud.selected_tile["name"] == "house":
                         ent = House(render_pos, self.resource_manager)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
@@ -113,6 +116,8 @@ class World:
 
                 # permet de sélectionner une unité
                 if mouse_action[0] and (unite is not None):
+                    print(mouse_pos)
+                    print(grid_pos)
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = unite
 
@@ -163,6 +168,7 @@ class World:
                 # draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
+                    #if ... continue
                     image = pygame.image.load("assets/batiments/" + building.name + ".png").convert_alpha()
                     screen.blit(image,
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
@@ -290,6 +296,8 @@ class World:
         # transform to grid coordinates
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
+        print(world_x)
+        print(world_y)
         return grid_x, grid_y
 
     def load_images(self):
