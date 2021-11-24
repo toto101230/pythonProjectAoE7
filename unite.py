@@ -9,13 +9,15 @@ neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 
 class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, speed, attack, range, vitesse_attack, taille_prise, resource_manager: ResourceManager,
+    def __init__(self, nom, pos, health, speed, attack, range, vitesse_attack, taille_prise,
+                 resource_manager: ResourceManager,
                  player):
         self.frameNumber = 0
         self.taille_prise = taille_prise
         self.name = nom
         self.pos = pos
         self.health = health
+        self.speed = speed
         self.xpixel, self.ypixel = 0, 0
         self.path = []
         self.action = "idle"
@@ -77,7 +79,7 @@ class Unite(metaclass=ABCMeta):
                 self.path = []
                 return -1
 
-    # todo à revoir
+    # todo à revoir avec la self.speed
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
     def updatepos(self, world):
         if self.path:
@@ -119,6 +121,7 @@ class Unite(metaclass=ABCMeta):
                     break
 
         elif self.xpixel != 0 or self.ypixel != 0:
+            # deplacement = int(2/self.speed)
             if -1 <= self.xpixel <= 1:
                 self.xpixel = 0
             else:
@@ -140,7 +143,8 @@ class Unite(metaclass=ABCMeta):
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, batiments):
-        neighboursUnite = [(x, y) for x in range(-self.range, self.range+1) for y in range(-self.range, self.range+1)]
+        neighboursUnite = [(x, y) for x in range(-self.range, self.range + 1) for y in
+                           range(-self.range, self.range + 1)]
         neighboursUnite.remove((0, 0))
         attaques = []
         if time() - self.tick_attaque > self.vitesse_attack:
@@ -189,7 +193,7 @@ class Villageois(Unite):
         else:
             self.posWork = ()
 
-            #todo voir txt
+            # todo voir txt
 
         super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
         # self.path = []
