@@ -28,12 +28,12 @@ class World:
         self.buildings[26][18] = Hdv((26, 18), self.resource_manager, "joueur 2")
         self.unites = []
 
-        self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 13), resource_manager, "joueur 2"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((9, 18), resource_manager, "joueur 2"))  # ligne pour tester les villageois
 
-        self.unites.append(Clubman((12, 16), resource_manager, "joueur 1"))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 15), resource_manager, "joueur 2"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), resource_manager, "joueur 1"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 18), resource_manager, "joueur 2"))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -105,12 +105,12 @@ class World:
 
                 # todo changer "joueur 1" lorsque menu fait
                 # permet de sélectionner un batiment
-                if mouse_action[0] and building is not None and building.player == "joueur 1":
+                if mouse_action[0] and building is not None :# and building.player == "joueur 1":
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
 
                 # permet de sélectionner une unité
-                if mouse_action[0] and unite is not None and unite.player == "joueur 1":
+                if mouse_action[0] and unite is not None :#and unite.player == "joueur 1":
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = unite
 
@@ -119,9 +119,11 @@ class World:
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
             u.update_frame()
-            u.attaque(self.unites, self.buildings)
+            if not u.attackB:
+                u.attaque(self.unites, self.buildings)
             if u.health <= 0:
                 self.unites.remove(u)
+                self.resource_manager.population["population_actuelle"] -= 1
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
                     self.hud.examined_tile = None
@@ -199,7 +201,7 @@ class World:
                 imageetoile = pygame.image.load("assets/etoile.png").convert_alpha()
                 screen.blit(imageetoile, (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                           render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
-            if pygame.event.get(u.attack_cooldown_event) or time() - u.tick_attaque > 0.250:
+            if time() - u.tick_attaque > 0.250:
                 u.attackB = False
             if self.examine_tile is not None:
                 if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
