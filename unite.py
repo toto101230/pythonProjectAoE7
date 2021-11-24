@@ -31,6 +31,7 @@ class Unite(metaclass=ABCMeta):
         self.tick_attaque = -1
         self.attackB = False
 
+    #todo contient un bug à identifier
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
         self.path = []
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -51,6 +52,8 @@ class Unite(metaclass=ABCMeta):
                     continue
                 if buildings[x][y] is not None:
                     continue
+
+                #todo verifier si il n'y a pas d'unité
 
                 count = cout + 1
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
@@ -143,31 +146,29 @@ class Unite(metaclass=ABCMeta):
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, batiments):
-        neighboursUnite = [(x, y) for x in range(-self.range, self.range + 1) for y in
-                           range(-self.range, self.range + 1)]
-        neighboursUnite.remove((0, 0))
-        attaques = []
+        neighbours_unite = [(x, y) for x in range(-self.range, self.range + 1) for y in range(-self.range, self.range + 1)]
+        neighbours_unite.remove((0, 0))
+
+        element_plus_proche = (None, 5000, 5000)
         if time() - self.tick_attaque > self.vitesse_attack:
             for u in unites:
                 if self.player == u.player:
                     continue
-                for neighbour in neighboursUnite:
+                for neighbour in neighbours_unite:
                     x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
                     if u.pos == (x, y):
-                        attaques.append((u, neighbour[0], neighbour[1]))
+                        if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
+                            element_plus_proche = (u, neighbour[0], neighbour[1])
                         self.attackB = True
 
-            for neighbour in neighboursUnite:
+            for neighbour in neighbours_unite:
                 x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
                 if batiments[x][y] and self.player != batiments[x][y].player:
-                    attaques.append((batiments[x][y], neighbour[0], neighbour[1]))
+                    if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
+                        element_plus_proche = (batiments[x][y], neighbour[0], neighbour[1])
                     self.attackB = True
 
             if self.attackB:
-                element_plus_proche = (None, 1000, 1000)
-                for i in attaques:
-                    if abs(i[1]) + abs(i[2]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
-                        element_plus_proche = i
                 element_plus_proche[0].health -= self.attack
                 self.tick_attaque = time()
 
@@ -193,8 +194,6 @@ class Villageois(Unite):
             pos_end = self.find_closer_pos(pos_end)
         elif self.stockage == 0:
             self.posWork = ()
-
-            # todo voir txt
 
         # todo gérer le faites que si il y a posWork mais qu'on peut pas l'attendre alors chercher autre part
         super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
@@ -297,25 +296,24 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
+            # todo a changer et a remettre 1s
             if self.posWorkIsNeighbours() and time() - self.time_recup_ressource > 0.1:
-                if world[self.posWork[0]][self.posWork[1]]["ressource"] >= 0:
+                if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
                     self.stockage += 1
                     world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
                     self.action = "gather"
                     self.time_recup_ressource = time()
-
-                    if self.stockage >= 20:
-                        self.stockage = 20
-                        pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
-                        posTemp = self.posWork
-                        self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
-                        self.posWork = posTemp
-
-                # todo trouver la ressource la plus proche si il n'y plus de ressrouce ici
                 else:
-                    pass
+                    self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
+                    self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
 
-            # todo si a coté de la ressources, ne pas déposé dans le batiment
+                if self.stockage >= 20:
+                    self.stockage = 20
+                    pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
+                    pos_temp = self.posWork
+                    self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
+                    self.posWork = pos_temp
+
             elif self.buildingRessourceClose(buildings):
                 if self.stockage > 0:
                     if self.work == "lumber":
@@ -326,11 +324,10 @@ class Villageois(Unite):
                         resource_manager.resources["stone"] += round(self.stockage)
                 self.stockage = 0
                 if self.posWork:
-                    # todo si le chemin est impossible alors chercher la ressource la plus porche du même type
                     if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
                         self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
                     else:
-                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world)
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos)
                         self.create_path(grid_length_x, grid_length_y, world, buildings,  self.posWork)
                 else:
                     self.action = "idle"
@@ -352,7 +349,8 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
                 if buildings[x][y] is not None:
-                    if buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier":
+                    if (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") \
+                            and buildings[x][y].player == self.player:
                         return self.find_closer_pos((x, y))
                     pass
 
@@ -379,10 +377,10 @@ class Villageois(Unite):
         return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") \
                or (tile == "rock" and self.work == "miner")
 
-    def find_closer_ressource(self, grid_length_x, grid_length_y, world):
+    def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
-        list_case = [self.pos]
+        list_case = [pos_start]
         t_cout[list_case[0][0]][list_case[0][1]] = 0
 
         while list_case:
