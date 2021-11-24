@@ -183,18 +183,20 @@ class Villageois(Unite):
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
-        if world[pos_end[0]][pos_end[1]]["tile"] != "":
-            if not self.posWork:
-                self.def_metier(world[pos_end[0]][pos_end[1]]["tile"])
+        tile = world[pos_end[0]][pos_end[1]]["tile"]
+        if tile != "":
+            if not self.posWork or not self.is_good_work(tile):
+                self.def_metier(tile)
             self.posWork = pos_end
             pos_end = self.find_closer_pos(pos_end)
         elif buildings[pos_end[0]][pos_end[1]] and self.stockage > 0:
             pos_end = self.find_closer_pos(pos_end)
-        else:
+        elif self.stockage == 0:
             self.posWork = ()
 
             # todo voir txt
 
+        # todo gérer le faites que si il y a posWork mais qu'on peut pas l'attendre alors chercher autre part
         super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
         # self.path = []
         # t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -282,26 +284,23 @@ class Villageois(Unite):
 
     def def_metier(self, tile):
         if tile == "tree":
-            if self.work != "lumber":
-                self.stockage = 0
+            self.stockage = 0
             self.work = "lumber"
         elif tile == "buisson":
-            if self.work != "forager":
-                self.stockage = 0
+            self.stockage = 0
             self.work = "forager"
         elif tile == "rock":
-            if self.work != "miner":
-                self.stockage = 0
+            self.stockage = 0
             self.work = "miner"
         elif self.stockage == 0:
             self.work = "default"
 
     def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.posWorkIsNeighbours() and time() - self.time_recup_ressource > 1:
+            if self.posWorkIsNeighbours() and time() - self.time_recup_ressource > 0.1:
                 if world[self.posWork[0]][self.posWork[1]]["ressource"] >= 0:
                     self.stockage += 1
-                    world[self.pos[0]][self.pos[1]]["ressource"] -= 1
+                    world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
                     self.action = "gather"
                     self.time_recup_ressource = time()
 
@@ -328,7 +327,11 @@ class Villageois(Unite):
                 self.stockage = 0
                 if self.posWork:
                     # todo si le chemin est impossible alors chercher la ressource la plus porche du même type
-                    self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
+                    if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
+                        self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
+                    else:
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world)
+                        self.create_path(grid_length_x, grid_length_y, world, buildings,  self.posWork)
                 else:
                     self.action = "idle"
                     self.work = "default"
@@ -371,6 +374,34 @@ class Villageois(Unite):
             if buildings[x][y] and (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier"):
                 return True
         return False
+
+    def is_good_work(self, tile):
+        return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") \
+               or (tile == "rock" and self.work == "miner")
+
+    def find_closer_ressource(self, grid_length_x, grid_length_y, world):
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+
+        list_case = [self.pos]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
+
+        while list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
+
+            for neighbour in neighbours:
+                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+
+                if world[x][y]["tile"] != "" and self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
+                    return (x, y)
+
+                count = cout + 1
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
 
 
 class Clubman(Unite):

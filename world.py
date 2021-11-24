@@ -146,7 +146,7 @@ class World:
                 # draw dammier
                 tile = self.world[x][y]["tile"]
 
-                if tile != "" and self.world[x][y]["ressource"] < 0:
+                if tile != "" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
 
                 if tile != "":
