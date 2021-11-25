@@ -183,34 +183,35 @@ class World:
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
         # dessine les unités
         for u in self.unites:
-            render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
-            pixel = self.cart_to_iso(u.xpixel, u.ypixel)
-            render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
-            if isinstance(u, Villageois):
-                if u.work != "default":
-                    u.frameNumber = 0
-                image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
-                image = pygame.transform.scale(image, (76, 67)).convert_alpha()
-            else:
-                image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
-                image = pygame.transform.scale(image, (76, 67)).convert_alpha()
+            if xmax > u.pos[0] > xmin and ymax > u.pos[1] > ymin:
+                render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
+                pixel = self.cart_to_iso(u.xpixel, u.ypixel)
+                render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
+                if isinstance(u, Villageois):
+                    if u.work != "default":
+                        u.frameNumber = 0
+                    image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
+                    image = pygame.transform.scale(image, (76, 67)).convert_alpha()
+                else:
+                    image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
+                    image = pygame.transform.scale(image, (76, 67)).convert_alpha()
 
-            screen.blit(image,
-                        (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                         render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
-            if u.attackB:
-                imageetoile = pygame.image.load("assets/etoile.png").convert_alpha()
-                screen.blit(imageetoile, (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                          render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
-            if time() - u.tick_attaque > 0.250:
-                u.attackB = False
-            if self.examine_tile is not None:
-                if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
-                    mask = pygame.mask.from_surface(image).outline()
-                    mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                             y + render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y)
-                            for x, y in mask]
-                    pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+                screen.blit(image,
+                            (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                             render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
+                if u.attackB:
+                    imageetoile = pygame.image.load("assets/etoile.png").convert_alpha()
+                    screen.blit(imageetoile, (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                              render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
+                if time() - u.tick_attaque > 0.250:
+                    u.attackB = False
+                if self.examine_tile is not None:
+                    if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
+                        mask = pygame.mask.from_surface(image).outline()
+                        mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 y + render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y)
+                                for x, y in mask]
+                        pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
