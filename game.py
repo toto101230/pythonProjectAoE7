@@ -32,7 +32,7 @@ class Game:
 
     def run(self):
         while self.playing:
-            self.clock.tick(120)
+            self.clock.tick(60)
             self.events()
             self.update()
             self.draw()
