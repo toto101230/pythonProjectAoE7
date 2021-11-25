@@ -140,8 +140,9 @@ class World:
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
 
-        for x in range(self.grid_length_x):
-            for y in range(self.grid_length_y):
+        xmax, xmin, ymax, ymin = self.camera_to_grid(camera)
+        for x in range(xmin,xmax):
+            for y in range(ymin,ymax):
                 render_pos = self.world[x][y]["render_pos"]
                 # draw dammier
                 tile = self.world[x][y]["tile"]
@@ -291,16 +292,38 @@ class World:
         return iso_x, iso_y
 
     def mouse_to_grid(self, x, y, scroll):
-        # transform to World position(removing camera scroll and offset)
+        # transformer en postion World (en supprimant le défilement et le décalage de la caméra)
         world_x = x - scroll.x - self.grass_tiles.get_width() / 2
         world_y = y - scroll.y
-        # transform to cart (inverse of cart_to_iso)
+        # transformer en cart (inverse de cart_to_iso)
         cart_y = (2 * world_y - world_x) / 2
         cart_x = cart_y + world_x
-        # transform to grid coordinates
+        # transformer en coordonnées de la grille
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
         return grid_x, grid_y
+
+    def camera_to_grid(self, camera):
+        # transformer en postion World (en supprimant le défilement)
+        world_x = camera.scroll.x - self.grass_tiles.get_width() / 2
+        world_y = camera.scroll.y
+        # transformer en cart (inverse de cart_to_iso)
+        cart_y = (2 * world_y - world_x) / 2
+        cart_x = cart_y + world_x
+        # transformer en coordonnées de la grille
+        grid_x = int(cart_x // TILE_SIZE)
+        grid_y = int(cart_y // TILE_SIZE)
+
+        # calcul de la taille du tableau en x vissble
+        x = -grid_x - self.grid_length_x
+        xmin = max(x, 0)
+        xmax = min(x + int(self.width // TILE_SIZE), 99)
+
+        # calcul de la taille du tableau en y vissble
+        y = self.grid_length_y - grid_y
+        ymin = max(y - int(self.height // TILE_SIZE), 0)
+        ymax = min(y + int(self.height // TILE_SIZE), 99)
+        return xmax, xmin, ymax, ymin
 
     def load_images(self):
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
