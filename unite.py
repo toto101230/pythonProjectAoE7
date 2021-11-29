@@ -1,17 +1,15 @@
 from time import time
 
-from resource_manager import ResourceManager
 from settings import TILE_SIZE
 from abc import ABCMeta
+from model.joueur import Joueur
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 
 
 class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, speed, attack, range, vitesse_attack, taille_prise,
-                 resource_manager: ResourceManager,
-                 player):
+    def __init__(self, nom, pos, health, speed, attack, range_attack, vitesse_attack, taille_prise, joueur: Joueur):
         self.frameNumber = 0
         self.taille_prise = taille_prise
         self.name = nom
@@ -21,12 +19,12 @@ class Unite(metaclass=ABCMeta):
         self.xpixel, self.ypixel = 0, 0
         self.path = []
         self.action = "idle"
-        self.resource_manager = resource_manager
+        self.joueur = joueur
+        self.resource_manager = self.joueur.resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.resource_manager.update_population(self.taille_prise)
-        self.player = player
         self.attack = attack
-        self.range = range
+        self.range_attack = range_attack
         self.vitesse_attack = vitesse_attack
         self.tick_attaque = -1
         self.attackB = False
@@ -146,13 +144,13 @@ class Unite(metaclass=ABCMeta):
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, batiments):
-        neighbours_unite = [(x, y) for x in range(-self.range, self.range + 1) for y in range(-self.range, self.range + 1)]
+        neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
         neighbours_unite.remove((0, 0))
 
         element_plus_proche = (None, 5000, 5000)
         if time() - self.tick_attaque > self.vitesse_attack:
             for u in unites:
-                if self.player == u.player:
+                if self.joueur == u.joueur:
                     continue
                 for neighbour in neighbours_unite:
                     x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
@@ -163,7 +161,7 @@ class Unite(metaclass=ABCMeta):
 
             for neighbour in neighbours_unite:
                 x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
-                if batiments[x][y] and self.player != batiments[x][y].player:
+                if batiments[x][y] and self.joueur != batiments[x][y].joueur:
                     if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
                         element_plus_proche = (batiments[x][y], neighbour[0], neighbour[1])
                     self.attackB = True
@@ -175,8 +173,8 @@ class Unite(metaclass=ABCMeta):
 
 class Villageois(Unite):
 
-    def __init__(self, pos, resource_manager, player):
-        super().__init__("villageois", pos, 25, 1.1, 3, 1, 1.5, 1, resource_manager, player)
+    def __init__(self, pos, joueur):
+        super().__init__("villageois", pos, 25, 1.1, 3, 1, 1.5, 1, joueur)
         self.time_recup_ressource = -1
         self.work = "default"
         self.stockage = 0
@@ -294,7 +292,7 @@ class Villageois(Unite):
         elif self.stockage == 0:
             self.work = "default"
 
-    def working(self, grid_length_x, grid_length_y, world, buildings, resource_manager: ResourceManager):
+    def working(self, grid_length_x, grid_length_y, world, buildings):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
             # todo a changer et a remettre 1s
             if self.posWorkIsNeighbours() and time() - self.time_recup_ressource > 0.1:
@@ -317,11 +315,11 @@ class Villageois(Unite):
             elif self.buildingRessourceClose(buildings):
                 if self.stockage > 0:
                     if self.work == "lumber":
-                        resource_manager.resources["wood"] += round(self.stockage)
+                        self.joueur.resource_manager.resources["wood"] += round(self.stockage)
                     elif self.work == "forager":
-                        resource_manager.resources["food"] += round(self.stockage)
+                        self.joueur.resource_manager.resources["food"] += round(self.stockage)
                     elif self.work == "miner":
-                        resource_manager.resources["stone"] += round(self.stockage)
+                        self.joueur.resource_manager.resources["stone"] += round(self.stockage)
                 self.stockage = 0
                 if self.posWork:
                     if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
@@ -350,7 +348,7 @@ class Villageois(Unite):
                     continue
                 if buildings[x][y] is not None:
                     if (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") \
-                            and buildings[x][y].player == self.player:
+                            and buildings[x][y].joueur == self.joueur:
                         return self.find_closer_pos((x, y))
                     pass
 
@@ -403,5 +401,5 @@ class Villageois(Unite):
 
 
 class Clubman(Unite):
-    def __init__(self, pos, resource_manager, player):
-        super().__init__("clubman", pos, 40, 1.2, 3, 1, 1.5, 1, resource_manager, player)
+    def __init__(self, pos, joueur):
+        super().__init__("clubman", pos, 40, 1.2, 3, 1, 1.5, 1, joueur)

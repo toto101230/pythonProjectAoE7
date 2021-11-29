@@ -3,15 +3,15 @@ import random
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman
-from resource_manager import ResourceManager
 from time import time
+from model.joueur import Joueur
+
+Joueurs = list[Joueur]
 
 
 class World:
 
-    def __init__(self, resource_manager: ResourceManager, hud, grid_length_x, grid_length_y, width, height):
-
-        self.resource_manager = resource_manager
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: Joueurs):
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -24,19 +24,21 @@ class World:
         self.world = self.create_world()
 
         self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
-        self.buildings[10][10] = Hdv((10, 10), self.resource_manager, "joueur 1")
-        self.buildings[26][18] = Hdv((26, 18), self.resource_manager, "joueur 2")
+        self.buildings[10][10] = Hdv((10, 10), joueurs[0])
+        self.buildings[26][18] = Hdv((26, 18), joueurs[1])
         self.unites = []
 
-        self.unites.append(Villageois((10, 14), resource_manager, "joueur 1"))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 15), resource_manager, "joueur 1"))  # ligne pour tester les villageois
-        self.unites.append(Villageois((9, 18), resource_manager, "joueur 2"))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 14), joueurs[0]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 15), joueurs[0]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((9, 18), joueurs[1]))  # ligne pour tester les villageois
 
-        self.unites.append(Clubman((12, 15), resource_manager, "joueur 1"))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 18), resource_manager, "joueur 2"))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), joueurs[0]))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 18), joueurs[1]))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
+
+        self.joueurs = joueurs
 
     def update(self, camera):
 
@@ -56,7 +58,6 @@ class World:
                                          grid_pos) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
-                        return
 
         self.temp_tile = None
         if self.hud.selected_tile is not None:
@@ -83,13 +84,13 @@ class World:
                 if mouse_action[0] and not collision:
 
                     if self.hud.selected_tile["name"] == "caserne":
-                        ent = Caserne(render_pos, self.resource_manager, "joueur 1")
+                        ent = Caserne(render_pos, self.joueurs[0])
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "house":
-                        ent = House(render_pos, self.resource_manager, "joueur 1")
+                        ent = House(render_pos, self.joueurs[0])
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "grenier":
-                        ent = Grenier(render_pos, self.resource_manager, "joueur 1")
+                        ent = Grenier(render_pos, self.joueurs[0])
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.pop_end_path(grid_pos)
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
@@ -103,36 +104,36 @@ class World:
                 building = self.buildings[grid_pos[0]][grid_pos[1]]
                 unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
 
-                # todo changer "joueur 1" lorsque menu fait
                 # permet de sélectionner un batiment
-                if mouse_action[0] and building is not None :# and building.player == "joueur 1":
+                if mouse_action[0] and building is not None:  # and building.joueur.name == "joueur 1":
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
 
                 # permet de sélectionner une unité
-                if mouse_action[0] and unite is not None :#and unite.player == "joueur 1":
+                if mouse_action[0] and unite is not None:  # and unite.joueur.name == "joueur 1":
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = unite
 
         for u in self.unites:
             u.updatepos(self.world)
             if isinstance(u, Villageois):
-                u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.resource_manager)
+                u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings)
             u.update_frame()
             if not u.attackB:
                 u.attaque(self.unites, self.buildings)
             if u.health <= 0:
                 self.unites.remove(u)
-                self.resource_manager.population["population_actuelle"] -= 1
+                u.joueur.resource_manager.population["population_actuelle"] -= 1
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
                     self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.resource_manager.is_affordable(
-                    "villageois") and self.resource_manager.stay_place():
+            if self.hud.unite_recrut == "villageois" and self.joueurs[0].resource_manager.is_affordable(
+                    "villageois") and self.joueurs[0].resource_manager.stay_place():
                 pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
-                self.unites.append(Villageois(pos, self.resource_manager, self.hud.examined_tile.player))
+                self.unites.append(Villageois(pos, self.hud.examined_tile.joueur))
+                print(self.joueurs[0].resource_manager.population)
                 self.hud.unite_recrut = None
             else:
                 self.hud.unite_recrut = None
@@ -141,8 +142,8 @@ class World:
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
 
         xmax, xmin, ymax, ymin = self.camera_to_grid(camera)
-        for x in range(xmin,xmax):
-            for y in range(ymin,ymax):
+        for x in range(xmin, xmax):
+            for y in range(ymin, ymax):
                 render_pos = self.world[x][y]["render_pos"]
                 # draw dammier
                 tile = self.world[x][y]["tile"]
@@ -169,7 +170,7 @@ class World:
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                  render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
 
-                    if building.health <=0:
+                    if building.health <= 0:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         self.buildings[x][y] = None
@@ -315,15 +316,15 @@ class World:
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
 
-        # calcul de la taille du tableau en x vissble
+        # calcul de la taille du tableau en x vissible
         x = -grid_x - self.grid_length_x
         xmin = max(x, 0)
-        xmax = min(x + int(self.width // TILE_SIZE), 99)
+        xmax = min(x + int(self.width // TILE_SIZE), self.width-1)
 
-        # calcul de la taille du tableau en y vissble
+        # calcul de la taille du tableau en y vissible
         y = self.grid_length_y - grid_y
         ymin = max(y - int(self.height // TILE_SIZE), 0)
-        ymax = min(y + int(self.height // TILE_SIZE), 99)
+        ymax = min(y + int(self.height // TILE_SIZE), self.height-1)
         return xmax, xmin, ymax, ymin
 
     def load_images(self):
