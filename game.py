@@ -67,9 +67,12 @@ class Game:
                         self.cheat_enabled = False
                 elif event.type == events.ia_place_event:
                     # todo revoir img
-                    self.world.place_building((10, 12), self.joueurs[1], "house", img="toto")
+                    self.world.place_building((10, 12), self.joueurs[1], "house", None, True)
                 elif event.type == events.achat_villageois:
                     self.world.achat_villageois(self.joueurs[1], (20, 15))
+                elif event.type == events.deplace_unite:
+                    # todo revoir unite
+                    self.world.deplace_unite((20, 15), None)
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)

@@ -44,8 +44,8 @@ class Unite(metaclass=ABCMeta):
 
     # todo completement buguer ou alors c'est le villageois et donc dans working()
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
-        if world[pos_end[0]][pos_end[1]]["tile"] != "" or  buildings[pos_end[0]][pos_end[1]] is not None:
-            self.path = []
+        self.path = []
+        if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
             print(world[pos_end[0]][pos_end[1]]["tile"])
             return -1
 

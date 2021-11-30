@@ -42,52 +42,43 @@ class World:
 
     def update(self, camera):
 
+        self.temp_tile = None
+
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed(3)
+        grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
 
         if mouse_action[2]:
             self.examine_tile = None
             self.hud.examined_tile = None
 
-        # todo faire pour que ca soit n'importe quel joueur
         if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):
-            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
-            if self.can_place_tile(grid_pos):
-                unite = self.hud.examined_tile
-                if grid_pos != unite.pos:
-                    if unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings,
-                                         grid_pos) != -1:
-                        self.examine_tile = None
-                        self.hud.examined_tile = None
+            unite = self.hud.examined_tile
+            if self.deplace_unite(grid_pos, unite) != -1:
+                self.examine_tile = None
+                self.hud.examined_tile = None
 
-        self.temp_tile = None
-        if self.hud.selected_tile is not None and mouse_action[0]:
-
-            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
-
+        if self.hud.selected_tile is not None:
             img = self.hud.selected_tile["image"].copy()
             img.set_alpha(100)
 
-            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"]) == 0:
+            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"], img,
+                                   mouse_action[0]) == 0:
                 self.hud.selected_tile = None
 
-        else:
+        elif self.can_place_tile(grid_pos):
+            building = self.buildings[grid_pos[0]][grid_pos[1]]
+            unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
 
-            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
+            # permet de sélectionner un batiment
+            if mouse_action[0] and building is not None:  # and building.joueur.name == "joueur 1":
+                self.examine_tile = grid_pos
+                self.hud.examined_tile = building
 
-            if self.can_place_tile(grid_pos):
-                building = self.buildings[grid_pos[0]][grid_pos[1]]
-                unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
-
-                # permet de sélectionner un batiment
-                if mouse_action[0] and building is not None:  # and building.joueur.name == "joueur 1":
-                    self.examine_tile = grid_pos
-                    self.hud.examined_tile = building
-
-                # permet de sélectionner une unité
-                if mouse_action[0] and unite is not None:  # and unite.joueur.name == "joueur 1":
-                    self.examine_tile = grid_pos
-                    self.hud.examined_tile = unite
+            # permet de sélectionner une unité
+            if mouse_action[0] and unite is not None:  # and unite.joueur.name == "joueur 1":
+                self.examine_tile = grid_pos
+                self.hud.examined_tile = unite
 
         for u in self.unites:
             u.updatepos(self.world)
@@ -164,10 +155,13 @@ class World:
                 if isinstance(u, Villageois):
                     if u.work != "default":
                         u.frameNumber = 0
-                    image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
+                    image = pygame.image.load(
+                        "assets/unites/" + u.name + "/" + u.name + "_" + u.work + "_" + u.action + "_" + str(
+                            round(u.frameNumber)) + ".png").convert_alpha()
                     image = pygame.transform.scale(image, (76, 67)).convert_alpha()
                 else:
-                    image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png").convert_alpha()
+                    image = pygame.image.load("assets/unites/" + u.name + "/" + u.name + "_" + u.action + "_" + str(
+                        round(u.frameNumber)) + ".png").convert_alpha()
                     image = pygame.transform.scale(image, (76, 67)).convert_alpha()
 
                 screen.blit(image,
@@ -292,12 +286,12 @@ class World:
         # calcul de la taille du tableau en x vissible
         x = -grid_x - self.grid_length_x
         xmin = max(x, 0)
-        xmax = min(x + int(self.width // TILE_SIZE), self.grid_length_x-1)
+        xmax = min(x + int(self.width // TILE_SIZE), self.grid_length_x - 1)
 
         # calcul de la taille du tableau en y vissible
         y = self.grid_length_y - grid_y
         ymin = max(y - int(self.height // TILE_SIZE), 0)
-        ymax = min(y + int(self.height // TILE_SIZE), self.grid_length_y-1)
+        ymax = min(y + int(self.height // TILE_SIZE), self.grid_length_y - 1)
         return xmax, xmin, ymax, ymin
 
     def load_images(self):
@@ -330,29 +324,33 @@ class World:
                 return u
         return None
 
-    # todo à revoir pour enlever si il est dans le path
     def pop_end_path(self, grid_pos):
         for u in self.unites:
             if u.path:
                 if u.path[-1][0] == grid_pos[0] and u.path[-1][1] == grid_pos[1]:
                     u.path.pop(-1)
+                else:
+                    for i in u.path:
+                        if i == grid_pos:
+                            pos = u.posWork if isinstance(self.hud.examined_tile, Villageois) and u.posWork else u.path[
+                                -1]
+                            u.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, pos)
 
-    def place_building(self, grid_pos, joueur, name, img):
+    def place_building(self, grid_pos, joueur, name, img, visible):
         if self.can_place_tile(grid_pos):
             render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-            collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.find_unite_pos(grid_pos[0],
-                                                                                                 grid_pos[
-                                                                                                     1]) is not None
+            collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
+                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None
 
-            if not collision:
-                self.temp_tile = {
-                    "image": img,
-                    "render_pos": render_pos,
-                    "iso_poly": iso_poly,
-                    "collision": collision
-                }
+            self.temp_tile = {
+                "image": img,
+                "render_pos": render_pos,
+                "iso_poly": iso_poly,
+                "collision": collision
+            }
 
+            if not collision and visible:
                 if name == "caserne":
                     ent = Caserne(render_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
@@ -370,5 +368,9 @@ class World:
     def achat_villageois(self, joueur, pos):
         if joueur.resource_manager.is_affordable("villageois") and joueur.resource_manager.stay_place():
             # todo regarder si il n'y a pas d'unité sinon les faire dégagé
-            pos = pos + 1, pos + 1
+            pos = pos[0] + 1, pos[1] + 1
             self.unites.append(Villageois(pos, joueur))
+
+    def deplace_unite(self, pos, unite):
+        if self.can_place_tile(pos) and pos != unite.pos:
+            return unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, pos)
