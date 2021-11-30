@@ -120,7 +120,7 @@ class World:
                 u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings)
             u.update_frame()
             if not u.attackB:
-                u.attaque(self.unites, self.buildings)
+                u.attaque(self.unites, self.buildings, self.grid_length_x, self.grid_length_y)
             if u.health <= 0:
                 self.unites.remove(u)
                 u.joueur.resource_manager.population["population_actuelle"] -= 1
@@ -319,12 +319,12 @@ class World:
         # calcul de la taille du tableau en x vissible
         x = -grid_x - self.grid_length_x
         xmin = max(x, 0)
-        xmax = min(x + int(self.width // TILE_SIZE), self.width-1)
+        xmax = min(x + int(self.width // TILE_SIZE), self.grid_length_x-1)
 
         # calcul de la taille du tableau en y vissible
         y = self.grid_length_y - grid_y
         ymin = max(y - int(self.height // TILE_SIZE), 0)
-        ymax = min(y + int(self.height // TILE_SIZE), self.height-1)
+        ymax = min(y + int(self.height // TILE_SIZE), self.grid_length_y-1)
         return xmax, xmin, ymax, ymin
 
     def load_images(self):

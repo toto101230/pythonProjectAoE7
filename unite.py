@@ -3,8 +3,21 @@ from time import time
 from settings import TILE_SIZE
 from abc import ABCMeta
 from model.joueur import Joueur
+from time import time
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
+
+
+class Node():
+    def __init__(self, parent=None, position=None):
+        self.parent = parent
+        self.position = position
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    def __eq__(self, other):
+        return self.position == other.position
 
 
 class Unite(metaclass=ABCMeta):
@@ -29,56 +42,124 @@ class Unite(metaclass=ABCMeta):
         self.tick_attaque = -1
         self.attackB = False
 
-    #todo contient un bug à identifier
+    # todo completement buguer ou alors c'est le villageois et donc dans working()
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
-        self.path = []
-        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+        if world[pos_end[0]][pos_end[1]]["tile"] != "":
+            self.path = []
+            print(world[pos_end[0]][pos_end[1]]["tile"])
+            return -1
 
-        list_case = [pos_end]
-        t_cout[list_case[0][0]][list_case[0][1]] = 0
+        start_node = Node(None, self.pos)
+        start_node.g = start_node.h = start_node.f = 0
+        end_node = Node(None, pos_end)
+        end_node.g = end_node.h = end_node.f = 0
 
-        while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
-            cur_pos = list_case.pop(0)
-            cout = t_cout[cur_pos[0]][cur_pos[1]]
+        open_list = []
+        closed_list = []
+        open_list.append(start_node)
 
-            for neighbour in neighbours:
-                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+        while len(open_list) > 0:
+            current_node = open_list[0]
+            current_index = 0
+            for index, item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
 
-                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+            open_list.pop(current_index)
+            closed_list.append(current_node)
+
+            if current_node == end_node:
+                current = current_node
+                while current is not None:
+                    self.path.append(current.position)
+                    current = current.parent
+                self.path = self.path[::-1][1:]
+                print(self.path)
+                return 0
+
+            children = []
+            for new_position in neighbours:
+                node_position = (
+                    current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+                if node_position[0] > (len(world) - 1) or node_position[0] < 0 or node_position[1] > (
+                        len(world[len(world) - 1]) - 1) or node_position[1] < 0:
                     continue
-                if world[x][y]["tile"] != "":
-                    continue
-                if buildings[x][y] is not None:
+
+                if world[node_position[0]][node_position[1]]["tile"] != "":
                     continue
 
-                #todo verifier si il n'y a pas d'unité
+                new_node = Node(current_node, node_position)
+                children.append(new_node)
 
-                count = cout + 1
-                if t_cout[x][y] > count or t_cout[x][y] == -1:
-                    t_cout[x][y] = count
-                    list_case.append((x, y))
+            for child in children:
+                for closed_child in closed_list:
+                    if child == closed_child:
+                        continue
 
-        cell = self.pos
-        mincout = t_cout[cell[0]][cell[1]]
-        while cell != pos_end:
-            val_min = mincout
-            for neighbour in neighbours:
-                x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
-                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-                    continue
-                if world[x][y]["tile"] != "":
-                    continue
-                if buildings[x][y] is not None:
-                    continue
+                child.g = current_node.g + 1
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
+                        (child.position[1] - end_node.position[1]) ** 2)
+                child.f = child.g + child.h
 
-                if mincout > t_cout[x][y] != -1:
-                    mincout = t_cout[x][y]
-                    cell = (x, y)
-                    self.path.append(cell)
-                    break
-            if val_min == mincout:
-                self.path = []
-                return -1
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+                open_list.append(child)
+
+    # todo contient un bug à identifier
+
+    # def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
+    #     time1 = time()
+    #     self.path = []
+    #     t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+    #
+    #     list_case = [pos_end]
+    #     t_cout[list_case[0][0]][list_case[0][1]] = 0
+    #
+    #     while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
+    #         cur_pos = list_case.pop(0)
+    #         cout = t_cout[cur_pos[0]][cur_pos[1]]
+    #
+    #         for neighbour in neighbours:
+    #             x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+    #
+    #             if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+    #                 continue
+    #             if world[x][y]["tile"] != "":
+    #                 continue
+    #             if buildings[x][y] is not None:
+    #                 continue
+    #
+    #             #todo verifier si il n'y a pas d'unité
+    #
+    #             count = cout + 1
+    #             if t_cout[x][y] > count or t_cout[x][y] == -1:
+    #                 t_cout[x][y] = count
+    #                 list_case.append((x, y))
+    #
+    #     cell = self.pos
+    #     mincout = t_cout[cell[0]][cell[1]]
+    #     while cell != pos_end:
+    #         val_min = mincout
+    #         for neighbour in neighbours:
+    #             x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
+    #             if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+    #                 continue
+    #             if world[x][y]["tile"] != "":
+    #                 continue
+    #             if buildings[x][y] is not None:
+    #                 continue
+    #
+    #             if mincout > t_cout[x][y] != -1:
+    #                 mincout = t_cout[x][y]
+    #                 cell = (x, y)
+    #                 self.path.append(cell)
+    #                 break
+    #         if val_min == mincout:
+    #             self.path = []
+    #             return -1
+    #     print(time1-time())
 
     # todo à revoir avec la self.speed
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
@@ -143,7 +224,7 @@ class Unite(metaclass=ABCMeta):
             self.frameNumber = 0
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
-    def attaque(self, unites, batiments):
+    def attaque(self, unites, batiments, grid_length_x, grid_length_y):
         neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
         neighbours_unite.remove((0, 0))
 
@@ -161,7 +242,7 @@ class Unite(metaclass=ABCMeta):
 
             for neighbour in neighbours_unite:
                 x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
-                if batiments[x][y] and self.joueur != batiments[x][y].joueur:
+                if grid_length_x > x > 0 and grid_length_y > y > 0 and batiments[x][y] and self.joueur != batiments[x][y].joueur:
                     if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
                         element_plus_proche = (batiments[x][y], neighbour[0], neighbour[1])
                     self.attackB = True
@@ -194,7 +275,7 @@ class Villageois(Unite):
             self.posWork = ()
 
         # todo gérer le faites que si il y a posWork mais qu'on peut pas l'attendre alors chercher autre part
-        super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
+        return super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
         # self.path = []
         # t_cout = [[-1 for _ in range(100)] for _ in range(100)]
         #
@@ -302,6 +383,7 @@ class Villageois(Unite):
                     self.action = "gather"
                     self.time_recup_ressource = time()
                 else:
+                    # todo bug
                     self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
                     self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
 
