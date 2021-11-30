@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+import events
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -9,6 +10,7 @@ from resource_manager import ResourceManager
 from input import InputBox
 from save import Save
 from model.joueur import Joueur
+from events import *
 
 
 class Game:
@@ -63,6 +65,11 @@ class Game:
                         self.hud.examined_tile = None
                         self.hud.selected_tile = None
                         self.cheat_enabled = False
+                elif event.type == events.ia_place_event:
+                    # todo revoir img
+                    self.world.place_building((10, 12), self.joueurs[1], "house", img="toto")
+                elif event.type == events.achat_villageois:
+                    self.world.achat_villageois(self.joueurs[1], (20, 15))
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)

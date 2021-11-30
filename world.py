@@ -49,6 +49,7 @@ class World:
             self.examine_tile = None
             self.hud.examined_tile = None
 
+        # todo faire pour que ca soit n'importe quel joueur
         if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):
             grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
             if self.can_place_tile(grid_pos):
@@ -60,41 +61,15 @@ class World:
                         self.hud.examined_tile = None
 
         self.temp_tile = None
-        if self.hud.selected_tile is not None:
+        if self.hud.selected_tile is not None and mouse_action[0]:
 
             grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
 
-            if self.can_place_tile(grid_pos):
-                img = self.hud.selected_tile["image"].copy()
-                img.set_alpha(100)
+            img = self.hud.selected_tile["image"].copy()
+            img.set_alpha(100)
 
-                render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
-                iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.find_unite_pos(grid_pos[0],
-                                                                                                     grid_pos[
-                                                                                                       1]) is not None
-
-                self.temp_tile = {
-                    "image": img,
-                    "render_pos": render_pos,
-                    "iso_poly": iso_poly,
-                    "collision": collision
-                }
-
-                if mouse_action[0] and not collision:
-
-                    if self.hud.selected_tile["name"] == "caserne":
-                        ent = Caserne(render_pos, self.joueurs[0])
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                    elif self.hud.selected_tile["name"] == "house":
-                        ent = House(render_pos, self.joueurs[0])
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                    elif self.hud.selected_tile["name"] == "grenier":
-                        ent = Grenier(render_pos, self.joueurs[0])
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                    self.pop_end_path(grid_pos)
-                    self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
-                    self.hud.selected_tile = None
+            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"]) == 0:
+                self.hud.selected_tile = None
 
         else:
 
@@ -129,10 +104,8 @@ class World:
                     self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois" and self.joueurs[0].resource_manager.is_affordable(
-                    "villageois") and self.joueurs[0].resource_manager.stay_place():
-                pos = self.examine_tile[0] + 1, self.examine_tile[1] + 1
-                self.unites.append(Villageois(pos, self.hud.examined_tile.joueur))
+            if self.hud.unite_recrut == "villageois":
+                self.achat_villageois(self.joueurs[0], self.examine_tile)
                 print(self.joueurs[0].resource_manager.population)
                 self.hud.unite_recrut = None
             else:
@@ -357,8 +330,45 @@ class World:
                 return u
         return None
 
+    # todo à revoir pour enlever si il est dans le path
     def pop_end_path(self, grid_pos):
         for u in self.unites:
             if u.path:
                 if u.path[-1][0] == grid_pos[0] and u.path[-1][1] == grid_pos[1]:
                     u.path.pop(-1)
+
+    def place_building(self, grid_pos, joueur, name, img):
+        if self.can_place_tile(grid_pos):
+            render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
+            iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
+            collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.find_unite_pos(grid_pos[0],
+                                                                                                 grid_pos[
+                                                                                                     1]) is not None
+
+            if not collision:
+                self.temp_tile = {
+                    "image": img,
+                    "render_pos": render_pos,
+                    "iso_poly": iso_poly,
+                    "collision": collision
+                }
+
+                if name == "caserne":
+                    ent = Caserne(render_pos, joueur)
+                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                elif name == "house":
+                    ent = House(render_pos, joueur)
+                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                elif name == "grenier":
+                    ent = Grenier(render_pos, joueur)
+                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                self.pop_end_path(grid_pos)
+                self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
+                return 0
+        return 1
+
+    def achat_villageois(self, joueur, pos):
+        if joueur.resource_manager.is_affordable("villageois") and joueur.resource_manager.stay_place():
+            # todo regarder si il n'y a pas d'unité sinon les faire dégagé
+            pos = pos + 1, pos + 1
+            self.unites.append(Villageois(pos, joueur))

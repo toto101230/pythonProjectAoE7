@@ -8,7 +8,7 @@ from time import time
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 
 
-class Node():
+class Node:
     def __init__(self, parent=None, position=None):
         self.parent = parent
         self.position = position
@@ -44,7 +44,7 @@ class Unite(metaclass=ABCMeta):
 
     # todo completement buguer ou alors c'est le villageois et donc dans working()
     def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
-        if world[pos_end[0]][pos_end[1]]["tile"] != "":
+        if world[pos_end[0]][pos_end[1]]["tile"] != "" or  buildings[pos_end[0]][pos_end[1]] is not None:
             self.path = []
             print(world[pos_end[0]][pos_end[1]]["tile"])
             return -1
@@ -80,16 +80,19 @@ class Unite(metaclass=ABCMeta):
 
             children = []
             for new_position in neighbours:
-                node_position = (
-                    current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
-                if node_position[0] > (len(world) - 1) or node_position[0] < 0 or node_position[1] > (
-                        len(world[len(world) - 1]) - 1) or node_position[1] < 0:
+                x, y = current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]
+                if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
                     continue
 
-                if world[node_position[0]][node_position[1]]["tile"] != "":
+                if world[x][y]["tile"] != "":
                     continue
 
-                new_node = Node(current_node, node_position)
+                if buildings[x][y] is not None:
+                    continue
+
+                # todo vérifier s'il n'y pas d'unité
+
+                new_node = Node(current_node, (x, y))
                 children.append(new_node)
 
             for child in children:
@@ -271,8 +274,9 @@ class Villageois(Unite):
             pos_end = self.find_closer_pos(pos_end)
         elif buildings[pos_end[0]][pos_end[1]] and self.stockage > 0:
             pos_end = self.find_closer_pos(pos_end)
-        elif self.stockage == 0:
+        elif self.stockage > 1:
             self.posWork = ()
+            self.def_metier(tile)
 
         # todo gérer le faites que si il y a posWork mais qu'on peut pas l'attendre alors chercher autre part
         return super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
