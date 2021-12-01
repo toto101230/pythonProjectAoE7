@@ -100,8 +100,21 @@ class World:
                         ent = House(render_pos, self.resource_manager)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     elif self.hud.selected_tile["name"] == "grenier":
-                        ent = Grenier(render_pos, self.resource_manager)
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                            collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.findUnitePos(
+                                grid_pos[0] + 1, grid_pos[1]) is not None
+                            collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.findUnitePos(
+                                grid_pos[0], grid_pos[1] + 1) is not None
+                            collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.findUnitePos(
+                                grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                            if not collision1 and not collision2 and not collision3:
+                                ent = Grenier(grid_pos, self.resource_manager)
+                                self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                                self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
+                                self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
+                                self.buildings[grid_pos[0] + 1][grid_pos[1] + 1] = ent
+                                self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
+                                self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
+                                self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
                     self.popEndPath(grid_pos)
                     self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
                     self.hud.selected_tile = None
