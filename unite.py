@@ -1,11 +1,10 @@
-from time import time
-
 from settings import TILE_SIZE
 from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
+neighbours.remove((0, 0))
 
 
 class Node:

@@ -2,7 +2,7 @@ import pygame
 import random
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
-from unite import Unite, Villageois, Clubman
+from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
 
@@ -97,7 +97,6 @@ class World:
         if self.hud.unite_recrut is not None:
             if self.hud.unite_recrut == "villageois":
                 self.achat_villageois(self.joueurs[0], self.examine_tile)
-                print(self.joueurs[0].resource_manager.population)
                 self.hud.unite_recrut = None
             else:
                 self.hud.unite_recrut = None
@@ -341,7 +340,7 @@ class World:
             render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
             collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
-                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None
+                        self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None
 
             self.temp_tile = {
                 "image": img,
@@ -365,11 +364,49 @@ class World:
                 return 0
         return 1
 
-    def achat_villageois(self, joueur, pos):
-        if joueur.resource_manager.is_affordable("villageois") and joueur.resource_manager.stay_place():
-            # todo regarder si il n'y a pas d'unité sinon les faire dégagé
-            pos = pos[0] + 1, pos[1] + 1
-            self.unites.append(Villageois(pos, joueur))
+    def achat_villageois(self, joueur, pos_ini):
+        if joueur.resource_manager.is_affordable("villageois") and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 0.7:
+            joueur.time_recrut = time()
+            unite_a_degage = []
+            pos_visitee = []
+            pos_ini = pos_ini[0] + 1, pos_ini[1] + 1
+            pos = pos_ini
+
+            def degage_unite(pos):
+                for neighbour in neighbours:
+                    x, y = pos[0] + neighbour[0], pos[1] + neighbour[1]
+                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
+                        u = self.find_unite_pos(pos[0], pos[1])
+                        u.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, (x, y))
+                        return pos
+                    else:
+                        if self.find_unite_pos(x, y) is not None and (x, y) not in pos_visitee:
+                            unite_a_degage.append((x, y))
+                pos_visitee.append(pos)
+                return ()
+
+            def find_closer_pos(pos_end):
+                pos_min = (5000, 5000)
+                for neighbour in neighbours:
+                    x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
+                    if abs(pos_ini[0] - x) + abs(pos_ini[1] - y) < abs(pos_ini[0] - pos_min[0]) + abs(
+                            pos_ini[1] - pos_min[1]):
+                        pos_min = (x, y)
+                return pos_min
+
+            if self.find_unite_pos(pos[0], pos[1]):
+                last = degage_unite(pos)
+                while last == ():
+                    pos = unite_a_degage.pop(0)
+                    last = degage_unite(pos)
+                if last != pos_ini:
+                    des = find_closer_pos(last)
+                    self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, last)
+                    while des != pos_ini:
+                        last = des
+                        des = find_closer_pos(last)
+                        self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, last)
+            self.unites.append(Villageois(pos_ini, joueur))
 
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:
