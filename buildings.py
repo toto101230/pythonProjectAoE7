@@ -11,6 +11,7 @@ class Batiment:
         self.counter = 0
         self.place = place
         self.resource_manager.update_population_max(self.place)
+        self.pos = pos
 
 
 class Hdv(Batiment):

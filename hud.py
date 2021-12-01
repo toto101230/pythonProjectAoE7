@@ -136,6 +136,7 @@ class Hud:
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
             else:
+                print(self.examined_tile)
                 img = self.images_terre[self.examined_tile["tile"]].copy()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
                 draw_text(screen, str(self.examined_tile["tile"]), 50, (0,255,255), (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1]- 90))

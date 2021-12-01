@@ -80,12 +80,22 @@ class World:
 
                 if mouse_action[0] and not collision:
 
-                    if self.hud.selected_tile["name"] == "caserne":
-                        ent = Caserne(render_pos, self.resource_manager)
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                        self.buildings[grid_pos[0]+1][grid_pos[1]] = ent
-                        self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
-                        self.buildings[grid_pos[0]+1][grid_pos[1] + 1] = ent
+                    if self.hud.selected_tile["name"] == "caserne" :
+                        collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.findUnitePos(
+                            grid_pos[0] + 1, grid_pos[1]) is not None
+                        collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.findUnitePos(
+                            grid_pos[0], grid_pos[1] + 1) is not None
+                        collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.findUnitePos(
+                            grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                        if not collision1 and not collision2 and not collision3 :
+                            ent = Caserne(grid_pos, self.resource_manager)
+                            self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                            self.buildings[grid_pos[0]+1][grid_pos[1]] = ent
+                            self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
+                            self.buildings[grid_pos[0]+1][grid_pos[1] + 1] = ent
+                            self.world[grid_pos[0]+1][grid_pos[1]]["collision"] = True
+                            self.world[grid_pos[0]][grid_pos[1]+1]["collision"] = True
+                            self.world[grid_pos[0]+1][grid_pos[1]+1]["collision"] = True
                     elif self.hud.selected_tile["name"] == "house":
                         ent = House(render_pos, self.resource_manager)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
@@ -111,7 +121,7 @@ class World:
                     self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
                 if mouse_action[0] and (building is not None):
-                    self.examine_tile = grid_pos
+                    self.examine_tile = (building.pos[0]+1, building.pos[1]+1)
                     self.hud.examined_tile = building
 
                 # permet de sélectionner une unité
@@ -168,18 +178,24 @@ class World:
                 # draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
-                    #if ... continue
-                    image = pygame.image.load("assets/batiments/" + building.name + ".png").convert_alpha()
-                    screen.blit(image,
-                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                    if(building == self.buildings[x+1][y+1] or building == self.buildings[x+1][y] or building == self.buildings[x][y+1]):
+                        continue
+                    else:
+                        correctif = 0
+                        if isinstance(building, Caserne) :
+                            correctif = -45
+                        image = pygame.image.load("assets/batiments/" + building.name + ".png").convert_alpha()
+                        screen.blit(image,
+                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
                                  render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
-                    if self.examine_tile is not None:
-                        if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
-                            mask = pygame.mask.from_surface(image).outline()
-                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                     y + render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y)
-                                    for x, y in mask]
-                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
+                        if self.examine_tile is not None:
+                            if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
+                                mask = pygame.mask.from_surface(image).outline()
+                                mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
+                                         y + render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y)
+                                        for x, y in mask]
+                                pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
         # dessine les unités
         for u in self.unites:
             render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
@@ -296,8 +312,8 @@ class World:
         # transform to grid coordinates
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
-        print(world_x)
-        print(world_y)
+        #print(world_x)
+        #print(world_y)
         return grid_x, grid_y
 
     def load_images(self):
