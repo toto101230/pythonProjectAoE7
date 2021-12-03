@@ -30,10 +30,10 @@ class World:
 
         self.unites.append(Villageois((10, 14), joueurs[0]))  # ligne pour tester les villageois
         self.unites.append(Villageois((10, 15), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((9, 18), joueurs[1]))  # ligne pour tester les villageois
+        # self.unites.append(Villageois((9, 18), joueurs[1]))  # ligne pour tester les villageois
 
         self.unites.append(Clubman((12, 15), joueurs[0]))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 18), joueurs[1]))  # ligne pour tester les soldats
+        # self.unites.append(Clubman((12, 18), joueurs[1]))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -83,7 +83,7 @@ class World:
         for u in self.unites:
             u.updatepos(self.world)
             if isinstance(u, Villageois):
-                u.working(self.grid_length_x, self.grid_length_y, self.world, self.buildings)
+                u.working(self.grid_length_x, self.grid_length_y,self.unites, self.world, self.buildings)
             u.update_frame()
             if not u.attackB:
                 u.attaque(self.unites, self.buildings, self.grid_length_x, self.grid_length_y)
@@ -234,7 +234,7 @@ class World:
             ressource = 250
         elif r <= 14:
             tile = "buisson"
-            ressource = 75
+            ressource = 30
         else:
             tile = ""
             ressource = 0
@@ -333,7 +333,7 @@ class World:
                         if i == grid_pos:
                             pos = u.posWork if isinstance(self.hud.examined_tile, Villageois) and u.posWork else u.path[
                                 -1]
-                            u.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, pos)
+                            u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
 
     def place_building(self, grid_pos, joueur, name, img, visible):
         if self.can_place_tile(grid_pos):
@@ -377,7 +377,7 @@ class World:
                     x, y = pos[0] + neighbour[0], pos[1] + neighbour[1]
                     if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
                         u = self.find_unite_pos(pos[0], pos[1])
-                        u.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, (x, y))
+                        u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, (x, y))
                         return pos
                     else:
                         if self.find_unite_pos(x, y) is not None and (x, y) not in pos_visitee:
@@ -401,13 +401,15 @@ class World:
                     last = degage_unite(pos)
                 if last != pos_ini:
                     des = find_closer_pos(last)
-                    self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, last)
+                    self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.unites,
+                                                                    self.world, self.buildings, last)
                     while des != pos_ini:
                         last = des
                         des = find_closer_pos(last)
-                        self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, last)
+                        self.find_unite_pos(des[0], des[1]).create_path(self.grid_length_x, self.grid_length_y, self.unites,
+                                                                        self.world, self.buildings, last)
             self.unites.append(Villageois(pos_ini, joueur))
 
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:
-            return unite.create_path(self.grid_length_x, self.grid_length_y, self.world, self.buildings, pos)
+            return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)

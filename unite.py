@@ -41,11 +41,9 @@ class Unite(metaclass=ABCMeta):
         self.tick_attaque = -1
         self.attackB = False
 
-    # todo completement buguer ou alors c'est le villageois et donc dans working()
-    def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
         self.path = []
         if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
-            print(world[pos_end[0]][pos_end[1]]["tile"])
             return -1
 
         start_node = Node(None, self.pos)
@@ -74,7 +72,6 @@ class Unite(metaclass=ABCMeta):
                     self.path.append(current.position)
                     current = current.parent
                 self.path = self.path[::-1][1:]
-                print(self.path)
                 return 0
 
             children = []
@@ -108,60 +105,6 @@ class Unite(metaclass=ABCMeta):
                     if child == open_node and child.g > open_node.g:
                         continue
                 open_list.append(child)
-
-    # todo contient un bug à identifier
-
-    # def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
-    #     time1 = time()
-    #     self.path = []
-    #     t_cout = [[-1 for _ in range(100)] for _ in range(100)]
-    #
-    #     list_case = [pos_end]
-    #     t_cout[list_case[0][0]][list_case[0][1]] = 0
-    #
-    #     while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
-    #         cur_pos = list_case.pop(0)
-    #         cout = t_cout[cur_pos[0]][cur_pos[1]]
-    #
-    #         for neighbour in neighbours:
-    #             x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
-    #
-    #             if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-    #                 continue
-    #             if world[x][y]["tile"] != "":
-    #                 continue
-    #             if buildings[x][y] is not None:
-    #                 continue
-    #
-    #             #todo verifier si il n'y a pas d'unité
-    #
-    #             count = cout + 1
-    #             if t_cout[x][y] > count or t_cout[x][y] == -1:
-    #                 t_cout[x][y] = count
-    #                 list_case.append((x, y))
-    #
-    #     cell = self.pos
-    #     mincout = t_cout[cell[0]][cell[1]]
-    #     while cell != pos_end:
-    #         val_min = mincout
-    #         for neighbour in neighbours:
-    #             x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
-    #             if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-    #                 continue
-    #             if world[x][y]["tile"] != "":
-    #                 continue
-    #             if buildings[x][y] is not None:
-    #                 continue
-    #
-    #             if mincout > t_cout[x][y] != -1:
-    #                 mincout = t_cout[x][y]
-    #                 cell = (x, y)
-    #                 self.path.append(cell)
-    #                 break
-    #         if val_min == mincout:
-    #             self.path = []
-    #             return -1
-    #     print(time1-time())
 
     # todo à revoir avec la self.speed
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
@@ -264,90 +207,39 @@ class Villageois(Unite):
         self.posWork = ()
 
     # création du chemin à parcourir (remplie path de tuple des pos)
-    def create_path(self, grid_length_x, grid_length_y, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
         tile = world[pos_end[0]][pos_end[1]]["tile"]
         if tile != "":
             if not self.posWork or not self.is_good_work(tile):
                 self.def_metier(tile)
             self.posWork = pos_end
-            pos_end = self.find_closer_pos(pos_end)
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif buildings[pos_end[0]][pos_end[1]] and self.stockage > 0:
-            pos_end = self.find_closer_pos(pos_end)
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif self.stockage > 1:
             self.posWork = ()
             self.def_metier(tile)
 
-        # todo gérer le faites que si il y a posWork mais qu'on peut pas l'attendre alors chercher autre part
-        return super().create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
-        # self.path = []
-        # t_cout = [[-1 for _ in range(100)] for _ in range(100)]
-        #
-        # list_case = [pos_end]
-        # t_cout[list_case[0][0]][list_case[0][1]] = 0
-        #
-        # while t_cout[self.pos[0]][self.pos[1]] == -1 and list_case:
-        #     cur_pos = list_case.pop(0)
-        #     cout = t_cout[cur_pos[0]][cur_pos[1]]
-        #
-        #     for neighbour in neighbours:
-        #         x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
-        #
-        #         if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-        #             continue
-        #         if world[x][y]["tile"] != "":
-        #             if x == self.pos[0] and y == self.pos[1]:
-        #                 t_cout[x][y] = cout + 1
-        #                 break
-        #             continue
-        #         if buildings[x][y] is not None:
-        #             if not ((buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") and ((x, y) == self.pos or self.work != "default")):
-        #                 continue
-        #
-        #         count = cout + 1
-        #         if t_cout[x][y] > count or t_cout[x][y] == -1:
-        #             t_cout[x][y] = count
-        #             list_case.append((x, y))
-        #
-        # cell = self.pos
-        # mincout = t_cout[cell[0]][cell[1]]
-        # while cell != pos_end:
-        #     val_min = mincout
-        #     for neighbour in neighbours:
-        #         x, y = cell[0] + neighbour[0], cell[1] + neighbour[1]
-        #         if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
-        #             continue
-        #         if world[x][y]["tile"] != "":
-        #             if x == pos_end[0] and y == pos_end[1]:
-        #                 self.def_metier(world[x][y]["tile"])
-        #                 self.path.append((x, y))
-        #                 return 0
-        #             continue
-        #         if buildings[x][y] is not None:
-        #             if not ((buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") and ((x, y) == self.pos or self.work != "default")):
-        #                 continue
-        #
-        #         if mincout > t_cout[x][y] and t_cout[x][y] != -1:
-        #             mincout = t_cout[x][y]
-        #             cell = (x, y)
-        #             self.path.append(cell)
-        #             break
-        #     if val_min == mincout:
-        #         self.path = []
-        #         return -1
-        # self.def_metier(world[pos_end[0]][pos_end[1]]["tile"])
+        return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
 
-    def find_closer_pos(self, pos_end):
+    def find_closer_pos(self, pos_end, world, buildings, unites):
         pos_min = (5000, 5000)
         for neighbour in neighbours:
             x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
             if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                    self.pos[1] - pos_min[1]):
+                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and self.find_unite_pos(x, y, unites) is None:
                 pos_min = (x, y)
+        if pos_min == (5000, 5000):
+            for neighbour in neighbours:
+                x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
+                if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
+                        self.pos[1] - pos_min[1]):
+                    pos_min = self.find_closer_pos((x, y), world, buildings, unites)
         return pos_min
 
     def updatepos(self, world):
         super().updatepos(world)
-        if 20 >= self.stockage > 0 and not self.posWorkIsNeighbours() and self.work != "default":
+        if 20 >= self.stockage > 0 and not self.pos_work_is_neighbours() and self.work != "default":
             self.action = "carry"
 
     def update_frame(self):
@@ -357,7 +249,7 @@ class Villageois(Unite):
         if self.action == "walk" and round(self.frameNumber) >= 15:
             self.frameNumber = 0
 
-        ## A enlever lorsque les autres animations seront implémentées
+        # A enlever lorsque les autres animations seront implémentées
         # début
         if self.work != "default":
             self.frameNumber = 0
@@ -376,28 +268,27 @@ class Villageois(Unite):
         elif self.stockage == 0:
             self.work = "default"
 
-    def working(self, grid_length_x, grid_length_y, world, buildings):
+    def working(self, grid_length_x, grid_length_y, unites, world, buildings):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
             # todo a changer et a remettre 1s
-            if self.posWorkIsNeighbours() and time() - self.time_recup_ressource > 0.1:
+            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
                 if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
                     self.stockage += 1
                     world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
                     self.action = "gather"
                     self.time_recup_ressource = time()
                 else:
-                    # todo bug
                     self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
-                    self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
+                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
 
                 if self.stockage >= 20:
                     self.stockage = 20
-                    pos_end = self.findstockage(buildings, grid_length_x, grid_length_y)
+                    pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites)
                     pos_temp = self.posWork
-                    self.create_path(grid_length_x, grid_length_y, world, buildings, pos_end)
+                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
                     self.posWork = pos_temp
 
-            elif self.buildingRessourceClose(buildings):
+            elif self.building_ressource_close(buildings):
                 if self.stockage > 0:
                     if self.work == "lumber":
                         self.joueur.resource_manager.resources["wood"] += round(self.stockage)
@@ -408,15 +299,15 @@ class Villageois(Unite):
                 self.stockage = 0
                 if self.posWork:
                     if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
-                        self.create_path(grid_length_x, grid_length_y, world, buildings, self.posWork)
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
                     else:
                         self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos)
-                        self.create_path(grid_length_x, grid_length_y, world, buildings,  self.posWork)
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
                 else:
                     self.action = "idle"
                     self.work = "default"
 
-    def findstockage(self, buildings, grid_length_x, grid_length_y):
+    def findstockage(self, grid_length_x, grid_length_y, world, buildings, unites):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [self.pos]
@@ -434,7 +325,7 @@ class Villageois(Unite):
                 if buildings[x][y] is not None:
                     if (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") \
                             and buildings[x][y].joueur == self.joueur:
-                        return self.find_closer_pos((x, y))
+                        return self.find_closer_pos((x, y), world, buildings, unites)
                     pass
 
                 count = cout + 1
@@ -442,14 +333,14 @@ class Villageois(Unite):
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
-    def posWorkIsNeighbours(self):
+    def pos_work_is_neighbours(self):
         for neighbour in neighbours:
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
             if self.posWork == (x, y):
                 return True
         return False
 
-    def buildingRessourceClose(self, buildings):
+    def building_ressource_close(self, buildings):
         for neighbour in neighbours:
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
             if buildings[x][y] and (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier"):
@@ -477,12 +368,20 @@ class Villageois(Unite):
                     continue
 
                 if world[x][y]["tile"] != "" and self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
-                    return (x, y)
+                    return x, y
 
                 count = cout + 1
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
                     list_case.append((x, y))
+
+        # recherche s'il y a une unité pour la pos donnée
+
+    def find_unite_pos(self, x, y, unites):
+        for u in unites:
+            if u.pos[0] == x and u.pos[1] == y:
+                return u
+        return None
 
 
 class Clubman(Unite):
