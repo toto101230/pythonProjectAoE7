@@ -38,6 +38,7 @@ class Hud:
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
         self.images = self.load_images()
+        self.images_examined = self.load_images_examined()
         self.tiles = self.create_build_hud()
 
         self.selected_tile = None
@@ -117,13 +118,8 @@ class Hud:
 
         # si un objet est selectionné
         if self.examined_tile is not None:
-            w, h = self.hud_info_rect.width, self.hud_info_rect.height
-            screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
-
             # affichage de l'image du batiment avec son nom et son nombre de vie
-            img = pygame.image.load("assets/hud/examined_title/"+self.examined_tile.name+".png").convert_alpha()
-            img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width - 1150, self.height - 205 + 40))
+            screen.blit(self.images_examined[self.examined_tile.name], (self.width - 1150, self.height - 205 + 40))
             draw_text(screen, self.examined_tile.name, 50, "#ff0000",
                       (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
             draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
@@ -161,8 +157,30 @@ class Hud:
             "caserne": caserne,
             "house": house,
             "grenier": grenier,
-
         }
+
+        return images
+
+    def load_images_examined(self):
+        caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()
+        clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
+        grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
+        hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
+        house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
+        villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
+
+        images = {
+            "caserne": caserne,
+            "clubman": clubman,
+            "grenier": grenier,
+            "hdv": hdv,
+            "house": house,
+            "villageois": villageois
+        }
+
+        for i in images:
+            w, h = self.hud_info_rect.width, self.hud_info_rect.height
+            images[i] = self.scale_image(images[i], h=h * 0.7)
 
         return images
 

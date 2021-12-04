@@ -144,6 +144,7 @@ class Unite(metaclass=ABCMeta):
                             deplacement = True
 
                     if deplacement:
+                        # todo vérifié s'il n'y pas d'unités ou de bâtiments
                         self.pos = self.path.pop(0)
                     break
 
@@ -214,7 +215,7 @@ class Villageois(Unite):
                 self.def_metier(tile)
             self.posWork = pos_end
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
-        elif buildings[pos_end[0]][pos_end[1]] and self.stockage > 0:
+        elif buildings[pos_end[0]][pos_end[1]] and (buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif self.stockage > 1:
             self.posWork = ()
