@@ -1,7 +1,6 @@
 import pygame
 import numpy as np
 
-from perlin_noise import PerlinNoise
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman
