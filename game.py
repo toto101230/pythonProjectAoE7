@@ -15,13 +15,14 @@ class Game:
         self.playing = True
         self.screen = screen
         self.clock = clock
+        self.seed = 0
         self.width, self.height = self.screen.get_size()
 
         self.resources_manager = ResourceManager()
 
         self.hud = Hud(self.resources_manager, self.width, self.height)
 
-        self.world = World(self.resources_manager, self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.resources_manager, self.hud, 100, 100, self.width, self.height, self.seed)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 

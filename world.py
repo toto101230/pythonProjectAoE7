@@ -1,5 +1,5 @@
 import pygame
-import random
+import numpy as np
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman
@@ -8,7 +8,7 @@ from resource_manager import ResourceManager
 
 class World:
 
-    def __init__(self, resource_manager: ResourceManager, hud, grid_length_x, grid_length_y, width, height):
+    def __init__(self, resource_manager: ResourceManager, hud, grid_length_x, grid_length_y, width, height, seed):
 
         self.resource_manager = resource_manager
         self.hud = hud
@@ -16,6 +16,7 @@ class World:
         self.grid_length_y = grid_length_y
         self.width = width
         self.height = height
+        self.seed = seed if seed != 0 else np.random.randint(1000000000000,10000000000000)
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -218,10 +219,13 @@ class World:
 
     def create_world(self):
         world = []
+        np.random.seed(self.seed)
+        # todo voir pour mettre perlin noise
+        world_val = np.random.normal((self.grid_length_x, self.grid_length_y))
         for grid_x in range(self.grid_length_x):
             world.append([])
             for grid_y in range(self.grid_length_y):
-                world_tile = self.grid_to_world(grid_x, grid_y)
+                world_tile = self.grid_to_world(grid_x, grid_y, world_val)
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
@@ -244,7 +248,7 @@ class World:
         minx = min([x for x, y in iso_poly])
         miny = min([y for x, y in iso_poly])
 
-        r = random.randint(1, 100)
+        r = np.random.randint(1, 100)
         if r <= 5:
             tile = "tree"
             ressource = 150
