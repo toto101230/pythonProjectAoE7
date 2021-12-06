@@ -15,7 +15,7 @@ class Game:
         self.playing = True
         self.screen = screen
         self.clock = clock
-        self.seed = 0
+        self.seed = 12
         self.width, self.height = self.screen.get_size()
 
         self.resources_manager = ResourceManager()
