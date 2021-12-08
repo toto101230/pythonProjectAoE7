@@ -1,4 +1,3 @@
-import pygame
 import sys
 
 import events

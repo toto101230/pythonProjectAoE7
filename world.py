@@ -397,8 +397,8 @@ class World:
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
                     if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
-                        u = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
-                        u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, (x, y))
+                        unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
+                        unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, (x, y))
                         return pos_a_degage
                     else:
                         if self.find_unite_pos(x, y) is not None and (x, y) not in pos_visitee:

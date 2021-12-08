@@ -86,7 +86,7 @@ class Hud:
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
-            if self.unite_bouton.isOver(mouse_pos) and not self.unite_bouton.isPress:
+            if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.isPress:
                 self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
                     self.unite_recrut = self.unite_bouton.text[:-7]
