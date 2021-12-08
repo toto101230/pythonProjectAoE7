@@ -128,7 +128,7 @@ class Hud:
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255),
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1] - 20))
 
-        if self.examined_tile is not None and self.examined_tile.name == "hdv":
+        if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
             # affichage du bouton unité
             if not self.resource_manager.stay_place():
                 self.unite_bouton.image.set_alpha(150)

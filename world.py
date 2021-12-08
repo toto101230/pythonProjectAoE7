@@ -54,7 +54,7 @@ class World:
             self.examine_tile = None
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite) and self.hud.examined_tile.joueur.name == "joueur 1":
             unite = self.hud.examined_tile
             if self.deplace_unite(grid_pos, unite) != -1:
                 self.examine_tile = None
@@ -73,12 +73,12 @@ class World:
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
 
             # permet de sélectionner un batiment
-            if mouse_action[0] and building is not None and building.joueur.name == "joueur 1":
+            if mouse_action[0] and building is not None:
                 self.examine_tile = grid_pos
                 self.hud.examined_tile = building
 
             # permet de sélectionner une unité
-            if mouse_action[0] and unite is not None and unite.joueur.name == "joueur 1":
+            if mouse_action[0] and unite is not None:
                 self.examine_tile = grid_pos
                 self.hud.examined_tile = unite
 
@@ -99,9 +99,7 @@ class World:
         if self.hud.unite_recrut is not None:
             if self.hud.unite_recrut == "villageois":
                 self.achat_villageois(self.joueurs[0], self.examine_tile)
-                self.hud.unite_recrut = None
-            else:
-                self.hud.unite_recrut = None
+            self.hud.unite_recrut = None
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
