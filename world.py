@@ -61,10 +61,7 @@ class World:
                 self.hud.examined_tile = None
 
         if self.hud.selected_tile is not None:
-            img = self.hud.selected_tile["image"].copy()
-            img.set_alpha(100)
-
-            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"], img,
+            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
                                    mouse_action[0]) == 0:
                 self.hud.selected_tile = None
 
@@ -359,7 +356,7 @@ class World:
                                 -1]
                             u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
 
-    def place_building(self, grid_pos, joueur, name, img, visible):
+    def place_building(self, grid_pos, joueur, name, visible):
         if self.can_place_tile(grid_pos):
             render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
@@ -367,11 +364,12 @@ class World:
                         self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None
 
             self.temp_tile = {
-                "image": img,
+                "image": self.tiles[name].copy(),
                 "render_pos": render_pos,
                 "iso_poly": iso_poly,
                 "collision": collision
             }
+            self.temp_tile["image"].set_alpha(100)
 
             if not collision and visible:
                 if name == "caserne":

@@ -21,6 +21,8 @@ class Game:
         self.width, self.height = self.screen.get_size()
 
         self.joueurs = [Joueur(ResourceManager(), "joueur 1"), Joueur(ResourceManager(), "joueur 2")]
+        # todo soit utiliser : pygame.time.set_timer(ia_play_0_event, 500)
+        # ou alors du multithread
 
         self.resources_manager = self.joueurs[0].resource_manager
 
@@ -65,14 +67,18 @@ class Game:
                         self.hud.examined_tile = None
                         self.hud.selected_tile = None
                         self.cheat_enabled = False
-                elif event.type == events.ia_place_event:
-                    # todo revoir img
-                    self.world.place_building((10, 12), self.joueurs[1], "house", None, True)
-                elif event.type == events.achat_villageois:
-                    self.world.achat_villageois(self.joueurs[1], (20, 15))
-                elif event.type == events.deplace_unite:
+            if event.type in events.ia_events:
+                ia = self.joueurs[event.type - pygame.USEREVENT]
+                if ia.place_event:
+                    self.world.place_building(ia.place_event[0], ia, ia.place_event[1], True)
+                    # self.world.place_building((10, 12), self.joueurs[1], "house", True)
+                elif ia.achat_villageois_event:
+                    self.world.achat_villageois(ia, ia.achat_villageois_event[0])
+                    # self.world.achat_villageois(self.joueurs[1], (20, 15))
+                elif ia.deplace_unite_event:
                     # todo revoir unite
-                    self.world.deplace_unite((20, 15), None)
+                    self.world.deplace_unite(ia.deplace_unite_event[0], ia.deplace_unite_event[1])
+                    # self.world.deplace_unite((20, 15), unite?)
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
