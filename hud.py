@@ -121,8 +121,6 @@ class Hud:
         # si un objet est selectionné
         if self.examined_tile is not None:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
-            w, h = self.hud_info_rect.width, self.hud_info_rect.height
-
 
             #affichage de l'image du batiment avec son nom et son nombre de vie
             if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite):
@@ -137,12 +135,11 @@ class Hud:
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
             else:
-                img = self.images_terre[self.examined_tile["tile"]].convert_alpha()()
+                img = self.images_terre[self.examined_tile["tile"]].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
                 draw_text(screen, str(self.examined_tile["tile"]), 50, (0,255,255), (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1]- 90))
 
-            img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width - 1150, self.height - 205 + 40))
+            screen.blit(img, (self.width - 1150, self.height - 205 + 40))
 
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255),
@@ -166,9 +163,6 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
-        tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
-        buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
-        rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
 
         images = {
             "caserne": caserne,
@@ -194,8 +188,9 @@ class Hud:
             "house": house,
             "villageois": villageois
         }
+
+        w, h = self.hud_info_rect.width, self.hud_info_rect.height
         for i in images:
-            w, h = self.hud_info_rect.width, self.hud_info_rect.height
             images[i] = self.scale_image(images[i], h=h * 0.7)
 
         return images
@@ -226,5 +221,10 @@ class Hud:
             "tree": tree,
              "buisson": buisson,
              "rock": rock
-         }
+        }
+
+        w, h = self.hud_info_rect.width, self.hud_info_rect.height
+        for i in terre:
+            terre[i] = self.scale_image(terre[i], h=h * 0.7)
+
         return terre
