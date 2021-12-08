@@ -1,6 +1,6 @@
-import pygame
 import sys
 
+import events
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -8,6 +8,9 @@ from hud import Hud
 from resource_manager import ResourceManager
 from input import InputBox
 from save import Save
+from model.joueur import Joueur
+from events import *
+from ia import Ia
 
 
 class Game:
@@ -17,11 +20,16 @@ class Game:
         self.clock = clock
         self.width, self.height = self.screen.get_size()
 
-        self.resources_manager = ResourceManager()
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1"), Joueur(ResourceManager(), "joueur 2")]
+
+        self.joueurs[1].ia = Ia()
+        # pygame.time.set_timer(ia_play_1_event, 500)
+
+        self.resources_manager = self.joueurs[0].resource_manager
 
         self.hud = Hud(self.resources_manager, self.width, self.height)
 
-        self.world = World(self.resources_manager, self.hud, 100, 100, self.width, self.height)  # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 
@@ -32,7 +40,7 @@ class Game:
 
     def run(self):
         while self.playing:
-            self.clock.tick(60)
+            self.clock.tick(600)
             self.events()
             self.update()
             self.draw()
@@ -54,12 +62,16 @@ class Game:
                     self.save.save(self)
                 elif event.key == pygame.K_l:
                     if self.save.hasload():
-                        self.resources_manager.resources, self.resources_manager.population, self.world.world, \
-                            self.world.buildings, self.world.unites = self.save.load()
+                        self.world.world, self.world.buildings, self.world.unites, self.joueurs = self.save.load()
+                        self.resources_manager = self.joueurs[0].resource_manager
                         self.world.examine_tile = None
                         self.hud.examined_tile = None
                         self.hud.selected_tile = None
                         self.cheat_enabled = False
+
+            if event.type in events.ia_events:
+                joueur = self.joueurs[event.type - pygame.USEREVENT]
+                joueur.ia.play(self.world, joueur)
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
