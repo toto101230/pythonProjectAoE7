@@ -7,3 +7,4 @@ class Joueur:
         self.name = name
         self.resource_manager = resource_manager
         self.time_recrut = 0
+        self.ia = None
