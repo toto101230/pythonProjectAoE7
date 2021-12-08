@@ -66,18 +66,22 @@ class World:
                 self.hud.selected_tile = None
 
         elif self.can_place_tile(grid_pos):
-            building = self.buildings[grid_pos[0]][grid_pos[1]]
-            unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
+             collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
+             building = self.buildings[grid_pos[0]][grid_pos[1]]
+             unite = self.findUnitePos(grid_pos[0], grid_pos[1])
 
-            # permet de sélectionner un batiment
-            if mouse_action[0] and building is not None:
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = building
+             if mouse_action[0] and collision != '':
+                 self.examine_tile = grid_pos
+                 self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
-            # permet de sélectionner une unité
-            if mouse_action[0] and unite is not None:
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = unite
+             if mouse_action[0] and (building is not None):
+                 self.examine_tile = grid_pos
+                 self.hud.examined_tile = building
+
+             # permet de sélectionner une unité
+             if mouse_action[0] and (unite is not None):
+                 self.examine_tile = grid_pos
+                 self.hud.examined_tile = unite
 
         for u in self.unites:
             u.updatepos(self.world)
@@ -292,6 +296,10 @@ class World:
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
         rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
+        
+        rock = pygame.transform.scale(rock, (78, 52)).convert_alpha()
+        tree = pygame.transform.scale(tree, (152, 138)).convert_alpha()
+        buisson = pygame.transform.scale(buisson, (88, 62)).convert_alpha()
 
         # bâtiments
         caserne = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
