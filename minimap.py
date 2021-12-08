@@ -4,7 +4,6 @@ from settings import *
 
 SIZE = 200
 GAP = 13 # distance entre border et rect map
-MINIMAPUPDATESPEED = 3 # update [num] minimap rows per frame, so minimap is updated every YCELLS / [num] frames. reduces fps
 
 def pixelsToCell(pixels):
     x, y = pixels
@@ -35,16 +34,12 @@ class Minimap:
 
         ### UPDATE DE LA MINIMAP
         self.row = 0
-        self.updateMapsurf()
+        self.updateMapsurf() # update de base à la créa de l'objet minimap
 
-        ### NON INTEGRE POUR L'INSTANT
-
-        #self.blipSurf = pygame.Surface(self.rect.size).convert()
-        #self.blipSurf.set_colorkey(COLOURKEY)
-        #self.updateMobBlips()
-        #self.hoverSurf = pygame.Surface(self.rect.size).convert()
-        #self.hoverSurf.fill(WHITE)
-        #self.hoverSurf.set_alpha(30)
+        ### TP
+        self.hoverSurf = pygame.Surface(self.rect.size).convert()
+        self.hoverSurf.fill(WHITE)
+        self.hoverSurf.set_alpha(30)
 
     def draw(self, screen):
         pygame.Surface.set_colorkey(self.surf,BLACK)
@@ -55,12 +50,11 @@ class Minimap:
         #screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
 
     def update(self):
-        for i in range(MINIMAPUPDATESPEED):
-            self.updateRowOfSurf()
+        self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
 
-        #self.updateCameraRect()
-        #self.handleInput() pour cliquer sur map et se déplacer direct
+        self.updateCameraRect()
+        self.handleInput()
 
     def updateMapsurf(self):
         gridy = self.world.grid_length_y
@@ -100,15 +94,17 @@ class Minimap:
 
     def updateCameraRect(self):
         viewArea = self.camera.viewArea
+        print("viewArea center :  ")
+        print(viewArea.center)
         lineCoords = []
         for coord in [viewArea.topleft, viewArea.topright, viewArea.bottomright, viewArea.bottomleft]:
             lineCoords.append(pixelsToCell(coord))
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
 
-
-    # NON INTEGRE AOT
-    #def handleInput(self):
-    #    if self.rect.collidepoint(pygame.mouse.get_pos()):
+    def handleInput(self):
+        if self.crop.get_rect(topleft=self.rect.topleft).collidepoint(pygame.mouse.get_pos()):
+            print("yes")
+            pygame.mouse.set_pos(1920/2,1080/2)
 
 
 
