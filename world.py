@@ -9,6 +9,8 @@ from os import walk
 
 Joueurs = list[Joueur]
 
+iso = lambda x, y: ((x - y), ((x + y) / 2))
+
 
 class World:
 
@@ -149,7 +151,7 @@ class World:
         for u in self.unites:
             if xmax > u.pos[0] > xmin and ymax > u.pos[1] > ymin:
                 render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
-                pixel = self.cart_to_iso(u.xpixel, u.ypixel)
+                pixel = iso(u.xpixel, u.ypixel)
                 render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
                 if isinstance(u, Villageois):
                     if u.work != "default":
@@ -214,7 +216,7 @@ class World:
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE + TILE_SIZE)
         ]
 
-        iso_poly = [self.cart_to_iso(x, y) for x, y in rect]
+        iso_poly = [iso(x, y) for x, y in rect]
 
         minx = min([x for x, y in iso_poly])
         miny = min([y for x, y in iso_poly])
@@ -250,11 +252,6 @@ class World:
             out["collision"] = False
 
         return out
-
-    def cart_to_iso(self, x, y):
-        iso_x = x - y
-        iso_y = (x + y) / 2
-        return iso_x, iso_y
 
     def mouse_to_grid(self, x, y, scroll):
         # transformer en postion World (en supprimant le défilement et le décalage de la caméra)
