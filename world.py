@@ -1,5 +1,7 @@
 import pygame
-import random
+import numpy as np
+import tcod
+
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman, neighbours
@@ -14,12 +16,13 @@ iso = lambda x, y: ((x - y), ((x + y) / 2))
 
 class World:
 
-    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: Joueurs):
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: Joueurs, seed):
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
         self.width = width
         self.height = height
+        self.seed = seed if seed != 0 else np.random.randint(1000000, 10000000)
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -32,12 +35,12 @@ class World:
         self.buildings[26][18] = Hdv((26, 18), joueurs[1])
         self.unites = []
 
-        self.unites.append(Villageois((10, 14), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 15), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((9, 18), joueurs[1]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((10, 13), joueurs[1]))  # ligne pour tester les villageois
 
-        self.unites.append(Clubman((12, 15), joueurs[0]))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 18), joueurs[1]))  # ligne pour tester les soldats
+        self.unites.append(Clubman((11, 8), joueurs[0]))  # ligne pour tester les soldats
+        self.unites.append(Clubman((12, 15), joueurs[1]))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -201,11 +204,23 @@ class World:
 
 
     def create_world(self):
+        np.random.seed(self.seed)
+        world_random = np.random.normal(50, 25, (self.grid_length_x, self.grid_length_y))
+
+        noise = tcod.noise.Noise(dimensions=2, seed=self.seed)
+        samples = noise[tcod.noise.grid(shape=(100, 100), scale=0.1, origin=(0, 0))]
+        world_tree = (samples+1)*50
+
+        for x in range(8):
+            for y in range(8):
+                world_random[x+7][y+7] = 100
+                world_tree[x+7][y+7] = 100
+
         world = []
         for grid_x in range(self.grid_length_x):
             world.append([])
             for grid_y in range(self.grid_length_y):
-                world_tile = self.grid_to_world(grid_x, grid_y)
+                world_tile = self.grid_to_world(grid_x, grid_y, world_random, world_tree)
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
@@ -214,7 +229,7 @@ class World:
 
         return world
 
-    def grid_to_world(self, grid_x, grid_y):
+    def grid_to_world(self, grid_x, grid_y, world_random, world_tree):
         # cube de base (tile)
         rect = [
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE),
@@ -228,19 +243,20 @@ class World:
         minx = min([x for x, y in iso_poly])
         miny = min([y for x, y in iso_poly])
 
-        r = random.randint(1, 100)
-        if r <= 5:
+        if world_tree[grid_x][grid_y] <= 15:
             tile = "tree"
             ressource = 150
-        elif r <= 8:
-            tile = "rock"
-            ressource = 250
-        elif r <= 14:
-            tile = "buisson"
-            ressource = 30
         else:
-            tile = ""
-            ressource = 0
+            r = world_random[grid_x][grid_y]
+            if r <= 5:
+                tile = "rock"
+                ressource = 250
+            elif r <= 22:
+                tile = "buisson"
+                ressource = 75
+            else:
+                tile = ""
+                ressource = 0
 
         out = {
             "grid": [grid_x, grid_y],
@@ -254,6 +270,7 @@ class World:
         if grid_x == 10 and grid_y == 10:
             out["tile"] = ""
             out["collision"] = False
+
         if grid_x == 11 and grid_y == 11:
             out["tile"] = ""
             out["collision"] = False

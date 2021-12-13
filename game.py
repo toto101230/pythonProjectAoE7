@@ -20,6 +20,7 @@ class Game:
         self.playing = True
         self.screen = screen
         self.clock = clock
+        self.seed = 0
         self.width, self.height = self.screen.get_size()
 
         self.joueurs = [Joueur(ResourceManager(), "joueur 1"), Joueur(ResourceManager(), "joueur 2")]
@@ -31,7 +32,7 @@ class Game:
 
         self.hud = Hud(self.resources_manager, self.width, self.height)
 
-        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs)  # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
 
