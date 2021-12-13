@@ -7,7 +7,6 @@ from buildings import Batiment
 from utils import draw_text
 from bouton import Button
 
-
 class Hud:
 
     def __init__(self, resource_manager, width, height):
@@ -16,7 +15,6 @@ class Hud:
 
         self.width = width
         self.height = height
-
         self.hud_colour = (198, 155, 93, 175)
 
         self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
@@ -49,6 +47,8 @@ class Hud:
         self.unite_recrut = None
 
         self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
+        self.age_2_bouton = Button((0, 255, 0), self.width - 500, self.height - 100, 'age_2')
+
 
     def create_build_hud(self):
 
@@ -97,6 +97,12 @@ class Hud:
             elif self.resource_manager.stay_place():
                 self.unite_bouton.color = self.unite_bouton.color_de_base
 
+            if self.age_2_bouton.is_over(mouse_pos):
+                if mouse_action[0]:
+                    print("toto")
+
+
+
         if mouse_action[2]:
             self.selected_tile = None
 
@@ -105,7 +111,6 @@ class Hud:
                 tile["affordable"] = True
             else:
                 tile["affordable"] = False
-
             if tile["rect"].collidepoint(mouse_pos) and tile["affordable"]:
                 if mouse_action[0]:
                     self.selected_tile = tile
@@ -134,6 +139,8 @@ class Hud:
                     if not self.resource_manager.stay_place():
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
+                    self.age_2_bouton.draw(screen)
+
             else:
                 img = self.images_terre[self.examined_tile["tile"]].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))

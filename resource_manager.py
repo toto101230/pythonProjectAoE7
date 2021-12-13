@@ -23,7 +23,8 @@ class ResourceManager:
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
             "house": {"wood": 30},
-            "grenier": {"wood": 130}
+            "grenier": {"wood": 130},
+            "feodal" : {"wood" : 500, "food" : 500, "stone" : 500}
         }
 
     def stay_place(self):

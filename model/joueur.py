@@ -1,4 +1,5 @@
 from resource_manager import ResourceManager
+from age import Sombre
 
 
 class Joueur:
@@ -8,3 +9,4 @@ class Joueur:
         self.resource_manager = resource_manager
         self.time_recrut = 0
         self.ia = None
+        self.age = Sombre(self)
