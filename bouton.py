@@ -28,6 +28,6 @@ class Button:
 
         screen.blit(self.image, (self.x, self.y))
 
-    def isOver(self, pos):
+    def is_over(self, pos):
         # Pos is the mouse position or a tuple of (x,y) coordinates
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
