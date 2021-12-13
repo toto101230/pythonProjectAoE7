@@ -40,6 +40,7 @@ class Hud:
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
         self.images = self.load_images()
+        self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
         self.tiles = self.create_build_hud()
 
@@ -51,9 +52,9 @@ class Hud:
 
     def create_build_hud(self):
 
-        render_pos = [self.hud_action_rect.x + 30 * 1280 / self.width , self.hud_action_rect.y + 40 * 1280 / self.width]
-        #(867 * 1.035 / self.hud_action_rect.x)
-        #(515 * 1.08 / self.hud_action_rect.y)
+        render_pos = [self.hud_action_rect.x + 30 * 1280 / self.width, self.hud_action_rect.y + 40 * 1280 / self.width]
+        # (867 * 1.035 / self.hud_action_rect.x)
+        # (515 * 1.08 / self.hud_action_rect.y)
         object_width = self.hud_action_surface.get_width() // (10 * self.width / 1280)
         self.hud_haut_surface.blit(self.hud_haut, (0, 0))
         self.hud_age_surface.blit(self.hud_age, (0, 0))
@@ -85,10 +86,10 @@ class Hud:
     def update(self):
 
         mouse_pos = pg.mouse.get_pos()
-        mouse_action = pg.mouse.get_pressed()
+        mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
-            if self.unite_bouton.isOver(mouse_pos) and not self.unite_bouton.isPress:
+            if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.isPress:
                 self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
                     self.unite_recrut = self.unite_bouton.text[:-7]
@@ -120,37 +121,29 @@ class Hud:
         # si un objet est selectionné
         if self.examined_tile is not None:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
-            w, h = self.hud_info_rect.width, self.hud_info_rect.height
-
 
             #affichage de l'image du batiment avec son nom et son nombre de vie
             if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite):
-                img = pygame.image.load("assets/hud/examined_title/" + self.examined_tile.name + ".png").convert_alpha()
+                img = self.images_examined[self.examined_tile.name].convert_alpha()
                 draw_text(screen, self.examined_tile.name, 50, "#ff0000",
                           (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
                 draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
-                if self.examined_tile is not None and self.examined_tile.name == "hdv":
+                if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
                     # affichage du bouton unité
                     if not self.resource_manager.stay_place():
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
             else:
-                img = self.images_terre[self.examined_tile["tile"]].copy()
+                img = self.images_terre[self.examined_tile["tile"]].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
                 draw_text(screen, str(self.examined_tile["tile"]), 50, (0,255,255), (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1]- 90))
 
-            img_scale = self.scale_image(img, h=h * 0.7)
-            screen.blit(img_scale, (self.width - 1150, self.height - 205 + 40))
+            screen.blit(img, (self.width - 1150, self.height - 205 + 40))
 
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255),
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1] - 20))
-
-
-
-
-
 
         for tile in self.tiles:
             icon = tile["icon"].copy()
@@ -170,17 +163,35 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
-        tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
-        buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
-        rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
 
         images = {
             "caserne": caserne,
             "house": house,
             "grenier": grenier
-
         }
 
+        return images
+
+    def load_images_examined(self):
+        caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()
+        clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
+        grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
+        hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
+        house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
+        villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
+
+        images = {
+            "caserne": caserne,
+            "clubman": clubman,
+            "grenier": grenier,
+            "hdv": hdv,
+            "house": house,
+            "villageois": villageois
+        }
+
+        w, h = self.hud_info_rect.width, self.hud_info_rect.height
+        for i in images:
+            images[i] = self.scale_image(images[i], h=h * 0.7)
 
         return images
 
@@ -210,5 +221,10 @@ class Hud:
             "tree": tree,
              "buisson": buisson,
              "rock": rock
-         }
+        }
+
+        w, h = self.hud_info_rect.width, self.hud_info_rect.height
+        for i in terre:
+            terre[i] = self.scale_image(terre[i], h=h * 0.7)
+
         return terre
