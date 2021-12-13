@@ -7,6 +7,8 @@ from camera import Camera
 from hud import Hud
 from resource_manager import ResourceManager
 from input import InputBox
+from group import Group
+from selection import Selection
 from save import Save
 from model.joueur import Joueur
 from events import *
@@ -32,6 +34,9 @@ class Game:
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
+
+        self.group = Group()
+        self.selection = Selection()
 
         self.cheat_enabled = False
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
@@ -81,12 +86,16 @@ class Game:
         self.hud.update()
         self.world.update(self.camera)
         self.cheat_box.update()
+        self.selection.update()
+        self.group.update(self.selection, self.world, self.camera)
 
     def draw(self):
         self.screen.fill((0, 0, 0))
         self.world.draw(self.screen, self.camera)
         self.hud.draw(self.screen)
         self.cheat_box.draw(self.screen)
+        if pygame.mouse.get_pressed()[0] and pygame.key.get_pressed()[pygame.K_LCTRL]:
+            self.selection.draw(self.screen)
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 60))
 

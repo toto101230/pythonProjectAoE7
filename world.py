@@ -41,6 +41,7 @@ class World:
 
         self.temp_tile = None
         self.examine_tile = None
+        self.examined_unites_tile = []
 
         self.joueurs = joueurs
 
@@ -54,6 +55,7 @@ class World:
 
         if mouse_action[2]:
             self.examine_tile = None
+            self.examined_unites_tile = []
             self.hud.examined_tile = None
 
         if mouse_action[0] and isinstance(self.hud.examined_tile, Unite) and self.hud.examined_tile.joueur.name == "joueur 1":
@@ -61,6 +63,7 @@ class World:
             if self.deplace_unite(grid_pos, unite) != -1:
                 self.examine_tile = None
                 self.hud.examined_tile = None
+                self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
@@ -149,6 +152,7 @@ class World:
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
         # dessine les unités
         for u in self.unites:
+
             if xmax > u.pos[0] > xmin and ymax > u.pos[1] > ymin:
                 render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
                 pixel = iso(u.xpixel, u.ypixel)
@@ -192,6 +196,8 @@ class World:
                     render_pos[1] - (self.temp_tile["image"].get_height() - TILE_SIZE) + camera.scroll.y
                 )
             )
+
+
 
     def create_world(self):
         world = []
