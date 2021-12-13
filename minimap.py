@@ -41,6 +41,9 @@ class Minimap:
         self.hoverSurf.fill(WHITE)
         self.hoverSurf.set_alpha(30)
 
+        ### add
+        self.mpos = (0, 0)
+
     def draw(self, screen):
         pygame.Surface.set_colorkey(self.surf,BLACK)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
@@ -53,8 +56,8 @@ class Minimap:
         self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
 
-        self.updateCameraRect()
-        self.handleInput()
+        #self.updateCameraRect()
+        #self.handleInput(event)
 
     def updateMapsurf(self):
         gridy = self.world.grid_length_y
@@ -94,17 +97,24 @@ class Minimap:
 
     def updateCameraRect(self):
         viewArea = self.camera.viewArea
-        print("viewArea center :  ")
-        print(viewArea.center)
+        #print("viewArea center :  ")
+        #print(viewArea.center)
         lineCoords = []
         for coord in [viewArea.topleft, viewArea.topright, viewArea.bottomright, viewArea.bottomleft]:
             lineCoords.append(pixelsToCell(coord))
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
 
-    def handleInput(self):
-        if self.crop.get_rect(topleft=self.rect.topleft).collidepoint(pygame.mouse.get_pos()):
-            print("yes")
-            pygame.mouse.set_pos(1920/2,1080/2)
+
+    def handle_event(self,event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.crop.get_rect(topleft=self.rect.topleft).collidepoint(event.pos):
+                self.mpos = pygame.mouse.get_pos()
+                if self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
+                    if self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
+                        if self.crop.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != (0 and 1): # empecher de cliquer sur le fond noir autour minimap
+                            print("mpos x = " + str(self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x))  # x pos dans le rect
+                            print("mpos y = " + str(self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y))  # y pos dans le rect
+                            pygame.mouse.set_pos(1920/2,1080/2)
 
 
 

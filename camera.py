@@ -11,7 +11,7 @@ class Camera:
         self.scroll = pygame.Vector2(-5000, -400)
         self.dx = 0
         self.dy = 0
-        self.speed = 20
+        self.speed = 30
 
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False,
 

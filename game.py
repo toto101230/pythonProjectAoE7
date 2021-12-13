@@ -56,6 +56,7 @@ class Game:
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
+            self.minimap.handle_event(event)
 
     def update(self):
         self.camera.update()
