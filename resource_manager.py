@@ -16,6 +16,14 @@ class ResourceManager:
             "population_maximale": 0
         }
 
+        self.villageois = {
+            "food": [],
+            "wood": [],
+            "stone": [],
+            "gold": [],
+            "rien": []
+        }
+
         # costs
         self.costs = {
             "villageois": {"food": 50},

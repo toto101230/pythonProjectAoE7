@@ -32,15 +32,15 @@ class World:
 
         self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
         self.buildings[10][10] = Hdv((10, 10), joueurs[0])
-        self.buildings[26][18] = Hdv((26, 18), joueurs[1])
+        self.buildings[90][90] = Hdv((90, 90), joueurs[1])
         self.unites = []
 
         self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
         self.unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 13), joueurs[1]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((90, 93), joueurs[1]))  # ligne pour tester les villageois
 
         self.unites.append(Clubman((11, 8), joueurs[0]))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 15), joueurs[1]))  # ligne pour tester les soldats
+        self.unites.append(Clubman((92, 95), joueurs[1]))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
