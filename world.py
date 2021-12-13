@@ -82,8 +82,8 @@ class World:
                 self.examine_tile = grid_pos
                 self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
-            if mouse_action[0] and (building is not None):
-                self.examine_tile = (building.pos[0]+1, building.pos[1]+1)
+            if mouse_action[0] and building is not None:
+                self.examine_tile = (building.pos[0], building.pos[1])
                 self.hud.examined_tile = building
 
             # permet de sélectionner une unité
@@ -144,10 +144,9 @@ class World:
                         correctif = 0
                         if isinstance(building, Caserne):
                             correctif = -45
-                        image = pygame.image.load("assets/batiments/" + building.name + ".png").convert_alpha()
-                        screen.blit(image,
+                        screen.blit(self.tiles[building.name],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
-                                 render_pos[1] - (image.get_height() - TILE_SIZE) + camera.scroll.y))
+                                 render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y))
 
                         if building.health <= 0:
                             self.examine_tile = None
@@ -155,9 +154,10 @@ class World:
                             self.buildings[x][y] = None
 
                         if self.examine_tile is not None:
-                            if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
+                            print(self.examine_tile)
+                            if x == self.examine_tile[0] and y == self.examine_tile[1]:
                                 mask = pygame.mask.from_surface(self.tiles[building.name]).outline()
-                                mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
                                          y + render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y)
                                         for x, y in mask]
                                 pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
@@ -417,7 +417,7 @@ class World:
                     collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1] + 1) is not None
                     if not collision1 and not collision2 and not collision3:
-                        ent = Caserne(render_pos, joueur)
+                        ent = Caserne((grid_pos[0] + 1, grid_pos[1] + 1), joueur)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                         self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
                         self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
@@ -426,7 +426,7 @@ class World:
                         self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
                         self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
                 elif self.hud.selected_tile["name"] == "house":
-                    ent = House(render_pos, joueur)
+                    ent = House(grid_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
                 elif self.hud.selected_tile["name"] == "grenier":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
@@ -436,7 +436,7 @@ class World:
                     collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1] + 1) is not None
                     if not collision1 and not collision2 and not collision3:
-                        ent = Grenier(grid_pos, joueur)
+                        ent = Grenier((grid_pos[0] + 1, grid_pos[1] + 1), joueur)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
                         self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
                         self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
