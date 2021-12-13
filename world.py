@@ -58,7 +58,7 @@ class World:
             self.examined_unites_tile = []
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite) and self.hud.examined_tile.joueur.name == "joueur 1":
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):# and self.hud.examined_tile.joueur.name == "joueur 1":
             unite = self.hud.examined_tile
             if self.deplace_unite(grid_pos, unite) != -1:
                 self.examine_tile = None
@@ -89,12 +89,14 @@ class World:
                 self.hud.examined_tile = unite
 
         for u in self.unites:
-            u.updatepos(self.world)
+            if u.updatepos(self.world, self.unites) == -1:
+                pos = u.posWork if isinstance(u, Villageois) and u.posWork else u.path[-1]
+                u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings)
             u.update_frame()
             if not u.attackB:
-                u.attaque(self.unites, self.buildings, self.grid_length_x, self.grid_length_y)
+                u.attaque(self.unites, self.buildings, self.grid_length_x, self.grid_length_y, self.world)
             if u.health <= 0:
                 self.unites.remove(u)
                 u.joueur.resource_manager.population["population_actuelle"] -= 1
@@ -103,8 +105,7 @@ class World:
                     self.hud.examined_tile = None
 
         if self.hud.unite_recrut is not None:
-            if self.hud.unite_recrut == "villageois":
-                self.achat_villageois(self.joueurs[0], self.examine_tile)
+            self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
             self.hud.unite_recrut = None
 
     def draw(self, screen, camera):
@@ -399,8 +400,8 @@ class World:
                 return 0
         return 1
 
-    def achat_villageois(self, joueur, pos_ini):
-        if joueur.resource_manager.is_affordable("villageois") and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
+    def achat_villageois(self, joueur, pos_ini, nom_unite):
+        if joueur.resource_manager.is_affordable(nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
             unite_a_degage = []
             pos_visitee = []
             pos_ini = pos_ini[0] + 1, pos_ini[1] + 1
@@ -437,7 +438,7 @@ class World:
                     des = find_closer_pos(last)
                     u = self.find_unite_pos(des[0], des[1])
                     if u is None:
-                        joueur.resource_manager.resources["food"] += 30
+                        joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                         return
                     u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, last)
                     while des != pos_ini:
@@ -445,7 +446,7 @@ class World:
                         des = find_closer_pos(last)
                         u = self.find_unite_pos(des[0], des[1])
                         if u is None:
-                            joueur.resource_manager.resources["food"] += 30
+                            joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                             return
                         u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, last)
             self.unites.append(Villageois(pos_ini, joueur))

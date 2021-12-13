@@ -1,4 +1,5 @@
 import sys
+import pygame
 
 import events
 from world import World
@@ -11,7 +12,6 @@ from group import Group
 from selection import Selection
 from save import Save
 from model.joueur import Joueur
-from events import *
 from ia import Ia
 
 

@@ -40,11 +40,21 @@ class Unite(metaclass=ABCMeta):
         self.vitesse_attack = vitesse_attack
         self.tick_attaque = -1
         self.attackB = False
+        self.cible = None
 
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
         self.path = []
         if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
+            self.cible = None
             return -1
+
+        u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
+        if u:
+            if u.joueur != self.joueur:
+                self.cible = u
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
+        else:
+            self.cible = None
 
         start_node = Node(None, self.pos)
         start_node.g = start_node.h = start_node.f = 0
@@ -86,7 +96,8 @@ class Unite(metaclass=ABCMeta):
                 if buildings[x][y] is not None:
                     continue
 
-                # todo vérifier s'il n'y pas d'unité
+                if self.find_unite_pos(x,y,unites):
+                    continue
 
                 new_node = Node(current_node, (x, y))
                 children.append(new_node)
@@ -108,7 +119,7 @@ class Unite(metaclass=ABCMeta):
 
     # todo à revoir avec la self.speed
     # met à jour les pixels de position  et la position de l'unité ci-celle est en déplacement
-    def updatepos(self, world):
+    def updatepos(self, world, unites):
         if self.path:
             self.action = "walk"
             taille = TILE_SIZE / 2
@@ -144,7 +155,11 @@ class Unite(metaclass=ABCMeta):
                             deplacement = True
 
                     if deplacement:
-                        # todo vérifié s'il n'y pas d'unités ou de bâtiments
+                        pos = self.path[0]
+                        if self.find_unite_pos(pos[0], pos[1], unites):
+                            self.ypixel = 0
+                            self.xpixel = 0
+                            return -1
                         self.pos = self.path.pop(0)
                     break
 
@@ -169,33 +184,43 @@ class Unite(metaclass=ABCMeta):
         if round(self.frameNumber) >= 0:
             self.frameNumber = 0
 
+    def find_unite_pos(self, x, y, unites):
+        for u in unites:
+            if u.pos[0] == x and u.pos[1] == y:
+                return u
+        return None
+
+    def find_closer_pos(self, pos_end, world, buildings, unites):
+        pos_min = (5000, 5000)
+        for neighbour in neighbours:
+            x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
+            if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
+                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and self.find_unite_pos(x, y, unites) is None:
+                pos_min = (x, y)
+        if pos_min == (5000, 5000):
+            for neighbour in neighbours:
+                x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
+                if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
+                        self.pos[1] - pos_min[1]):
+                    pos_min = self.find_closer_pos((x, y), world, buildings, unites)
+        return pos_min
+
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
-    def attaque(self, unites, batiments, grid_length_x, grid_length_y):
-        neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
-        neighbours_unite.remove((0, 0))
+    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world):
+        if self.cible:
+            neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
+            neighbours_unite.remove((0, 0))
+            x, y = self.pos[0] - self.cible.pos[0], self.pos[1] - self.cible.pos[1]
 
-        element_plus_proche = (None, 5000, 5000)
-        if time() - self.tick_attaque > self.vitesse_attack:
-            for u in unites:
-                if self.joueur == u.joueur:
-                    continue
-                for neighbour in neighbours_unite:
-                    x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
-                    if u.pos == (x, y):
-                        if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
-                            element_plus_proche = (u, neighbour[0], neighbour[1])
-                        self.attackB = True
-
-            for neighbour in neighbours_unite:
-                x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
-                if grid_length_x > x > 0 and grid_length_y > y > 0 and batiments[x][y] and self.joueur != batiments[x][y].joueur:
-                    if abs(neighbour[0]) + abs(neighbour[1]) < abs(element_plus_proche[1]) + abs(element_plus_proche[2]):
-                        element_plus_proche = (batiments[x][y], neighbour[0], neighbour[1])
+            if (x, y) in neighbours_unite:
+                if time() - self.tick_attaque > self.vitesse_attack:
+                    self.cible.health -= self.attack
+                    self.tick_attaque = time()
                     self.attackB = True
-
-            if self.attackB:
-                element_plus_proche[0].health -= self.attack
-                self.tick_attaque = time()
+                    if self.cible.health <= 0:
+                        self.cible = None
+            elif isinstance(self.cible, Unite):
+                self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.cible.pos)
 
 
 class Villageois(Unite):
@@ -223,25 +248,11 @@ class Villageois(Unite):
 
         return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
 
-    def find_closer_pos(self, pos_end, world, buildings, unites):
-        pos_min = (5000, 5000)
-        for neighbour in neighbours:
-            x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-            if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and self.find_unite_pos(x, y, unites) is None:
-                pos_min = (x, y)
-        if pos_min == (5000, 5000):
-            for neighbour in neighbours:
-                x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-                if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                        self.pos[1] - pos_min[1]):
-                    pos_min = self.find_closer_pos((x, y), world, buildings, unites)
-        return pos_min
-
-    def updatepos(self, world):
-        super().updatepos(world)
+    def updatepos(self, world, unites):
+        i = super().updatepos(world, unites)
         if 20 >= self.stockage > 0 and not self.pos_work_is_neighbours() and self.work != "default":
             self.action = "carry"
+        return i
 
     def update_frame(self):
         self.frameNumber += 0.3
@@ -288,7 +299,7 @@ class Villageois(Unite):
                     self.create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
                     self.posWork = pos_temp
 
-            elif self.building_ressource_close(buildings):
+            elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and not self.pos_work_is_neighbours():
                 if self.stockage > 0:
                     if self.work == "lumber":
                         self.joueur.resource_manager.resources["wood"] += round(self.stockage)
