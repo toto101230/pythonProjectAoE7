@@ -9,6 +9,7 @@ class Button:
         self.x = x
         self.y = y
         self.text = text
+        self.image_origine = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
         self.image = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -24,8 +25,9 @@ class Button:
         #     font = pygame.font.SysFont('comicsans', 22)
         #     text = font.render(self.text, True, (0, 0, 0))
         #     win.blit(text, (self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+
         screen.blit(self.image, (self.x, self.y))
 
-    def isOver(self, pos):
+    def is_over(self, pos):
         # Pos is the mouse position or a tuple of (x,y) coordinates
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
