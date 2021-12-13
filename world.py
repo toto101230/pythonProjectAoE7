@@ -61,7 +61,7 @@ class World:
             self.examined_unites_tile = []
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):# and self.hud.examined_tile.joueur.name == "joueur 1":
+        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
             unite = self.hud.examined_tile
             if self.deplace_unite(grid_pos, unite) != -1:
                 self.examine_tile = None
@@ -72,68 +72,6 @@ class World:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
                                    mouse_action[0]) == 0:
                 self.hud.selected_tile = None
-
-#
-            grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
-
-            if self.can_place_tile(grid_pos):
-                img = self.hud.selected_tile["image"].copy()
-                img.set_alpha(100)
-
-                render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
-                iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or self.findUnitePos(grid_pos[0],
-                                                                                                   grid_pos[
-                                                                                                       1]) is not None
-
-                self.temp_tile = {
-                    "image": img,
-                    "render_pos": render_pos,
-                    "iso_poly": iso_poly,
-                    "collision": collision
-                }
-
-                if mouse_action[0] and not collision:
-
-                    if self.hud.selected_tile["name"] == "caserne" :
-                        collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.findUnitePos(
-                            grid_pos[0] + 1, grid_pos[1]) is not None
-                        collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.findUnitePos(
-                            grid_pos[0], grid_pos[1] + 1) is not None
-                        collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.findUnitePos(
-                            grid_pos[0] + 1, grid_pos[1] + 1) is not None
-                        if not collision1 and not collision2 and not collision3 :
-                            ent = Caserne(grid_pos, self.resource_manager)
-                            self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                            self.buildings[grid_pos[0]+1][grid_pos[1]] = ent
-                            self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
-                            self.buildings[grid_pos[0]+1][grid_pos[1] + 1] = ent
-                            self.world[grid_pos[0]+1][grid_pos[1]]["collision"] = True
-                            self.world[grid_pos[0]][grid_pos[1]+1]["collision"] = True
-                            self.world[grid_pos[0]+1][grid_pos[1]+1]["collision"] = True
-                    elif self.hud.selected_tile["name"] == "house":
-                        ent = House(render_pos, self.resource_manager)
-                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                    elif self.hud.selected_tile["name"] == "grenier":
-                            collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.findUnitePos(
-                                grid_pos[0] + 1, grid_pos[1]) is not None
-                            collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.findUnitePos(
-                                grid_pos[0], grid_pos[1] + 1) is not None
-                            collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.findUnitePos(
-                                grid_pos[0] + 1, grid_pos[1] + 1) is not None
-                            if not collision1 and not collision2 and not collision3:
-                                ent = Grenier(grid_pos, self.resource_manager)
-                                self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                                self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
-                                self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
-                                self.buildings[grid_pos[0] + 1][grid_pos[1] + 1] = ent
-                                self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
-                                self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
-                                self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
-                    self.popEndPath(grid_pos)
-                    self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
-                    self.hud.selected_tile = None
-#
 
         elif self.can_place_tile(grid_pos):
             collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
@@ -200,11 +138,11 @@ class World:
                 # draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
-                    if(building == self.buildings[x+1][y+1] or building == self.buildings[x+1][y] or building == self.buildings[x][y+1]):
+                    if building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or building == self.buildings[x][y + 1]:
                         continue
                     else:
                         correctif = 0
-                        if isinstance(building, Caserne) :
+                        if isinstance(building, Caserne):
                             correctif = -45
                         image = pygame.image.load("assets/batiments/" + building.name + ".png").convert_alpha()
                         screen.blit(image,
@@ -270,8 +208,6 @@ class World:
                     render_pos[1] - (self.temp_tile["image"].get_height() - TILE_SIZE) + camera.scroll.y
                 )
             )
-
-
 
     def create_world(self):
         np.random.seed(self.seed)
@@ -357,8 +293,6 @@ class World:
         # transformer en coordonnées de la grille
         grid_x = int(cart_x // TILE_SIZE)
         grid_y = int(cart_y // TILE_SIZE)
-        #print(world_x)
-        #print(world_y)
         return grid_x, grid_y
 
     def camera_to_grid(self, camera):
@@ -475,17 +409,44 @@ class World:
             self.temp_tile["image"].set_alpha(100)
 
             if not collision and visible:
-                if name == "caserne":
-                    ent = Caserne(render_pos, joueur)
-                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                elif name == "house":
+                if self.hud.selected_tile["name"] == "caserne":
+                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1]) is not None
+                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
+                        grid_pos[0], grid_pos[1] + 1) is not None
+                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                    if not collision1 and not collision2 and not collision3:
+                        ent = Caserne(render_pos, joueur)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
+                        self.buildings[grid_pos[0] + 1][grid_pos[1] + 1] = ent
+                        self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
+                        self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
+                        self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
+                elif self.hud.selected_tile["name"] == "house":
                     ent = House(render_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                elif name == "grenier":
-                    ent = Grenier(render_pos, joueur)
-                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                elif self.hud.selected_tile["name"] == "grenier":
+                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1]) is not None
+                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
+                        grid_pos[0], grid_pos[1] + 1) is not None
+                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                    if not collision1 and not collision2 and not collision3:
+                        ent = Grenier(grid_pos, joueur)
+                        self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0] + 1][grid_pos[1]] = ent
+                        self.buildings[grid_pos[0]][grid_pos[1] + 1] = ent
+                        self.buildings[grid_pos[0] + 1][grid_pos[1] + 1] = ent
+                        self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
+                        self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
+                        self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
                 self.pop_end_path(grid_pos)
                 self.world[grid_pos[0]][grid_pos[1]]["collision"] = True
+                self.hud.selected_tile = None
                 return 0
         return 1
 
@@ -544,5 +505,3 @@ class World:
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:
             return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
-
-
