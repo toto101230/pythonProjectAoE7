@@ -217,6 +217,8 @@ class Unite(metaclass=ABCMeta):
                     self.cible.health -= self.attack
                     self.tick_attaque = time()
                     self.attackB = True
+                    if self.cible.health <= 0:
+                        self.cible = None
             elif isinstance(self.cible, Unite):
                 self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.cible.pos)
 
