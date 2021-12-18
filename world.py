@@ -533,6 +533,7 @@ class World:
             pos = b.pos
             for i in range(5):
                 # todo trouver une position a 15 case de l'hdv pour y mettre le troupeau
+
                 animaux[pos[0]+10][pos[1]+10+i] = Gazelle((pos[0]+10, pos[1]+10+i))
 
         return animaux
