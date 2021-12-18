@@ -42,11 +42,8 @@ class Unite(metaclass=ABCMeta):
         self.attackB = False
         self.cible = None
 
-    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
-        if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
-            self.cible = None
-            return -1
 
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
         if u:
@@ -55,6 +52,16 @@ class Unite(metaclass=ABCMeta):
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         else:
             self.cible = None
+        if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
+            self.cible = buildings[pos_end[0]][pos_end[1]]
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
+        if animaux[pos_end[0]][pos_end[1]]:
+            self.cible = animaux[pos_end[0]][pos_end[1]]
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
+
+        if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
+            self.cible = None
+            return -1
 
         start_node = Node(None, self.pos)
         start_node.g = start_node.h = start_node.f = 0
@@ -206,7 +213,7 @@ class Unite(metaclass=ABCMeta):
         return pos_min
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
-    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world):
+    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
         if self.cible:
             neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
             neighbours_unite.remove((0, 0))
@@ -220,7 +227,7 @@ class Unite(metaclass=ABCMeta):
                     if self.cible.health <= 0:
                         self.cible = None
             elif isinstance(self.cible, Unite):
-                self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.cible.pos)
+                self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.cible.pos)
 
 
 class Villageois(Unite):
@@ -233,12 +240,13 @@ class Villageois(Unite):
         self.posWork = ()
 
     # création du chemin à parcourir (remplie path de tuple des pos)
-    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         tile = world[pos_end[0]][pos_end[1]]["tile"]
         if tile != "":
             if not self.posWork or not self.is_good_work(tile):
                 self.def_metier(tile)
             self.posWork = pos_end
+            # todo gérer le faites que la ressource peut être une forêt ou que la pos_end soit impossible
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif buildings[pos_end[0]][pos_end[1]] and (buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
@@ -246,7 +254,7 @@ class Villageois(Unite):
             self.posWork = ()
             self.def_metier(tile)
 
-        return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
+        return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
 
     def updatepos(self, world, unites):
         i = super().updatepos(world, unites)
@@ -280,7 +288,7 @@ class Villageois(Unite):
         elif self.stockage == 0:
             self.work = "default"
 
-    def working(self, grid_length_x, grid_length_y, unites, world, buildings):
+    def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
             if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 1:
                 if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
@@ -290,13 +298,13 @@ class Villageois(Unite):
                     self.time_recup_ressource = time()
                 else:
                     self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
-                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
 
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites)
                     pos_temp = self.posWork
-                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
+                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
                     self.posWork = pos_temp
 
             elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and not self.pos_work_is_neighbours():
@@ -310,10 +318,10 @@ class Villageois(Unite):
                 self.stockage = 0
                 if self.posWork:
                     if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
-                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
                     else:
                         self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos)
-                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
                 else:
                     self.action = "idle"
                     self.work = "default"
