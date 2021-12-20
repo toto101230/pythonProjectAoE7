@@ -8,7 +8,7 @@ from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
 from os import walk
-from model.animal import Gazelle
+from model.animal import Gazelle, Animal
 
 Joueurs = list[Joueur]
 
@@ -33,7 +33,7 @@ class World:
 
         self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
         self.buildings[10][10] = Hdv((10, 10), joueurs[0])
-        self.buildings[26][18] = Hdv((26, 18), joueurs[1])
+        # self.buildings[26][18] = Hdv((26, 18), joueurs[1])
         self.unites = []
 
         self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
@@ -80,6 +80,7 @@ class World:
             collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
+            animal = self.find_unite_animal(grid_pos[0], grid_pos[1])
 
             if mouse_action[0] and collision != '':
                 self.examine_tile = grid_pos
@@ -90,9 +91,14 @@ class World:
                 self.hud.examined_tile = building
 
             # permet de sélectionner une unité
-            if mouse_action[0] and (unite is not None):
+            if mouse_action[0] and unite is not None:
                 self.examine_tile = grid_pos
                 self.hud.examined_tile = unite
+
+            # permet de sélectionner un animal
+            if mouse_action[0] and animal is not None:
+                self.examine_tile = grid_pos
+                self.hud.examined_tile = animal
 
         for u in self.unites:
             if u.updatepos(self.world, self.unites) == -1:
@@ -113,6 +119,17 @@ class World:
         if self.hud.unite_recrut is not None:
             self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
             self.hud.unite_recrut = None
+
+        # mise a jour des animaux
+        for a in self.animaux:
+            if a.vie:
+                if a.health <= 0:
+                    a.vie = False
+                    a.name += "_mort"
+                else:
+                    a.updatepos(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.unites, self.animaux)
+            elif a.ressource <= 0:
+                self.animaux.remove(a)
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
@@ -157,25 +174,17 @@ class World:
                             self.buildings[x][y] = None
 
                         if self.examine_tile is not None:
-                            print(self.examine_tile)
                             if x == self.examine_tile[0] and y == self.examine_tile[1]:
                                 mask = pygame.mask.from_surface(self.tiles[building.name]).outline()
                                 mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
                                          y + render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y)
                                         for x, y in mask]
                                 pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
-                #draw animaux
-                animaux = self.animaux[x][y]
-                if animaux is not None:
-                    screen.blit(self.tiles[animaux.name],
-                                (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 render_pos[1] - (
-                                             self.tiles[animaux.name].get_height() - TILE_SIZE) + camera.scroll.y))
 
         # dessine les unités
         for u in self.unites:
 
-            if xmax > u.pos[0] > xmin and ymax > u.pos[1] > ymin:
+            if xmax > u.pos[0] >= xmin and ymax > u.pos[1] >= ymin:
                 render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
                 pixel = iso(u.xpixel, u.ypixel)
                 render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
@@ -199,6 +208,25 @@ class World:
                         mask = pygame.mask.from_surface(self.images_unites[image]).outline()
                         mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                  y + render_pos[1] - (self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
+                                for x, y in mask]
+                        pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
+        # dessine les animaux
+        for a in self.animaux:
+            if xmax > a.pos[0] >= xmin and ymax > a.pos[1] >= ymin:
+                render_pos = self.world[a.pos[0]][a.pos[1]]["render_pos"]
+                pixel = iso(a.xpixel, a.ypixel)
+                render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
+
+                screen.blit(self.tiles[a.name],
+                            (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                             render_pos[1] - (self.tiles[a.name].get_height() - TILE_SIZE) + camera.scroll.y))
+
+                if self.examine_tile is not None:
+                    if (a.pos[0] == self.examine_tile[0]) and (a.pos[1] == self.examine_tile[1]):
+                        mask = pygame.mask.from_surface(self.tiles[a.name]).outline()
+                        mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                 y + render_pos[1] - (self.tiles[a.name].get_height() - TILE_SIZE) + camera.scroll.y)
                                 for x, y in mask]
                         pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
@@ -349,6 +377,7 @@ class World:
 
         # animaux
         gazelle = pygame.image.load("assets/animaux/gazelle.png").convert_alpha()
+        gazelle_mort = pygame.image.load("assets/animaux/gazelle_mort.png").convert_alpha()
 
         images = {
             "tree": tree,
@@ -364,6 +393,7 @@ class World:
             "etoile": etoile,
 
             "gazelle": gazelle,
+            "gazelle_mort": gazelle_mort,
         }
 
         return images
@@ -521,8 +551,8 @@ class World:
         if self.can_place_tile(pos) and pos != unite.pos:
             return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
-    def create_animaux(self):
-        animaux = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
+    def create_animaux(self) -> list[Animal]:
+        animaux = []
         buildings = []
         for x in range(self.grid_length_x):
             for y in range(self.grid_length_y):
@@ -530,9 +560,46 @@ class World:
                     buildings.append(self.buildings[x][y])
 
         for b in buildings:
-            pos = b.pos
-            for i in range(5):
-                # todo trouver une position a 15 case de l'hdv pour y mettre le troupeau
-                animaux[pos[0]+10][pos[1]+10+i] = Gazelle((pos[0]+10, pos[1]+10+i))
+            pos_b = b.pos
+            pos_possible = []
+            for x in (-10, 10):
+                for y in range(-10, 11):
+                    pos_depart = pos_b[0] + x, pos_b[1] + y
+                    pos = self.verif_place_autour(pos_depart)
+                    if len(pos) > 5:
+                        pos_possible.append((pos_depart, pos))
+
+            for y in (-10, 10):
+                for x in range(-10, 11):
+                    pos_depart = pos_b[0] + x, pos_b[1] + y
+                    pos = self.verif_place_autour(pos_depart)
+                    if len(pos) > 5:
+                        pos_possible.append((pos_depart, pos))
+
+            np.random.seed(self.seed)
+            pos_depart = pos_possible[np.random.randint(0, len(pos_possible))]
+
+            temp = list(range(len(pos_depart[1])))
+            np.random.seed(self.seed)
+            poss = np.random.choice(temp, 5, False)
+            for i in poss:
+                animaux.append(Gazelle((pos_depart[1][i][0], pos_depart[1][i][1]), (pos_depart[0][0], pos_depart[0][1])))
 
         return animaux
+
+    def verif_place_autour(self, pos_depart):
+        pos = []
+        if not (self.grid_length_x > pos_depart[0] >= 0) and not (self.grid_length_y > pos_depart[1] >= 0):
+            return pos
+        for x in range(-2, 3):
+            for y in range(-2, 3):
+                if self.grid_length_x > pos_depart[0]+x >= 0 and self.grid_length_y > pos_depart[1]+y >= 0 and \
+                        self.world[pos_depart[0]+x][pos_depart[1]+y]["tile"] == "" and self.buildings[pos_depart[0]+x][pos_depart[1]+y] is None:
+                    pos.append((pos_depart[0]+x, pos_depart[1]+y))
+        return pos
+
+    def find_unite_animal(self, x, y):
+        for a in self.animaux:
+            if a.pos[0] == x and a.pos[1] == y:
+                return a
+        return None
