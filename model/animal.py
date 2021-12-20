@@ -114,7 +114,7 @@ class Animal:
                 return u
         return None
 
-    def find_unite_animal(self, x, y, animaux):
+    def find_animal_pos(self, x, y, animaux):
         for a in animaux:
             if a.pos[0] == x and a.pos[1] == y:
                 return a
@@ -123,7 +123,7 @@ class Animal:
     def is_good_pos(self, pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
         x, y = pos
         return grid_length_x > x >= 0 and grid_length_y > y >= 0 and world[x][y]["tile"] == "" and buildings[x][y] is None \
-               and self.find_unite_pos(x, y, unites) is None and self.find_unite_animal(x, y, animaux) is None
+               and self.find_unite_pos(x, y, unites) is None and self.find_animal_pos(x, y, animaux) is None
 
 
 class Gazelle(Animal):

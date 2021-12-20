@@ -23,7 +23,7 @@ class World:
         self.grid_length_y = grid_length_y
         self.width = width
         self.height = height
-        self.seed = seed if seed != 0 else np.random.randint(1000000, 10000000)
+        self.seed = seed if seed != 0 else np.random.randint(10000, 10000000)
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -33,7 +33,7 @@ class World:
 
         self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
         self.buildings[10][10] = Hdv((10, 10), joueurs[0])
-        # self.buildings[26][18] = Hdv((26, 18), joueurs[1])
+        self.buildings[80][75] = Hdv((80, 75), joueurs[1])
         self.unites = []
 
         self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
@@ -80,7 +80,7 @@ class World:
             collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
-            animal = self.find_unite_animal(grid_pos[0], grid_pos[1])
+            animal = self.find_animal_pos(grid_pos[0], grid_pos[1])
 
             if mouse_action[0] and collision != '':
                 self.examine_tile = grid_pos
@@ -315,7 +315,7 @@ class World:
             out["tile"] = ""
             out["collision"] = False
 
-        if grid_x == 11 and grid_y == 11:
+        if grid_x == 80 and grid_y == 75:
             out["tile"] = ""
             out["collision"] = False
 
@@ -598,7 +598,7 @@ class World:
                     pos.append((pos_depart[0]+x, pos_depart[1]+y))
         return pos
 
-    def find_unite_animal(self, x, y):
+    def find_animal_pos(self, x, y):
         for a in self.animaux:
             if a.pos[0] == x and a.pos[1] == y:
                 return a
