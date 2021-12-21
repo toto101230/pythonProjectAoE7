@@ -33,7 +33,7 @@ class World:
 
         self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
         self.buildings[10][10] = Hdv((10, 10), joueurs[0])
-        self.buildings[80][75] = Hdv((80, 75), joueurs[1])
+        # self.buildings[80][75] = Hdv((80, 75), joueurs[1])
         self.unites = []
 
         self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
@@ -579,9 +579,9 @@ class World:
             np.random.seed(self.seed)
             pos_depart = pos_possible[np.random.randint(0, len(pos_possible))]
 
-            temp = list(range(len(pos_depart[1])))
+            indexs = list(range(len(pos_depart[1])))
             np.random.seed(self.seed)
-            poss = np.random.choice(temp, 5, False)
+            poss = np.random.choice(indexs, 5, False)
             for i in poss:
                 animaux.append(Gazelle((pos_depart[1][i][0], pos_depart[1][i][1]), (pos_depart[0][0], pos_depart[0][1])))
 
