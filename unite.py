@@ -44,7 +44,7 @@ class Unite(metaclass=ABCMeta):
 
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
         self.path = []
-        if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
+        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or buildings[pos_end[0]][pos_end[1]] is not None:
             self.cible = None
             return -1
 
@@ -76,7 +76,7 @@ class Unite(metaclass=ABCMeta):
             open_list.pop(current_index)
             closed_list.append(current_node)
 
-            if current_node == end_node:
+            if current_node.position == end_node.position:
                 current = current_node
                 while current is not None:
                     self.path.append(current.position)
@@ -90,22 +90,21 @@ class Unite(metaclass=ABCMeta):
                 if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
                     continue
 
-                if world[x][y]["tile"] != "":
+                if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable":
                     continue
 
                 if buildings[x][y] is not None:
                     continue
 
-                if self.find_unite_pos(x,y,unites):
+                if self.find_unite_pos(x, y, unites):
                     continue
 
                 new_node = Node(current_node, (x, y))
                 children.append(new_node)
 
             for child in children:
-                for closed_child in closed_list:
-                    if child == closed_child:
-                        continue
+                if child in closed_list:
+                    continue
 
                 child.g = current_node.g + 1
                 child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
@@ -194,8 +193,11 @@ class Unite(metaclass=ABCMeta):
         pos_min = (5000, 5000)
         for neighbour in neighbours:
             x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
+            if not (len(world) > x >= 0 and len(world[0]) > y >= 0):
+                continue
             if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and self.find_unite_pos(x, y, unites) is None:
+                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and \
+                    self.find_unite_pos(x, y, unites) is None:
                 pos_min = (x, y)
         if pos_min == (5000, 5000):
             for neighbour in neighbours:
@@ -235,10 +237,13 @@ class Villageois(Unite):
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
         tile = world[pos_end[0]][pos_end[1]]["tile"]
+        if tile == "sable":
+            tile = ""
         if tile != "":
-            if not self.posWork or not self.is_good_work(tile):
-                self.def_metier(tile)
-            self.posWork = pos_end
+            if tile != "eau":
+                if not self.posWork or not self.is_good_work(tile):
+                    self.def_metier(tile)
+                self.posWork = pos_end
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif buildings[pos_end[0]][pos_end[1]] and (buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
@@ -378,7 +383,8 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
 
-                if world[x][y]["tile"] != "" and self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
+                if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable" and world[x][y]["tile"] != "eau" and \
+                        self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
                     return x, y
 
                 count = cout + 1
