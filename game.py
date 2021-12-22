@@ -106,4 +106,9 @@ class Game:
 
         draw_text(self.screen, '{}{}:{}{}'.format((pygame.time.get_ticks()//60000//10), (pygame.time.get_ticks()//60000) % 10, (pygame.time.get_ticks()//10000) % 6, (pygame.time.get_ticks()//1000) % 10), 25, (255, 255, 255), (230, 60))
 
+        draw_text(self.screen, "food : {}".format(self.joueurs[1].resource_manager.resources["food"]), 25, (255, 255, 255), (10, 80))
+        draw_text(self.screen, "wood : {}".format(self.joueurs[1].resource_manager.resources["wood"]), 25, (255, 255, 255), (120, 80))
+        draw_text(self.screen, "stone : {}".format(self.joueurs[1].resource_manager.resources["stone"]), 25, (255, 255, 255), (220, 80))
+        draw_text(self.screen, "pop : {}".format(self.joueurs[1].resource_manager.population["population_actuelle"]), 25, (255, 255, 255), (320, 80))
+        draw_text(self.screen, "pop_max : {}".format(self.joueurs[1].resource_manager.population["population_maximale"]), 25, (255, 255, 255), (420, 80))
         pygame.display.flip()

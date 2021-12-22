@@ -1,6 +1,6 @@
 class Batiment:
 
-    def __init__(self, pos, name, health, place, joueur):
+    def __init__(self, pos, name, health, place, joueur, place_batiment):
         self.name = name
         self.health = health
         self.counter = 0
@@ -10,6 +10,7 @@ class Batiment:
         self.resource_manager.apply_cost_to_resource(self.name)
         self.resource_manager.update_population_max(self.place)
         self.pos = pos
+        self.place_batiment = place_batiment
 
 
 class Hdv(Batiment):

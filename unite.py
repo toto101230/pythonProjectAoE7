@@ -245,7 +245,6 @@ class Villageois(Unite):
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         elif self.stockage > 1:
             self.posWork = ()
-            self.def_metier(tile)
 
         return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
 
