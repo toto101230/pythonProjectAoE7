@@ -26,7 +26,7 @@ class Game:
         self.joueurs = [Joueur(ResourceManager(), "joueur 1"), Joueur(ResourceManager(), "joueur 2")]
 
         self.joueurs[1].ia = Ia()
-        # pygame.time.set_timer(ia_play_1_event, 500)
+        pygame.time.set_timer(events.ia_play_1_event, 500)
 
         self.resources_manager = self.joueurs[0].resource_manager
 
@@ -43,6 +43,9 @@ class Game:
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
 
         self.save = Save()
+
+        # todo a modif
+        self.joueurs[1].ia.batiments.append(self.world.buildings[90][90])
 
     def run(self):
         while self.playing:

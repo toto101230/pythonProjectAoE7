@@ -409,7 +409,7 @@ class World:
             self.temp_tile["image"].set_alpha(100)
 
             if not collision and visible:
-                if self.hud.selected_tile["name"] == "caserne":
+                if name == "caserne":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1]) is not None
                     collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
@@ -425,10 +425,10 @@ class World:
                         self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
                         self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
                         self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
-                elif self.hud.selected_tile["name"] == "house":
+                elif name == "house":
                     ent = House(render_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                elif self.hud.selected_tile["name"] == "grenier":
+                elif name == "grenier":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1]) is not None
                     collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(

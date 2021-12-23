@@ -268,13 +268,13 @@ class Villageois(Unite):
         # fin
 
     def villageois_remove(self):
-        if self.work == 'lumber':
+        if self.work == "lumber":
             self.joueur.resource_manager.villageois["wood"].remove(self)
-        elif self.work == 'forager':
+        elif self.work == "forager":
             self.joueur.resource_manager.villageois["food"].remove(self)
-        elif self.work == 'miner':
+        elif self.work == "miner":
             self.joueur.resource_manager.villageois["stone"].remove(self)
-        elif self.work == 'default' and self.stockage == 0:
+        elif self.work == "default" and self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].remove(self)
 
     def def_metier(self, tile):
