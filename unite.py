@@ -259,7 +259,7 @@ class Villageois(Unite):
             if not self.posWork or not self.is_good_work(tile):
                 self.def_metier(tile)
             self.posWork = pos_end
-            # todo gérer le faites que la ressource peut être une forêt ou que la pos_end soit impossible
+            # todo gérer le faites que la ressource peut être une forêt ou que la pos_end soit impossible (voir autre todo ds la fct)
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         elif self.find_animal_pos(pos_end[0], pos_end[1], animaux):
             if not self.posWork or not self.is_good_work("animal"):
