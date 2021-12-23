@@ -16,22 +16,22 @@ class Batiment:
 class Hdv(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "hdv", 50, 5, joueur)
+        Batiment.__init__(self, pos, "hdv", 50, 5, joueur, 4)
 
 
 class Caserne(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "caserne", 350, 0, joueur)
+        Batiment.__init__(self, pos, "caserne", 350, 0, joueur, 4)
 
 
 class House(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "house", 75, 5, joueur)
+        Batiment.__init__(self, pos, "house", 75, 5, joueur, 1)
 
 
 class Grenier(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "grenier", 350, 0, joueur)
+        Batiment.__init__(self, pos, "grenier", 350, 0, joueur, 4)
