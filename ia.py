@@ -48,7 +48,7 @@ class Ia:
 
         if joueur.resource_manager.resources["wood"] < 100:
             if len(joueur.resource_manager.villageois["rien"]) != 0:
-                pass  # todo faire la même chose que pour food
+                pass
             else:
                 world.achat_villageois(joueur, (90, 90), "villageois")
 
@@ -56,11 +56,11 @@ class Ia:
             if len(joueur.resource_manager.villageois["rien"]) != 0:
                 pass
             else:
-                world.achat_villageois(self, joueur, (92, 92), "villageois")
+                world.achat_villageois(joueur, (90, 90), "villageois")
 
-       # if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"] :
-        #    world.achat_villageois(self, joueur, (92, 92), "villageois")
+        if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:
+           world.achat_villageois(joueur, (90, 90), "villageois")
 
-        if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30) :
-            x = (85, 85) # à remplacer par fonction calcul_pos
-            world.place_building(x, joueur, "house", True)
+        if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30):
+            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "house")
+            world.place_building(pos, joueur, "house", True)
