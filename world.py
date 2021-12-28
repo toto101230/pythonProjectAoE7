@@ -168,9 +168,10 @@ class World:
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
                                  render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y))
 
-                        if building.health <= 0:
-                            self.examine_tile = None
-                            self.hud.examined_tile = None
+                        if building.health <= 0 and building.construit:
+                            if self.examine_tile is not None and x == self.examine_tile[0] and y == self.examine_tile[1]:
+                                self.examine_tile = None
+                                self.hud.examined_tile = None
                             self.buildings[x][y] = None
 
                         if self.examine_tile is not None:

@@ -265,8 +265,13 @@ class Villageois(Unite):
             if not self.posWork or not self.is_good_work("animal"):
                 self.def_metier("animal")
                 self.posWork = pos_end
-        elif buildings[pos_end[0]][pos_end[1]] and (buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
-            pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+        elif buildings[pos_end[0]][pos_end[1]]:
+            if(buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
+                pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+            elif buildings[pos_end[0]][pos_end[1]].joueur == self.joueur and not buildings[pos_end[0]][pos_end[1]].construit:
+                self.def_metier("batiment")
+                self.posWork = pos_end
+                pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         elif self.stockage > 1:
             self.posWork = ()
             self.def_metier(tile)
@@ -305,12 +310,32 @@ class Villageois(Unite):
         elif tile == "animal":
             self.stockage = 0
             self.work = "hunter"
+        elif tile == "batiment":
+            self.stockage = 0
+            self.work = "builder"
         elif self.stockage == 0:
             self.work = "default"
 
     def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
             if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 1:
+                if self.work == "builder":
+                    building = buildings[self.posWork[0]][self.posWork[1]]
+                    building.health += 10
+                    if building.health >= building.max_health:
+                        building.construit = True
+                        building.resource_manager.update_population_max(building.place)
+
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork, animaux, buildings)
+
+                        if self.posWork:
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                        else:
+                            self.def_metier("")
+                            self.action = "idle"
+                            self.posWork = ()
+                    self.time_recup_ressource = time()
+                    return
                 if self.work == "hunter":
                     if self.cible:
                         return
@@ -407,9 +432,10 @@ class Villageois(Unite):
 
     def is_good_work(self, tile):
         return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") \
-               or (tile == "rock" and self.work == "miner") or (tile == "animal" and self.work == "hunter")
+               or (tile == "rock" and self.work == "miner") or (tile == "animal" and self.work == "hunter") or \
+               (tile == "batiment" and self.work == "builder")
 
-    def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start, animaux):
+    def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start, animaux, buildings):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -424,6 +450,10 @@ class Villageois(Unite):
 
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
+
+                if buildings[x][y] and buildings[x][y].joueur == self.joueur and not buildings[x][y].construit and \
+                        self.is_good_work("batiment"):
+                    return x, y
 
                 if world[x][y]["tile"] != "" and self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
                     return x, y

@@ -122,10 +122,10 @@ class Animal:
                     n = neighbours.copy()
                     coo = n.pop(np.random.randint(0, len(n)))
                     pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
-                    while coo and not self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
+                    while len(n) > 0 and not self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
                         coo = n.pop(np.random.randint(0, len(n)))
                         pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
-                    if coo or self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
+                    if len(n) > 0 or self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
                         self.path = pos
                 else:
                     self.reviens = True
