@@ -48,13 +48,20 @@ class Ia:
 
         if joueur.resource_manager.resources["wood"] < 100:
             if len(joueur.resource_manager.villageois["rien"]) != 0:
-                pass
+                villageois = joueur.resource_manager.villageois["rien"][0]
+                villageois.def_metier("tree")
+                x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world, villageois.pos)
+                world.deplace_unite((x, y), villageois)
             else:
                 world.achat_villageois(joueur, (90, 90), "villageois")
 
         if joueur.resource_manager.resources["stone"] < 10:
             if len(joueur.resource_manager.villageois["rien"]) != 0:
-                pass
+                villageois = joueur.resource_manager.villageois["rien"][0]
+                villageois.def_metier("rock")
+                x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
+                                                        villageois.pos)
+                world.deplace_unite((x, y), villageois)
             else:
                 world.achat_villageois(joueur, (90, 90), "villageois")
 
