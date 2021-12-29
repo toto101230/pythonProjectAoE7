@@ -1,3 +1,5 @@
+import time
+
 class Ia:
     def __init__(self):
         self.place_event = False
@@ -66,8 +68,21 @@ class Ia:
                 world.achat_villageois(joueur, (90, 90), "villageois")
 
         if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:
-           world.achat_villageois(joueur, (90, 90), "villageois")
+            world.achat_villageois(joueur, (90, 90), "villageois")
+            #time.sleep(15)
 
         if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30):
             pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "house")
             world.place_building(pos, joueur, "house", True)
+            self.batiments.append('house')
+
+
+        if 'caserne' not in self.batiments:
+            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "caserne")
+            world.place_building(pos, joueur, "caserne", True)
+            self.batiments.append("caserne")
+
+        if 'grenier' not in self.batiments:
+            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "grenier")
+            world.place_building(pos, joueur, "grenier", True)
+            self.batiments.append("grenier")
