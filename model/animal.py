@@ -7,6 +7,7 @@ from settings import TILE_SIZE
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
 
+
 class Animal:
     def __init__(self, nom, pos, pos_depart, health, speed, ressource):
         self.name = nom
@@ -74,6 +75,8 @@ class Animal:
                         if self.find_unite_pos(x + self.pos[0], y + self.pos[1], unites):
                             x = -1 if self.pos[0] < self.posDepart[0] else (1 if self.pos[0] > self.posDepart[0] else 0)
                             y = -1 if self.pos[1] < self.posDepart[1] else (1 if self.pos[1] > self.posDepart[1] else 0)
+                            if x == 0 and y == 0:
+                                return
                             pos, pos1, pos2 = self.find_3_pos(x, y)
 
                             poss = []
@@ -113,7 +116,7 @@ class Animal:
                             self.next_depla = np.random.randint(1, 5)
                             return
                         elif len(poss) == 0:
-                            # todo à revoir
+                            # l'animal est bloqué
                             return
 
                         self.path = poss[np.random.randint(0, len(poss))]
@@ -122,10 +125,12 @@ class Animal:
                     n = neighbours.copy()
                     coo = n.pop(np.random.randint(0, len(n)))
                     pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
-                    while len(n) > 0 and not self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
+                    while len(n) > 0 and not self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings,
+                                                              unites, animaux):
                         coo = n.pop(np.random.randint(0, len(n)))
                         pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
-                    if len(n) > 0 or self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
+                    if len(n) > 0 or self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites,
+                                                      animaux):
                         self.path = pos
                 else:
                     self.reviens = True
@@ -161,7 +166,7 @@ class Animal:
             elif (x, y) == (0, -1):
                 xy1 = neighbours[index - 3]
                 xy2 = neighbours[index + 2]
-            else:  # elif (x, y)==(0, 1)
+            else:  # elif (x, y) == (0, 1)
                 xy1 = neighbours[index - 2]
                 xy2 = neighbours[index + 3]
         else:
@@ -176,4 +181,4 @@ class Animal:
 
 class Gazelle(Animal):
     def __init__(self, pos, pos_depart):
-        super().__init__("gazelle", pos, pos_depart, 8, 1, 10)
+        super().__init__("gazelle", pos, pos_depart, 8, 1, 150)

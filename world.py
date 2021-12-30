@@ -3,7 +3,7 @@ import numpy as np
 import tcod
 
 from settings import TILE_SIZE
-from buildings import Caserne, House, Hdv, Grenier
+from buildings import Caserne, House, Hdv, Grenier, Batiment
 from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
@@ -24,6 +24,7 @@ class World:
         self.width = width
         self.height = height
         self.seed = seed if seed != 0 else np.random.randint(10000, 10000000)
+        self.joueurs = joueurs
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -31,25 +32,15 @@ class World:
         self.images_unites = self.load_images_unites()
         self.world = self.create_world()
 
-        self.buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
-        self.buildings[10][10] = Hdv((10, 10), joueurs[0])
-        # self.buildings[80][75] = Hdv((80, 75), joueurs[1])
-        self.unites = []
+        self.buildings = self.create_buildings()
 
-        self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((10, 13), joueurs[1]))  # ligne pour tester les villageois
-
-        self.unites.append(Clubman((11, 8), joueurs[0]))  # ligne pour tester les soldats
-        self.unites.append(Clubman((12, 15), joueurs[1]))  # ligne pour tester les soldats
+        self.unites = self.create_unites()
 
         self.animaux = self.create_animaux()
 
         self.temp_tile = None
         self.examine_tile = None
         self.examined_unites_tile = []
-
-        self.joueurs = joueurs
 
     def update(self, camera):
 
@@ -66,10 +57,11 @@ class World:
 
         if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
             unite = self.hud.examined_tile
-            if self.deplace_unite(grid_pos, unite) != -1:
-                self.examine_tile = None
-                self.hud.examined_tile = None
-                self.examined_unites_tile = []
+            if self.can_place_tile(grid_pos) and grid_pos != unite.pos:
+                if self.deplace_unite(grid_pos, unite) != -1:
+                    self.examine_tile = None
+                    self.hud.examined_tile = None
+                    self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
@@ -348,12 +340,12 @@ class World:
         # calcul de la taille du tableau en x vissible
         x = -grid_x - self.grid_length_x
         xmin = max(x, 0)
-        xmax = min(x + int(self.width // TILE_SIZE), self.grid_length_x - 1)
+        xmax = min(x + int(self.width // TILE_SIZE), self.grid_length_x)
 
         # calcul de la taille du tableau en y vissible
         y = self.grid_length_y - grid_y
         ymin = max(y - int(self.height // TILE_SIZE), 0)
-        ymax = min(y + int(self.height // TILE_SIZE), self.grid_length_y - 1)
+        ymax = min(y + int(self.height // TILE_SIZE), self.grid_length_y)
         return xmax, xmin, ymax, ymin
 
     def load_images(self):
@@ -437,7 +429,8 @@ class World:
                         if i == grid_pos:
                             pos = u.posWork if isinstance(self.hud.examined_tile, Villageois) and u.posWork else u.path[
                                 -1]
-                            u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
+                            u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
+                                          self.buildings, self.animaux, pos)
 
     def place_building(self, grid_pos, joueur, name, visible):
         if self.can_place_tile(grid_pos):
@@ -508,7 +501,8 @@ class World:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
                     if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
-                        unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, (x, y))
+                        unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
+                                          self.buildings, self.animaux, (x, y))
                         return pos_a_degage
                     else:
                         if self.find_unite_pos(x, y) is not None and (x, y) not in pos_visitee:
@@ -549,8 +543,7 @@ class World:
             joueur.time_recrut = time()
 
     def deplace_unite(self, pos, unite):
-        if self.can_place_tile(pos) and pos != unite.pos:
-            return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
+        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
     def create_animaux(self) -> list[Animal]:
         animaux = []
@@ -604,3 +597,21 @@ class World:
             if a.pos[0] == x and a.pos[1] == y:
                 return a
         return None
+
+    def create_unites(self) -> list[Unite]:
+        unites = []
+        unites.append(Villageois((7, 7), self.joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((8, 11), self.joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((10, 13), self.joueurs[1]))  # ligne pour tester les villageois
+
+        unites.append(Clubman((11, 8), self.joueurs[0]))  # ligne pour tester les soldats
+        unites.append(Clubman((12, 15), self.joueurs[1]))  # ligne pour tester les soldats
+
+        return unites
+
+    def create_buildings(self) -> list[list[Batiment]]:
+        buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
+        buildings[10][10] = Hdv((10, 10), self.joueurs[0])
+        buildings[80][75] = Hdv((80, 75), self.joueurs[1])
+
+        return buildings

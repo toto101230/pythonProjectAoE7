@@ -2,6 +2,7 @@ from settings import TILE_SIZE
 from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
+from model.animal import Animal
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
@@ -62,6 +63,7 @@ class Unite(metaclass=ABCMeta):
 
         if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
             self.cible = None
+            # todo cherche la case libre la plus proche
             return -1
 
         start_node = Node(None, self.pos)
@@ -211,13 +213,14 @@ class Unite(metaclass=ABCMeta):
         pos_min = (5000, 5000)
         for neighbour in neighbours:
             x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-            if abs(self.pos[0] - x) + abs(self.pos[1] - y) <= abs(self.pos[0] - pos_min[0]) + abs(
-                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and \
-                    (self.find_unite_pos(x, y, unites) is None or self.find_unite_pos(x, y, unites) is self) and \
+            if len(world) > x > 0 and len(world[0]) > y > 0 and abs(self.pos[0] - x) + abs(self.pos[1] - y) <= abs(
+                    self.pos[0] - pos_min[0]) + abs(self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and \
+                    buildings[x][y] is None and (self.find_unite_pos(x, y, unites) is None or
+                                                 self.find_unite_pos(x, y, unites) is self) and \
                     self.find_animal_pos(x, y, animaux) is None:
                 pos_min = (x, y)
         if pos_min == (5000, 5000):
-            # todo si c'est un villageois changer sa pos.work
+            # todo voir pour utiliser autre chose que de la récursivité
             for neighbour in neighbours:
                 x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
                 if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
@@ -239,7 +242,7 @@ class Unite(metaclass=ABCMeta):
                     self.attackB = True
                     if self.cible.health <= 0:
                         self.cible = None
-            elif isinstance(self.cible, Unite):
+            elif isinstance(self.cible, Unite) or isinstance(self.cible, Animal):
                 self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.cible.pos)
 
 
@@ -266,7 +269,8 @@ class Villageois(Unite):
                 self.def_metier("animal")
                 self.posWork = pos_end
         elif buildings[pos_end[0]][pos_end[1]]:
-            if(buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
+            if(buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") \
+                    and self.stockage > 0:
                 pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
             elif buildings[pos_end[0]][pos_end[1]].joueur == self.joueur and not buildings[pos_end[0]][pos_end[1]].construit:
                 self.def_metier("batiment")
@@ -277,6 +281,18 @@ class Villageois(Unite):
             self.def_metier(tile)
 
         return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
+
+    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
+        super().attaque(unites, buildings, grid_length_x, grid_length_y, world, animaux)
+        if self.path and isinstance(self.cible, Animal):
+            self.posWork = self.cible.pos
+
+    def find_closer_pos(self, pos_end, world, buildings, unites, animaux):
+        pos_min = super().find_closer_pos(pos_end, world, buildings, unites, animaux)
+        # todo changer la pos.work si pos_min n'est pas à coté si c'est une forêt sinon voir si c'est pas une position
+        #  impossible à atteindre
+        print(pos_min)
+        return pos_min
 
     def updatepos(self, world, unites):
         i = super().updatepos(world, unites)
@@ -355,8 +371,18 @@ class Villageois(Unite):
                     self.action = "gather"
                     self.time_recup_ressource = time()
                 else:
-                    self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork, animaux)
-                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                    self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork,
+                                                              animaux, buildings)
+                    if self.posWork:
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                    else:
+                        if self.stockage > 0:
+                            pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
+                            self.posWork = ()
+                        else:
+                            self.action = "idle"
+                            self.work = "default"
 
                 if self.stockage >= 20:
                     self.stockage = 20
@@ -365,7 +391,8 @@ class Villageois(Unite):
                     self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
                     self.posWork = pos_temp
 
-            elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and not self.pos_work_is_neighbours():
+            elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and \
+                    not self.pos_work_is_neighbours():
                 if self.stockage > 0:
                     if self.work == "lumber":
                         self.joueur.resource_manager.resources["wood"] += round(self.stockage)
@@ -378,14 +405,22 @@ class Villageois(Unite):
                 self.stockage = 0
                 if self.posWork:
                     if self.work == "hunter":
-                        ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                        if self.find_animal_pos(self.posWork[0], self.posWork[1], animaux):
+                            ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                        else:
+                            ressource = 0
                     else:
                         ressource = world[self.posWork[0]][self.posWork[1]]["ressource"]
                     if ressource > 0:
                         self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
                     else:
-                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos, animaux)
-                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos,
+                                                                  animaux, buildings)
+                        if self.posWork:
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                        else:
+                            self.action = "idle"
+                            self.work = "default"
                 else:
                     self.action = "idle"
                     self.work = "default"
