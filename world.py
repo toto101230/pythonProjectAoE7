@@ -499,7 +499,10 @@ class World:
                             joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                             return
                         u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, last)
-            self.unites.append(Villageois(pos_ini, joueur))
+            if nom_unite == "villageois":
+                self.unites.append(Villageois(pos_ini, joueur))
+            if nom_unite == "clubman":
+                self.unites.append(Clubman(pos_ini, joueur))
             joueur.time_recrut = time()
 
     def deplace_unite(self, pos, unite):

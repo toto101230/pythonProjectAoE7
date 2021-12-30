@@ -48,6 +48,7 @@ class Hud:
 
         self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
         self.age_2_bouton = Button((0, 255, 0), self.width - 500, self.height - 100, 'age_2')
+        self.clubman_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'clubman_recrut')
 
 
     def create_build_hud(self):
@@ -89,13 +90,16 @@ class Hud:
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
+
             if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.isPress:
-                self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
                     self.unite_recrut = self.unite_bouton.text[:-7]
                     self.unite_bouton.isPress = True
-            elif self.resource_manager.stay_place():
-                self.unite_bouton.color = self.unite_bouton.color_de_base
+
+            if self.clubman_bouton.is_over(mouse_pos) and not self.clubman_bouton.isPress:
+                if mouse_action[0]:
+                    self.unite_recrut = self.clubman_bouton.text[:-7]
+                    self.clubman_bouton.isPress = True
 
             if self.age_2_bouton.is_over(mouse_pos):
                 if mouse_action[0]:
@@ -140,6 +144,8 @@ class Hud:
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
                     self.age_2_bouton.draw(screen)
+                if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
+                    self.clubman_bouton.draw(screen)
 
             else:
                 img = self.images_terre[self.examined_tile["tile"]].convert_alpha()
