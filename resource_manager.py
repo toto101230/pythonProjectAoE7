@@ -4,10 +4,10 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 1000,
+            "wood": 13300,
             "food": 5000,
             "gold": 0,
-            "stone": 300
+            "stone": 5000
         }
 
         # population
@@ -24,7 +24,8 @@ class ResourceManager:
             "caserne": {"wood": 125},
             "house": {"wood": 30},
             "grenier": {"wood": 130},
-            "feodal" : {"wood" : 500, "food" : 500, "stone" : 500}
+            "sombre" : {"wood" : 500, "food" : 500, "stone" : 500},
+            "feodal" : {"wood" : 800, "food" : 800, "stone" : 800}
         }
 
     def stay_place(self):

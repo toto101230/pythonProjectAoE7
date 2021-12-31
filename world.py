@@ -51,15 +51,16 @@ class World:
     def update(self, camera):
 
         self.temp_tile = None
-
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed(3)
         grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
+
 
         if mouse_action[2]:
             self.examine_tile = None
             self.examined_unites_tile = []
             self.hud.examined_tile = None
+
 
         if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
             unite = self.hud.examined_tile
@@ -83,7 +84,7 @@ class World:
                 self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
             if mouse_action[0] and (building is not None):
-                self.examine_tile = (building.pos[0]+1, building.pos[1]+1)
+                self.examine_tile = grid_pos
                 self.hud.examined_tile = building
 
             # permet de sélectionner une unité
@@ -503,6 +504,8 @@ class World:
                 self.unites.append(Villageois(pos_ini, joueur))
             if nom_unite == "clubman":
                 self.unites.append(Clubman(pos_ini, joueur))
+                print("toto")
+
             joueur.time_recrut = time()
 
     def deplace_unite(self, pos, unite):

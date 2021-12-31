@@ -45,9 +45,11 @@ class Hud:
         self.selected_tile = None
         self.examined_tile = None
         self.unite_recrut = None
+        self.can_pass_age = None
 
-        self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
-        self.age_2_bouton = Button((0, 255, 0), self.width - 500, self.height - 100, 'age_2')
+        self.villageois_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
+        self.age_feodal_bouton = Button((0, 255, 0), self.width - 500, self.height - 100, 'age_feodal')
+        self.age_castel_bouton = Button((0, 255, 0), self.width - 500, self.height - 150, 'age_castle')
         self.clubman_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'clubman_recrut')
 
 
@@ -91,19 +93,28 @@ class Hud:
 
         if self.examined_tile is not None:
 
-            if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.isPress:
-                if mouse_action[0]:
-                    self.unite_recrut = self.unite_bouton.text[:-7]
-                    self.unite_bouton.isPress = True
 
-            if self.clubman_bouton.is_over(mouse_pos) and not self.clubman_bouton.isPress:
+            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.canPress and not self.villageois_bouton.isPress:
+                if mouse_action[0]:
+                    self.unite_recrut = self.villageois_bouton.text[:-7]
+                    self.villageois_bouton.isPress = True
+
+
+            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.canPress and not self.clubman_bouton.isPress:
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
                     self.clubman_bouton.isPress = True
 
-            if self.age_2_bouton.is_over(mouse_pos):
+
+
+            if self.age_feodal_bouton.is_over(mouse_pos):
                 if mouse_action[0]:
-                    print("toto")
+                    self.examined_tile.joueur.pass_feodal()
+            if self.age_castel_bouton.is_over(mouse_pos):
+                if mouse_action[0]:
+                    self.examined_tile.joueur.pass_castle()
+
+
 
 
 
@@ -119,8 +130,10 @@ class Hud:
                 if mouse_action[0]:
                     self.selected_tile = tile
 
-        if self.unite_bouton.isPress and not mouse_action[0]:
-            self.unite_bouton.isPress = False
+        if self.villageois_bouton.isPress and not mouse_action[0]:
+            self.villageois_bouton.isPress = False
+        if self.clubman_bouton.isPress and not mouse_action[0]:
+            self.clubman_bouton.isPress = False
 
     def draw(self, screen):
         screen.blit(self.hud_haut_surface, (0, 0))
@@ -139,13 +152,17 @@ class Hud:
                 draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
                 if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
-                    # affichage du bouton unité
-                    if not self.resource_manager.stay_place():
-                        self.unite_bouton.image.set_alpha(150)
-                    self.unite_bouton.draw(screen)
-                    self.age_2_bouton.draw(screen)
+                    if self.resource_manager.stay_place():
+                        self.villageois_bouton.draw(screen)
+                        self.villageois_bouton.canPress = True
+                    if self.examined_tile.joueur.age.name == "sombre": #and self.examined_tile.joueur.age.can_pass_age():
+                        self.age_feodal_bouton.draw(screen)
+                    if self.examined_tile.joueur.age.name == "feodal":
+                        self.age_castel_bouton.draw(screen)
                 if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
-                    self.clubman_bouton.draw(screen)
+                    if self.resource_manager.stay_place():
+                        self.clubman_bouton.draw(screen)
+                        self.clubman_bouton.canPress = True
 
             else:
                 img = self.images_terre[self.examined_tile["tile"]].convert_alpha()

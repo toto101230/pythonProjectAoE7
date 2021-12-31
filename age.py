@@ -18,13 +18,18 @@ class Sombre(Age):
         Age.__init__(self, "sombre", joueur)
 
 
+
 class Feodal(Age):
 
     def __init__(self, joueur):
         Age.__init__(self, "feodal", joueur)
 
-    def pass_feodal(self):
-        pass
+class Castle(Age):
+
+    def __init__(self, joueur):
+        Age.__init__(self, "castle", joueur)
+
+
 
 
 
