@@ -9,6 +9,7 @@ class Camera:
         self.viewArea = pygame.Rect((0, 0), (self.width, self.height))
 
         self.scroll = pygame.Vector2(-5000, -400)
+        self.bscroll = pygame.Vector2(-5000,-400)
         self.dx = 0
         self.dy = 0
         self.speed = 30
@@ -34,6 +35,14 @@ class Camera:
 
         self.scroll.x += self.dx
         self.scroll.y += self.dy
+
+        #MINIMAP
+        self.bscroll.x += self.dx*0.1 # scroll plus doux en x
+        self.bscroll.y += self.dy*0.1 # scroll plus doux en y
+
+        self.viewArea = pygame.Rect((-self.bscroll.x-5900,-self.bscroll.y-200),(int(self.width*1.4),int(self.height*1)))
+        # le carré de vision (rouge) de la minimap
+        #
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:

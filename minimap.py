@@ -5,11 +5,6 @@ from settings import *
 SIZE = 200
 GAP = 13 # distance entre border et rect map
 
-def pixelsToCell(pixels):
-    x, y = pixels
-    return int(math.floor(x / TILE_SIZE)), int(math.floor(y / TILE_SIZE))
-
-
 class Minimap:
     def __init__(self, world, screen, camera, width, height):
         ### SPECS WORLD / CAMERA / SCREEN
@@ -17,7 +12,7 @@ class Minimap:
         self.camera = camera
         self.height = height
         self.width = width
-        self.screen = screen
+
         ### SPECS BORDURE AUTOUR DE MINIMAP
         self.border = pygame.image.load('assets/hud/minimapBorder.png').convert_alpha()
         self.border = pygame.transform.scale(self.border, (SIZE+GAP, SIZE+GAP))
@@ -28,6 +23,7 @@ class Minimap:
         self.bordrect = pygame.Rect((0, self.height-self.border.get_height()*math.sqrt(2)), (1, 1))
 
         self.surf = pygame.Surface(self.rect.size).convert()
+
         self.crop = pygame.Surface((0,0))
         self.mapSurf = pygame.Surface(self.rect.size).convert()
         self.newSurf = pygame.Surface(self.rect.size).convert()
@@ -43,6 +39,12 @@ class Minimap:
 
         ### add
         self.mpos = (0, 0)
+        self.viewArea = (0, 0)
+        self.view = [(0,0),(0,0),(0,0),(0,0)]
+
+    def mmap_to_pos(self,pix):
+        x,y = pix
+        return self.world.mouse_to_grid(x,y,self.camera.scroll)
 
     def draw(self, screen):
         pygame.Surface.set_colorkey(self.surf,BLACK)
@@ -55,9 +57,7 @@ class Minimap:
     def update(self):
         self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
-
-        #self.updateCameraRect()
-        #self.handleInput(event)
+        self.updateCameraRect()
 
     def updateMapsurf(self):
         gridy = self.world.grid_length_y
@@ -82,7 +82,7 @@ class Minimap:
                 colour = YELLOW
             self.newSurf.fill(colour, (self.row, y, 1, 1))
         self.row += 1
-        if self.row > self.world.grid_length_x - 1:
+        if self.row > self.world.grid_length_x-1:
             self.row = 0
             self.mapSurf = self.newSurf.copy()
 
@@ -96,14 +96,16 @@ class Minimap:
     #        self.blipSurf.blit(dotSurf, human.coords)
 
     def updateCameraRect(self):
-        viewArea = self.camera.viewArea
-        #print("viewArea center :  ")
-        #print(viewArea.center)
+        self.viewArea = self.camera.viewArea
+        #print("viewArea :  ")
+        #print(self.viewArea.x)
+        #print(self.viewArea.y)
+        #print(self.viewArea.size)
         lineCoords = []
-        for coord in [viewArea.topleft, viewArea.topright, viewArea.bottomright, viewArea.bottomleft]:
-            lineCoords.append(pixelsToCell(coord))
+        for coord in [self.viewArea.topleft, self.viewArea.topright, self.viewArea.bottomright, self.viewArea.bottomleft]:
+            lineCoords.append(self.mmap_to_pos(coord))
+        print(lineCoords)
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
-
 
     def handle_event(self,event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -111,7 +113,7 @@ class Minimap:
                 self.mpos = pygame.mouse.get_pos()
                 if self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
                     if self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
-                        if self.crop.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != (0 and 1): # empecher de cliquer sur le fond noir autour minimap
+                        if self.crop.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != 0: # empecher de cliquer sur le fond noir autour minimap
                             print("mpos x = " + str(self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x))  # x pos dans le rect
                             print("mpos y = " + str(self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y))  # y pos dans le rect
                             pygame.mouse.set_pos(1920/2,1080/2)
