@@ -5,6 +5,8 @@ from settings import *
 SIZE = 200
 GAP = 13 # distance entre border et rect map
 
+
+
 class Minimap:
     def __init__(self, world, screen, camera, width, height):
         ### SPECS WORLD / CAMERA / SCREEN
@@ -44,19 +46,32 @@ class Minimap:
 
     def mmap_to_pos(self,pix):
         x,y = pix
-        return self.world.mouse_to_grid(x,y,self.camera.scroll)
+        return self.world.mouse_to_grid(x, y, self.camera.scroll)
+
+    def color_locking(self,surf,locked):
+        for x in range(surf.get_width()):
+            for y in range(surf.get_height()):
+                if surf.get_at_mapped(x,y)==0:
+                    pass
+
 
     def draw(self, screen):
-        pygame.Surface.set_colorkey(self.surf,BLACK)
+        cropok = (0,20,SIZE,SIZE-20)
+        cropped_surf = self.surf.subsurface(cropok)
+        #screen.blit(cropped_surf,self.rect)
+
+        pygame.Surface.set_colorkey(self.surf, BLACK)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
-        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45),
-                                              (SIZE / 2 + 2 * GAP, GAP + 3, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
+
+        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(cropped_surf), -45),(SIZE / 2 + 1 * GAP, 0, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
+        #self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45),
+                                              #(SIZE / 2 + 2 * GAP, GAP + 3, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
         screen.blit(self.crop,self.rect)
         #screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
 
     def update(self):
         self.updateRowOfSurf()
-        self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE, -3*GAP + 1/4*SIZE))
+        self.surf.blit(self.mapSurf, (-3*GAP + 1/5*SIZE-1, -2*GAP - 4 + 1/4*SIZE))
         self.updateCameraRect()
 
     def updateMapsurf(self):
@@ -70,7 +85,7 @@ class Minimap:
             case = self.world.world[self.row][y]["tile"]
             #print(case + " au coords x,y : " + str(self.row) + ":" + str(y))
             if case == "":
-                colour = DARKGREEN
+                colour = GRASSTEST
                 #continue
             elif case == "rock":
                 colour = DARKGREY
@@ -78,8 +93,12 @@ class Minimap:
                 colour = GREEN
             elif case == "buisson":
                 colour = CREAM
+            #elif case == "sable":
+            #   colour = SANDYELLOW
+            #elif case == "eau":
+            #   colour = OCEANBLUE
             else:
-                colour = YELLOW
+                colour = WHITE
             self.newSurf.fill(colour, (self.row, y, 1, 1))
         self.row += 1
         if self.row > self.world.grid_length_x-1:
@@ -96,13 +115,13 @@ class Minimap:
     #        self.blipSurf.blit(dotSurf, human.coords)
 
     def updateCameraRect(self):
-        self.viewArea = self.camera.viewArea
+        #self.viewArea = self.camera.viewArea
         #print("viewArea :  ")
         #print(self.viewArea.x)
         #print(self.viewArea.y)
         #print(self.viewArea.size)
         lineCoords = []
-        for coord in [self.viewArea.topleft, self.viewArea.topright, self.viewArea.bottomright, self.viewArea.bottomleft]:
+        for coord in [self.camera.viewArea.topleft, self.camera.viewArea.topright, self.camera.viewArea.bottomright, self.camera.viewArea.bottomleft]:
             lineCoords.append(self.mmap_to_pos(coord))
         print(lineCoords)
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
@@ -114,9 +133,10 @@ class Minimap:
                 if self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
                     if self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
                         if self.crop.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != 0: # empecher de cliquer sur le fond noir autour minimap
-                            print("mpos x = " + str(self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x))  # x pos dans le rect
-                            print("mpos y = " + str(self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y))  # y pos dans le rect
-                            pygame.mouse.set_pos(1920/2,1080/2)
+                            #pygame.mouse.set_pos(1920/2,1080/2)
+                            test = self.mmap_to_pos((self.mpos[0],self.mpos[1]))
+                            print(test)
+
 
 
 

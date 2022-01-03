@@ -37,11 +37,10 @@ class Camera:
         self.scroll.y += self.dy
 
         #MINIMAP
-        self.bscroll.x += self.dx*0.1 # scroll plus doux en x
-        self.bscroll.y += self.dy*0.1 # scroll plus doux en y
+        self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
+        self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
 
-        self.viewArea = pygame.Rect((-self.bscroll.x-5900,-self.bscroll.y-200),(int(self.width*1.4),int(self.height*1)))
-        # le carré de vision (rouge) de la minimap
+        self.viewArea = pygame.Rect((-self.bscroll.x-5900,-self.bscroll.y-100),(int(self.width*1.16),int(self.height)))
         #
 
     def events(self, event):

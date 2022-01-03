@@ -22,7 +22,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
         self.text = text
-        self.text_surface = font.render(text, 1, self.color)
+        self.text_surface = font.render(text, True, self.color)
         self.active = False
         self.player_rmanage = rmanage
         #self.AI_rmanage = rmanageai
