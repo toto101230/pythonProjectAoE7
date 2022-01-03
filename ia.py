@@ -5,6 +5,8 @@ class Ia:
         self.place_event = False
         self.batiments = []
         self.plan_debut = True
+        self.plan_attaque = True
+        self.plan_defense = True
 
     def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
