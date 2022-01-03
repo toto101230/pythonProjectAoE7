@@ -40,34 +40,27 @@ class Minimap:
         self.hoverSurf.set_alpha(30)
 
         ### add
+        self.red_crop = (0, 20, SIZE, SIZE - 20)
+        self.intermediate = (0,0,0,0)
         self.mpos = (0, 0)
         self.viewArea = (0, 0)
         self.view = [(0,0),(0,0),(0,0),(0,0)]
+
+        self.draw(screen)
 
     def mmap_to_pos(self,pix):
         x,y = pix
         return self.world.mouse_to_grid(x, y, self.camera.scroll)
 
-    def color_locking(self,surf,locked):
-        for x in range(surf.get_width()):
-            for y in range(surf.get_height()):
-                if surf.get_at_mapped(x,y)==0:
-                    pass
-
-
     def draw(self, screen):
-        cropok = (0,20,SIZE,SIZE-20)
-        cropped_surf = self.surf.subsurface(cropok)
-        #screen.blit(cropped_surf,self.rect)
+        self.intermediate = self.surf.subsurface(self.red_crop)
 
         pygame.Surface.set_colorkey(self.surf, BLACK)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
 
-        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(cropped_surf), -45),(SIZE / 2 + 1 * GAP, 0, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
-        #self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45),
-                                              #(SIZE / 2 + 2 * GAP, GAP + 3, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
+        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.intermediate), -45),(SIZE / 2 + 1 * GAP, 0, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
+
         screen.blit(self.crop,self.rect)
-        #screen.blit(pygame.transform.rotate(pygame.transform.scale2x(self.surf), -45), self.rect)
 
     def update(self):
         self.updateRowOfSurf()

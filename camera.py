@@ -40,7 +40,7 @@ class Camera:
         self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
         self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
 
-        self.viewArea = pygame.Rect((-self.bscroll.x-5900,-self.bscroll.y-100),(int(self.width*1.16),int(self.height)))
+        self.viewArea = pygame.Rect((-self.bscroll.x-6300,-self.bscroll.y+200),(int(self.width*1.16),int(self.height)))
         #
 
     def events(self, event):
