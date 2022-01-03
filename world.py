@@ -37,7 +37,9 @@ class World:
 
         self.unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
         self.unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
-        self.unites.append(Villageois((90, 93), joueurs[1]))  # ligne pour tester les villageois
+        self.unites.append(Villageois((90, 93), joueurs[1]))# ligne pour tester les villageois
+        self.unites.append(Villageois((92, 93), joueurs[1]))
+        self.unites.append(Villageois((91, 94), joueurs[1]))
 
         self.unites.append(Clubman((11, 8), joueurs[0]))  # ligne pour tester les soldats
         self.unites.append(Clubman((92, 95), joueurs[1]))  # ligne pour tester les soldats

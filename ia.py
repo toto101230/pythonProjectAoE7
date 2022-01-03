@@ -4,6 +4,7 @@ class Ia:
     def __init__(self):
         self.place_event = False
         self.batiments = []
+        self.plan_debut = True
 
     def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -38,51 +39,90 @@ class Ia:
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
+    def deplacement_villageois(self, world, joueur, origine, cible):
+        villageois = joueur.resource_manager.villageois[origine][0]
+        villageois.def_metier(cible)
+        x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
+                                                villageois.pos)
+        world.deplace_unite((x, y), villageois)
+
+    def gestion_construction_batiment(self, world, joueur, nom_batiment):
+        if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
+            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world,
+                                      world.buildings, (90, 90), nom_batiment)
+            world.place_building(pos, joueur, nom_batiment, True)
+            self.batiments.append(nom_batiment)
+        elif len(joueur.resource_manager.villageois["wood"]) < 3:
+            if len(joueur.resource_manager.villageois["rien"]) > 0 :
+                self.deplacement_villageois(world, joueur, "rien", "tree")
+            elif len(joueur.resource_manager.villageois["stone"]) > 0:
+                self.deplacement_villageois(world, joueur, "stone", "tree")
+            elif len(joueur.resource_manager.villageois["food"]) > 0:
+                self.deplacement_villageois(world, joueur, "food", "tree")
+
+
+
+
     def play(self, world, joueur):
-        if joueur.resource_manager.resources["food"] < 100:
-            if len(joueur.resource_manager.villageois["rien"]) != 0:
-                villageois = joueur.resource_manager.villageois["rien"][0]
-                villageois.def_metier("buisson")
-                x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world, villageois.pos)
-                world.deplace_unite((x, y), villageois)
-            else:
-                world.achat_villageois(joueur, (90, 90), "villageois")
+        if self.plan_debut:
+            if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
+                if len(joueur.resource_manager.villageois["rien"]) != 0:
+                    self.deplacement_villageois(world, joueur, "rien", "buisson")
+                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[\
+                            "population_actuelle"]):
+                    self.gestion_construction_batiment(world,joueur, "house")
+                else:
+                    world.achat_villageois(joueur, (90, 90), "villageois")
+                return
 
-        if joueur.resource_manager.resources["wood"] < 100:
-            if len(joueur.resource_manager.villageois["rien"]) != 0:
-                villageois = joueur.resource_manager.villageois["rien"][0]
-                villageois.def_metier("tree")
-                x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world, villageois.pos)
-                world.deplace_unite((x, y), villageois)
-            else:
-                world.achat_villageois(joueur, (90, 90), "villageois")
+            if joueur.resource_manager.resources["wood"] < 200 and len(joueur.resource_manager.villageois["wood"]) < 5:
+                if len(joueur.resource_manager.villageois["rien"]) != 0:
+                    self.deplacement_villageois(world, joueur, "rien", "tree")
+                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[ \
+                        "population_actuelle"]):
+                    self.gestion_construction_batiment(world, joueur, "house")
+                else:
+                    world.achat_villageois(joueur, (90, 90), "villageois")
+                return
 
-        if joueur.resource_manager.resources["stone"] < 10:
-            if len(joueur.resource_manager.villageois["rien"]) != 0:
-                villageois = joueur.resource_manager.villageois["rien"][0]
-                villageois.def_metier("rock")
-                x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
-                                                        villageois.pos)
-                world.deplace_unite((x, y), villageois)
-            else:
-                world.achat_villageois(joueur, (90, 90), "villageois")
+            if joueur.resource_manager.resources["stone"] < 20 and len(joueur.resource_manager.villageois["wood"]) < 2:
+                if len(joueur.resource_manager.villageois["rien"]) != 0:
+                    self.deplacement_villageois(world, joueur, "rien", "stone")
+                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[ \
+                              "population_actuelle"]):
+                    self.gestion_construction_batiment(world, joueur, "house")
+                else:
+                    world.achat_villageois(joueur, (90, 90), "villageois")
+                return
 
-        if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:
-            world.achat_villageois(joueur, (90, 90), "villageois")
-            #time.sleep(15)
+            if 'caserne' not in self.batiments:
+                self.gestion_construction_batiment(world, joueur, "caserne")
 
-        if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30):
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "house")
-            world.place_building(pos, joueur, "house", True)
-            self.batiments.append('house')
+            for u in world.unites:
+                if u.joueur == joueur and u.path and len(u.path) > 10:
+                    self.gestion_construction_batiment(world, joueur, "grenier")
+
+            self.plan_debut = False
 
 
-        if 'caserne' not in self.batiments:
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "caserne")
-            world.place_building(pos, joueur, "caserne", True)
-            self.batiments.append("caserne")
+        #if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:
+         #   world.achat_villageois(joueur, (90, 90), "villageois")
+         #   return
 
-        if 'grenier' not in self.batiments:
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "grenier")
-            world.place_building(pos, joueur, "grenier", True)
-            self.batiments.append("grenier")
+        #if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30):
+         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "house")
+          #  world.place_building(pos, joueur, "house", True)
+          #  self.batiments.append('house')
+         #  return
+
+        #if 'caserne' not in self.batiments:
+         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "caserne")
+          #  world.place_building(pos, joueur, "caserne", True)
+           # self.batiments.append("caserne")
+            #return
+
+        #if 'grenier' not in self.batiments:
+         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "grenier")
+          #  world.place_building(pos, joueur, "grenier", True)
+           # self.batiments.append("grenier")
+            #return
