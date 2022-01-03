@@ -30,6 +30,7 @@ class Group:
                     if self.is_in_selection(u, A, B, C, D):
                         self.selected.append(u)
                         world.examined_unites_tile.append(u.pos)
+
                 # if len(self.selected):
                     # print(str(len(self.selected)) + " unite(s) selected")
 
@@ -60,7 +61,9 @@ class Group:
         b = self.segment_len(B, C)
         c = self.segment_len(C, A)
         p = (a + b + c) / 2
-        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)))  # formule de Héron
+        if (p * (p - a) * (p - b) * (p - c)) > 0:
+            return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)))  # formule de Héron
+        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)+0.0000001)) #prend en compte le cas ou on a 0.0 dans le sqrt
 
     def tri_perimeter(self, A, B, C):  # not used
         return self.segment_len(A, B) + self.segment_len(B, C) + self.segment_len(C, A)

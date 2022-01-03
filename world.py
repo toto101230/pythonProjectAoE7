@@ -50,6 +50,8 @@ class World:
 
     def update(self, camera):
 
+        #print(self.examined_unites_tile)
+
         self.temp_tile = None
 
         mouse_pos = pygame.mouse.get_pos()
@@ -61,12 +63,19 @@ class World:
             self.examined_unites_tile = []
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
-            unite = self.hud.examined_tile
-            if self.deplace_unite(grid_pos, unite) != -1:
-                self.examine_tile = None
-                self.hud.examined_tile = None
-                self.examined_unites_tile = []
+        for unite_pos in self.examined_unites_tile:
+            unite = self.find_unite_pos(unite_pos[0], unite_pos[1])
+            if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1":
+                if self.deplace_unite(grid_pos, unite) != -1:
+                    self.examine_tile = None
+                    self.hud.examined_tile = None
+                    self.examined_unites_tile = []
+        #if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
+         #    unite = self.hud.examined_tile
+          #   if self.deplace_unite(grid_pos, unite) != -1:
+          #       self.examine_tile = None
+          #       self.hud.examined_tile = None
+           #      self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
@@ -78,18 +87,19 @@ class World:
             building = self.buildings[grid_pos[0]][grid_pos[1]]
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
 
-            if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
+            if not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
-            if mouse_action[0] and building is not None:
-                self.examine_tile = (building.pos[0], building.pos[1])
-                self.hud.examined_tile = building
+                if mouse_action[0] and building is not None:
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = building
 
-            # permet de sélectionner une unité
-            if mouse_action[0] and (unite is not None):
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = unite
+                # permet de sélectionner une unité
+                if mouse_action[0] and unite is not None:
+                    self.examined_unites_tile.append(grid_pos)
+                    self.hud.examined_tile = unite
 
         for u in self.unites:
             if u.updatepos(self.world, self.unites) == -1:
@@ -183,13 +193,17 @@ class World:
                                                        render_pos[1] - (self.tiles["etoile"].get_height() - TILE_SIZE) + camera.scroll.y))
                 if time() - u.tick_attaque > 0.250:
                     u.attackB = False
-                if self.examine_tile is not None:
-                    if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
-                        mask = pygame.mask.from_surface(self.images_unites[image]).outline()
-                        mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 y + render_pos[1] - (self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
-                                for x, y in mask]
-                        pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
+                if self.examined_unites_tile != []:
+                    for uni in self.examined_unites_tile:
+                        if (u.pos[0] == uni[0]) and (u.pos[1] == uni[1]):
+                            mask = pygame.mask.from_surface(self.images_unites[image]).outline()
+                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                     y + render_pos[1] - (
+                                                 self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
+                                    for x, y in mask]
+                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
 
         if self.temp_tile is not None:
             iso_poly = self.temp_tile["iso_poly"]
