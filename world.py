@@ -263,18 +263,18 @@ class World:
                 tile = ""
                 ressource = 0
 
-        if world_tree[grid_x][grid_y] > 80:
+        if world_tree[grid_x][grid_y] > 85:
             tile = "eau"
             ressource = 0
         else:
-            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 80) or \
-                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 80) or \
-                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 80) or \
-                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 80) or \
-                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y -1] > 80) or \
-                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 80) or \
-                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 80) or \
-                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 80):
+            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 85) or \
+                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 85) or \
+                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 85) or \
+                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 85) or \
+                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y -1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 85) or \
+                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 85):
                 tile = "sable"
                 ressource = 0
 
