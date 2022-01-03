@@ -9,6 +9,7 @@ class Batiment:
         self.resource_manager = self.joueur.resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.resource_manager.update_population_max(self.place)
+        self.pos = pos
 
 
 class Hdv(Batiment):
