@@ -74,11 +74,11 @@ class World:
                 self.hud.selected_tile = None
 
         elif self.can_place_tile(grid_pos):
-            collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
+            tile = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
 
-            if mouse_action[0] and collision != '':
+            if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
                 self.examine_tile = grid_pos
                 self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
@@ -121,10 +121,9 @@ class World:
                 # draw dammier
                 tile = self.world[x][y]["tile"]
 
-                if tile != "" and self.world[x][y]["ressource"] <= 0:
+                if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
-
-                if tile != "":
+                if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                  render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
@@ -154,7 +153,7 @@ class World:
                             self.buildings[x][y] = None
 
                         if self.examine_tile is not None:
-                            print(self.examine_tile)
+                            # print(self.examine_tile)
                             if x == self.examine_tile[0] and y == self.examine_tile[1]:
                                 mask = pygame.mask.from_surface(self.tiles[building.name]).outline()
                                 mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
@@ -214,13 +213,13 @@ class World:
         world_random = np.random.normal(50, 25, (self.grid_length_x, self.grid_length_y))
 
         noise = tcod.noise.Noise(dimensions=2, seed=self.seed)
-        samples = noise[tcod.noise.grid(shape=(100, 100), scale=0.1, origin=(0, 0))]
+        samples = noise[tcod.noise.grid(shape=(self.grid_length_x, self.grid_length_y), scale=0.1, origin=(0, 0))]
         world_tree = (samples+1)*50
 
         for x in range(8):
             for y in range(8):
-                world_random[x+7][y+7] = 100
-                world_tree[x+7][y+7] = 100
+                world_random[x+7][y+7] = 50
+                world_tree[x+7][y+7] = 50
 
         world = []
         for grid_x in range(self.grid_length_x):
@@ -230,8 +229,8 @@ class World:
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
-                self.grass_tiles.blit(self.tiles["grass"],
-                                      (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
+                tile = self.tiles["grass"] if world_tile["tile"] != "eau" and world_tile["tile"] != "sable" else self.tiles[world_tile["tile"]]
+                self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
 
         return world
 
@@ -264,6 +263,21 @@ class World:
                 tile = ""
                 ressource = 0
 
+        if world_tree[grid_x][grid_y] > 85:
+            tile = "eau"
+            ressource = 0
+        else:
+            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 85) or \
+                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 85) or \
+                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 85) or \
+                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 85) or \
+                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y -1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 85) or \
+                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 85):
+                tile = "sable"
+                ressource = 0
+
         out = {
             "grid": [grid_x, grid_y],
             "cart_rect": rect,
@@ -273,6 +287,10 @@ class World:
             "collision": False if tile == "" else True,
             "ressource": ressource
         }
+
+        if out["tile"] == "sable":
+            out["collision"] = False
+
         if grid_x == 10 and grid_y == 10:
             out["tile"] = ""
             out["collision"] = False
@@ -320,6 +338,8 @@ class World:
     def load_images(self):
         # world
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
+        eau = pygame.image.load("assets/eau.png").convert_alpha()
+        sable = pygame.image.load("assets/sable.png").convert_alpha()
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
         rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
@@ -342,6 +362,8 @@ class World:
             "buisson": buisson,
             "rock": rock,
             "grass": grass,
+            "eau": eau,
+            "sable": sable,
 
             "caserne": caserne,
             "grenier": grenier,

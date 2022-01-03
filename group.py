@@ -30,14 +30,14 @@ class Group:
                     if self.is_in_selection(u, A, B, C, D):
                         self.selected.append(u)
                         world.examined_unites_tile.append(u.pos)
-                if len(self.selected):
-                    print(str(len(self.selected)) + " unite(s) selected")
+                # if len(self.selected):
+                    # print(str(len(self.selected)) + " unite(s) selected")
 
         if pygame.mouse.get_pressed()[2]:  # deselection de toutes les unites
             if self.selected:
-                print(self.selected)
-                for u in self.selected:
-                    print(u.pos)
+                # print(self.selected)
+                # for u in self.selected:
+                    # print(u.pos)
                 self.selected.clear()
 
     def is_in_selection(self, unite, A, B, C, D):
