@@ -8,6 +8,7 @@ from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
 from os import walk
+from age import *
 
 Joueurs = list[Joueur]
 
@@ -111,6 +112,12 @@ class World:
         if self.hud.unite_recrut is not None:
             self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
             self.hud.unite_recrut = None
+
+        if self.hud.action_age == "feodal":
+            self.pass_feodal(self.joueurs[0])
+        if self.hud.action_age == "castle":
+            self.pass_castle(self.joueurs[0])
+
 
     def draw(self, screen, camera):
         screen.blit(self.grass_tiles, (camera.scroll.x, camera.scroll.y))
@@ -511,3 +518,25 @@ class World:
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:
             return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
+
+    def pass_feodal(self,joueur):
+        if joueur.resource_manager.is_affordable("sombre"):
+            joueur.resource_manager.resources["food"] -= 500
+            joueur.resource_manager.resources["wood"] -= 500
+            joueur.resource_manager.resources["stone"] -= 500
+            joueur.age = Feodal(joueur)
+            for u in self.unites:
+                if isinstance(u, Villageois):
+                    u.health = 30
+                    u.attack = 4
+
+    def pass_castle(self, joueur):
+        if joueur.resource_manager.is_affordable("feodal"):
+            joueur.resource_manager.resources["food"] -= 800
+            joueur.resource_manager.resources["wood"] -= 800
+            joueur.resource_manager.resources["stone"] -= 800
+            joueur.age = Castle(joueur)
+            for u in self.unites:
+                if isinstance(u, Villageois):
+                    u.health = 35
+                    u.attack = 5

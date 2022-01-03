@@ -45,6 +45,7 @@ class Hud:
         self.selected_tile = None
         self.examined_tile = None
         self.unite_recrut = None
+        self.action_age = None
         self.can_pass_age = None
 
         self.villageois_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
@@ -107,13 +108,16 @@ class Hud:
 
 
 
-            if self.age_feodal_bouton.is_over(mouse_pos):
+            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.isPress:
                 if mouse_action[0]:
-                    self.examined_tile.joueur.pass_feodal()
-            if self.age_castel_bouton.is_over(mouse_pos):
+                    self.action_age = "feodal"
+                    self.age_feodal_bouton.isPress = True
+            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.isPress:
                 if mouse_action[0]:
-                    self.examined_tile.joueur.pass_castle()
-
+                    self.action_age = "castle"
+                    self.age_castel_bouton.isPress = True
+            else:
+                self.action_age = None
 
 
 
