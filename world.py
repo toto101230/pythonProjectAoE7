@@ -179,12 +179,15 @@ class World:
                 render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
                 pixel = iso(u.xpixel, u.ypixel)
                 render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
+                extension = ".png"
+                if u.joueur.name != "joueur 1":
+                    extension = "_red.png"
                 if isinstance(u, Villageois):
                     if u.work != "default":
                         u.frameNumber = 0
-                    image = u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png"
+                    image = u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + extension
                 else:
-                    image = u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png"
+                    image = u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + extension
 
                 screen.blit(self.images_unites[image],
                             (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
