@@ -6,7 +6,6 @@ class Ia:
         self.plan_debut = True
         self.plan_petite_armee = True
 
-
     def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
