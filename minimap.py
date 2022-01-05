@@ -40,7 +40,7 @@ class Minimap:
         self.hoverSurf.set_alpha(30)
 
         ### add
-        self.red_crop = (0, 20, SIZE, SIZE - 20)
+        self.red_crop = (0, 20, self.world.grid_length_x, self.world.grid_length_y)
         self.intermediate = (0,0,0,0)
         self.mpos = (0, 0)
         self.viewArea = (0, 0)
@@ -53,14 +53,10 @@ class Minimap:
         return self.world.mouse_to_grid(x, y, self.camera.scroll)
 
     def draw(self, screen):
-        self.intermediate = self.surf.subsurface(self.red_crop)
-
+        self.intermediate = pygame.transform.rotate(pygame.transform.scale2x(self.surf.subsurface(self.red_crop)), -45)
         pygame.Surface.set_colorkey(self.surf, BLACK)
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
-
-        self.crop = pygame.Surface.subsurface(pygame.transform.rotate(pygame.transform.scale2x(self.intermediate), -45),(SIZE / 2 + 1 * GAP, 0, math.sqrt(2) * SIZE, math.sqrt(2) * SIZE))
-
-        screen.blit(self.crop,self.rect)
+        screen.blit(self.intermediate,self.rect)
 
     def update(self):
         self.updateRowOfSurf()
