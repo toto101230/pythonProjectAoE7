@@ -1,12 +1,11 @@
-import time
-
 class Ia:
     def __init__(self):
         self.place_event = False
         self.batiments = []
+        self.nbr_clubman = 1
         self.plan_debut = True
-        self.plan_attaque = True
-        self.plan_defense = True
+        self.plan_petite_armee = True
+
 
     def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -62,49 +61,81 @@ class Ia:
             elif len(joueur.resource_manager.villageois["food"]) > 0:
                 self.deplacement_villageois(world, joueur, "food", "tree")
 
+    def gestion_ressource(self, world, joueur, nom_tile_ressource):
+        if len(joueur.resource_manager.villageois["rien"]) != 0:
+            self.deplacement_villageois(world, joueur, "rien", nom_tile_ressource)
+        elif joueur.resource_manager.population["population_actuelle"] == joueur.resource_manager.population[ \
+                "population_maximale"]:
+            self.gestion_construction_batiment(world, joueur, "house")
+        else:
+            world.achat_villageois(joueur, (90, 90), "villageois")
 
 
 
     def play(self, world, joueur):
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
-                if len(joueur.resource_manager.villageois["rien"]) != 0:
-                    self.deplacement_villageois(world, joueur, "rien", "buisson")
-                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[\
-                            "population_actuelle"]):
-                    self.gestion_construction_batiment(world,joueur, "house")
-                else:
-                    world.achat_villageois(joueur, (90, 90), "villageois")
+                self.gestion_ressource(world, joueur, "buisson")
                 return
 
             if joueur.resource_manager.resources["wood"] < 200 and len(joueur.resource_manager.villageois["wood"]) < 5:
-                if len(joueur.resource_manager.villageois["rien"]) != 0:
-                    self.deplacement_villageois(world, joueur, "rien", "tree")
-                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[ \
-                        "population_actuelle"]):
-                    self.gestion_construction_batiment(world, joueur, "house")
-                else:
-                    world.achat_villageois(joueur, (90, 90), "villageois")
+                self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 20 and len(joueur.resource_manager.villageois["wood"]) < 2:
-                if len(joueur.resource_manager.villageois["rien"]) != 0:
-                    self.deplacement_villageois(world, joueur, "rien", "stone")
-                elif (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population[ \
-                              "population_actuelle"]):
-                    self.gestion_construction_batiment(world, joueur, "house")
-                else:
-                    world.achat_villageois(joueur, (90, 90), "villageois")
+            if joueur.resource_manager.resources["stone"] < 20 and len(joueur.resource_manager.villageois["stone"]) < 2:
+                self.gestion_ressource(world, joueur, "rock")
                 return
 
             if 'caserne' not in self.batiments:
                 self.gestion_construction_batiment(world, joueur, "caserne")
+                return
 
             for u in world.unites:
                 if u.joueur == joueur and u.path and len(u.path) > 10:
                     self.gestion_construction_batiment(world, joueur, "grenier")
+                    return
 
-            self.plan_debut = False
+            if joueur.resource_manager.resources["food"] > 200 and joueur.resource_manager.resources["wood"] > 200 \
+                    and joueur.resource_manager.resources["stone"] > 20 and "caserne" in self.batiments:
+                self.plan_debut = False
+
+            return
+
+        if self.plan_petite_armee:
+            if self.nbr_clubman < 6:
+                if joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["clubman"]["food"] \
+                        and len(joueur.resource_manager.villageois["food"]) < 2:
+                    self.gestion_ressource(world, joueur, "buisson")
+                    return
+                elif joueur.resource_manager.population["population_actuelle"] == joueur.resource_manager.population[ \
+                        "population_maximale"]:
+                    self.gestion_construction_batiment(world, joueur, "house")
+                    return
+                else:
+                    world.achat_villageois(joueur, (90, 90), "clubman")
+                    self.nbr_clubman += 1
+                    return
+
+            if joueur.resource_manager.resources["food"] < 300 and len(joueur.resource_manager.villageois["food"]) < 5:
+                self.gestion_ressource(world, joueur, "buisson")
+                return
+
+            if joueur.resource_manager.resources["wood"] < 300 and len(joueur.resource_manager.villageois["wood"]) < 5:
+                self.gestion_ressource(world, joueur, "tree")
+                return
+
+            if joueur.resource_manager.resources["stone"] < 30 and len(joueur.resource_manager.villageois["stone"]) < 2:
+                self.gestion_ressource(world, joueur, "rock")
+                return
+
+            if joueur.resource_manager.resources["food"] < 300 and joueur.resource_manager.resources["wood"] < 300\
+                    and joueur.resource_manager.resources["stone"] < 30 and self.nbr_clubman > 6:
+                self.plan_petite_armee = False
+
+            return
+
+
+
 
 
         #if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:

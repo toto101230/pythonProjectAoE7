@@ -297,7 +297,7 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, unites, world, buildings):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 1:
+            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
                 if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
                     self.stockage += 1
                     world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
