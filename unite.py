@@ -191,6 +191,9 @@ class Unite(metaclass=ABCMeta):
 
             if self.ypixel == 0 and self.ypixel == 0:
                 self.action = "idle"
+        elif self.action == "walk" and not self.path and not self.ypixel and not self.xpixel:
+            self.action = "idle"
+
 
     # met à jour les frames des unités
     def update_frame(self):
@@ -316,26 +319,10 @@ class Unite(metaclass=ABCMeta):
                     if child == open_node and child.g > open_node.g:
                         continue
                 open_list.append(child)
-        # pos_min = (5000, 5000)
-        # for neighbour in neighbours:
-        #     x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-        #     if len(world) > x > 0 and len(world[0]) > y > 0 and abs(self.pos[0] - x) + abs(self.pos[1] - y) <= abs(
-        #             self.pos[0] - pos_min[0]) + abs(self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and \
-        #             buildings[x][y] is None and (self.find_unite_pos(x, y, unites) is None or
-        #                                          self.find_unite_pos(x, y, unites) is self) and \
-        #             self.find_animal_pos(x, y, animaux) is None:
-        #         pos_min = (x, y)
-        # if pos_min == (5000, 5000):
-        #     for neighbour in neighbours:
-        #         x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-        #         if len(world) > x > 0 and len(world[0]) > y > 0 and abs(self.pos[0] - x) + abs(self.pos[1] - y) < \
-        #                 abs(self.pos[0] - pos_min[0]) + abs(self.pos[1] - pos_min[1]):
-        #             pos_min = self.find_closer_pos((x, y), world, buildings, unites, animaux)
-        # return pos_min
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
-        if self.cible:
+        if self.cible and not self.path:
             neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
             neighbours_unite.remove((0, 0))
             x, y = self.pos[0] - self.cible.pos[0], self.pos[1] - self.cible.pos[1]
