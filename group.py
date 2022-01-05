@@ -34,7 +34,7 @@ class Group:
                 # if len(self.selected):
                     # print(str(len(self.selected)) + " unite(s) selected")
 
-        if pygame.mouse.get_pressed()[2]:  # deselection de toutes les unites
+        if pygame.mouse.get_pressed()[2] or pygame.mouse.get_pressed()[0]:  # deselection de toutes les unites
             if self.selected:
                 # print(self.selected)
                 # for u in self.selected:

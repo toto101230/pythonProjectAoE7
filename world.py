@@ -70,6 +70,7 @@ class World:
                     self.examine_tile = None
                     self.hud.examined_tile = None
                     self.examined_unites_tile = []
+
         #if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
          #    unite = self.hud.examined_tile
           #   if self.deplace_unite(grid_pos, unite) != -1:
