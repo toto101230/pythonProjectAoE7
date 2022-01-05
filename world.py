@@ -453,7 +453,8 @@ class World:
         return 1
 
     def achat_villageois(self, joueur, pos_ini, nom_unite):
-        if joueur.resource_manager.is_affordable(nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
+        if joueur.resource_manager.is_affordable(
+                nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
             unite_a_degage = []
             pos_visitee = []
             pos_ini = pos_ini[0] + 1, pos_ini[1] + 1
@@ -462,9 +463,12 @@ class World:
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
-                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
+                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x,
+                                                                                                               y) is None and (
+                    x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
-                        unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, (x, y))
+                        unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
+                                          self.buildings, (x, y))
                         return pos_a_degage
                     else:
                         if self.find_unite_pos(x, y) is not None and (x, y) not in pos_visitee:
@@ -500,9 +504,17 @@ class World:
                         if u is None:
                             joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                             return
-                        u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, last)
-            self.unites.append(Villageois(pos_ini, joueur))
+                        u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
+                                      last)
+            if nom_unite == "villageois":
+                self.unites.append(Villageois(pos_ini, joueur))
+            if nom_unite == "clubman":
+                self.unites.append(Clubman(pos_ini, joueur))
+                print("toto")
+
             joueur.time_recrut = time()
+            return 1
+        return 0
 
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:

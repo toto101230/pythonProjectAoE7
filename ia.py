@@ -70,8 +70,6 @@ class Ia:
         else:
             world.achat_villageois(joueur, (90, 90), "villageois")
 
-
-
     def play(self, world, joueur):
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
@@ -112,8 +110,7 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "house")
                     return
                 else:
-                    world.achat_villageois(joueur, (90, 90), "clubman")
-                    self.nbr_clubman += 1
+                    self.nbr_clubman += world.achat_villageois(joueur, (90, 90), "clubman")
                     return
 
             if joueur.resource_manager.resources["food"] < 300 and len(joueur.resource_manager.villageois["food"]) < 5:
@@ -133,29 +130,3 @@ class Ia:
                 self.plan_petite_armee = False
 
             return
-
-
-
-
-
-        #if joueur.resource_manager.population["population_maximale"] != joueur.resource_manager.population["population_actuelle"]:
-         #   world.achat_villageois(joueur, (90, 90), "villageois")
-         #   return
-
-        #if (joueur.resource_manager.population["population_maximale"] == joueur.resource_manager.population["population_actuelle"]) and (joueur.resource_manager.resources["wood"] > 30):
-         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "house")
-          #  world.place_building(pos, joueur, "house", True)
-          #  self.batiments.append('house')
-         #  return
-
-        #if 'caserne' not in self.batiments:
-         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "caserne")
-          #  world.place_building(pos, joueur, "caserne", True)
-           # self.batiments.append("caserne")
-            #return
-
-        #if 'grenier' not in self.batiments:
-         #   pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world, world.buildings, (90, 90), "grenier")
-          #  world.place_building(pos, joueur, "grenier", True)
-           # self.batiments.append("grenier")
-            #return
