@@ -65,7 +65,7 @@ class World:
 
         for unite_pos in self.examined_unites_tile:
             unite = self.find_unite_pos(unite_pos[0], unite_pos[1])
-            if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1":
+            if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and not pygame.key.get_pressed()[pygame.K_LCTRL]:
                 if self.deplace_unite(grid_pos, unite) != -1:
                     self.examine_tile = None
                     self.hud.examined_tile = None
@@ -98,7 +98,7 @@ class World:
                     self.hud.examined_tile = building
 
                 # permet de sélectionner une unité
-                if mouse_action[0] and unite is not None:
+                if mouse_action[0] and unite is not None and (unite.joueur.name == "joueur 1"):
                     self.examined_unites_tile.append(grid_pos)
                     self.hud.examined_tile = unite
 

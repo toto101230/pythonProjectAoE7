@@ -297,6 +297,9 @@ class Villageois(Unite):
                     self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
                     self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
 
+
+                #ici pour modifier le nombre de ressource qu'il ramene
+                #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites)

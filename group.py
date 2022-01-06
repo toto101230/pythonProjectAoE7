@@ -27,7 +27,7 @@ class Group:
             # print(self.poly_area(A,B,C))
             if not self.selected and self.poly_area(A, B, C) >= 2:
                 for u in world.unites:
-                    if self.is_in_selection(u, A, B, C, D):
+                    if self.is_in_selection(u, A, B, C, D) and (u.joueur.name == "joueur 1"):
                         self.selected.append(u)
                         world.examined_unites_tile.append(u.pos)
 
