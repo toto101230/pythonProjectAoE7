@@ -18,19 +18,20 @@ from ia import Ia
 class Game:
     def __init__(self, screen, clock):
         self.playing = True
+        self.menu_diplo = False
         self.screen = screen
         self.clock = clock
         self.seed = 0
         self.width, self.height = self.screen.get_size()
 
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1"), Joueur(ResourceManager(), "joueur 2")]
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 3, 0), Joueur(ResourceManager(), "joueur 2", 3, 1), Joueur(ResourceManager(), "joueur 3", 3, 2)]
 
         self.joueurs[1].ia = Ia()
         pygame.time.set_timer(events.ia_play_1_event, 500)
 
         self.resources_manager = self.joueurs[0].resource_manager
 
-        self.hud = Hud(self.resources_manager, self.width, self.height)
+        self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
 
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
 
@@ -53,6 +54,16 @@ class Game:
             self.events()
             self.update()
             self.draw()
+
+        while self.menu_diplo:
+            self.clock.tick(600)
+            self.events()
+            self.hud.update(self.joueurs)
+            self.cheat_box.update()
+            self.draw()
+            if not self.hud.diplo_actif:
+                self.playing = True
+                self.menu_diplo = False
 
     def events(self):
         for event in pygame.event.get():
@@ -84,10 +95,14 @@ class Game:
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
+        if self.hud.diplo_actif:
+            self.playing = False
+            self.menu_diplo = True
+
 
     def update(self):
         self.camera.update()
-        self.hud.update()
+        self.hud.update(None)
         self.world.update(self.camera)
         self.cheat_box.update()
         self.selection.update()
@@ -96,9 +111,9 @@ class Game:
     def draw(self):
         self.screen.fill((0, 0, 0))
         self.world.draw(self.screen, self.camera)
-        self.hud.draw(self.screen)
+        self.hud.draw(self.screen, self.joueurs)
         self.cheat_box.draw(self.screen)
-        if pygame.mouse.get_pressed()[0] and pygame.key.get_pressed()[pygame.K_LCTRL]:
+        if pygame.mouse.get_pressed(3)[0] and pygame.key.get_pressed()[pygame.K_LCTRL]:
             self.selection.draw(self.screen)
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 60))

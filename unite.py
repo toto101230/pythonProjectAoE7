@@ -50,8 +50,10 @@ class Unite(metaclass=ABCMeta):
 
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
         if u:
-            if u.joueur != self.joueur:
+            if u.joueur != self.joueur and self.joueur.diplomatie[u.joueur.numero] != "allié":
                 self.cible = u
+                self.joueur.diplomatie[u.joueur.numero] = "ennemi"
+                u.joueur.diplomatie[self.joueur.numero] = "ennemi"
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
         else:
             self.cible = None

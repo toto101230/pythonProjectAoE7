@@ -3,7 +3,7 @@ import pygame
 
 class Button:
     def __init__(self, color, x, y, text):
-        self.isPress = False
+        self.is_press = False
         self.color_de_base = color
         self.color = color
         self.x = x
@@ -19,7 +19,8 @@ class Button:
         if outline:
             pygame.draw.rect(screen, outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
 
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
+        if self.color:
+            pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
 
         # if self.text != '':
         #     font = pygame.font.SysFont('comicsans', 22)

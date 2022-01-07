@@ -9,14 +9,12 @@ from time import time
 from model.joueur import Joueur
 from os import walk
 
-Joueurs = list[Joueur]
-
 iso = lambda x, y: ((x - y), ((x + y) / 2))
 
 
 class World:
 
-    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: Joueurs, seed):
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed):
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -42,7 +40,7 @@ class World:
         self.unites.append(Villageois((91, 94), joueurs[1]))
 
         self.unites.append(Clubman((11, 8), joueurs[0]))  # ligne pour tester les soldats
-        self.unites.append(Clubman((92, 95), joueurs[1]))  # ligne pour tester les soldats
+        self.unites.append(Clubman((15, 15), joueurs[1]))  # ligne pour tester les soldats
 
         self.temp_tile = None
         self.examine_tile = None
@@ -510,7 +508,6 @@ class World:
                 self.unites.append(Villageois(pos_ini, joueur))
             if nom_unite == "clubman":
                 self.unites.append(Clubman(pos_ini, joueur))
-                print("toto")
 
             joueur.time_recrut = time()
             return 1
