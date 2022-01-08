@@ -426,23 +426,12 @@ class World:
         if self.can_place_tile(grid_pos):
             render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
+            collision = False
             if name == "caserne" or name == "grenier":
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
-                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None or \
-                            self.find_animal_pos(grid_pos[0], grid_pos[1]) or \
-                            self.world[grid_pos[0]+1][grid_pos[1]]["collision"] or \
-                            self.find_unite_pos(grid_pos[0]+1, grid_pos[1]) is not None or \
-                            self.find_animal_pos(grid_pos[0]+1, grid_pos[1]) or \
-                            self.world[grid_pos[0]][grid_pos[1]+1]["collision"] or \
-                            self.find_unite_pos(grid_pos[0], grid_pos[1]+1) is not None or \
-                            self.find_animal_pos(grid_pos[0], grid_pos[1]+1) or \
-                            self.world[grid_pos[0]+1][grid_pos[1]+1]["collision"] or \
-                            self.find_unite_pos(grid_pos[0]+1, grid_pos[1]+1) is not None or \
-                            self.find_animal_pos(grid_pos[0]+1, grid_pos[1]+1)
-            else:
-                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
-                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None or \
-                            self.find_animal_pos(grid_pos[0], grid_pos[1])
+                collision = self.collision_pos(grid_pos[0]+1, grid_pos[1]) or \
+                            self.collision_pos(grid_pos[0], grid_pos[1]+1) or \
+                            self.collision_pos(grid_pos[0]+1, grid_pos[1]+1)
+            collision = collision or self.collision_pos(grid_pos[0], grid_pos[1])
 
             self.temp_tile = {
                 "image": self.tiles[name].copy(),
@@ -652,3 +641,6 @@ class World:
         self.world[90][89]["collision"] = True
         self.world[89][89]["collision"] = True
         return buildings
+
+    def collision_pos(self, x, y):
+        return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)
