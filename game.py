@@ -24,7 +24,7 @@ class Game:
         self.seed = 0
         self.width, self.height = self.screen.get_size()
 
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 3, 0), Joueur(ResourceManager(), "joueur 2", 3, 1), Joueur(ResourceManager(), "joueur 3", 3, 2)]
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
 
         self.joueurs[1].ia = Ia()
         pygame.time.set_timer(events.ia_play_1_event, 500)

@@ -75,9 +75,10 @@ class Ia:
             pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world,
                                       world.buildings, (90, 90), nom_batiment)
             world.place_building(pos, joueur, nom_batiment, True)
-            self.batiments.append(nom_batiment)
+            if world.buildings[pos[0]][pos[1]]:
+                self.batiments.append(world.buildings[pos[0]][pos[1]])
         elif len(joueur.resource_manager.villageois["wood"]) < 3:
-            if len(joueur.resource_manager.villageois["rien"]) > 0 :
+            if len(joueur.resource_manager.villageois["rien"]) > 0:
                 self.deplacement_villageois(world, joueur, "rien", "tree")
             elif len(joueur.resource_manager.villageois["stone"]) > 0:
                 self.deplacement_villageois(world, joueur, "stone", "tree")
@@ -107,7 +108,11 @@ class Ia:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
-            if 'caserne' not in self.batiments:
+            caserne = False
+            for b in self.batiments:
+                if b.name == "caserne":
+                    caserne = True
+            if not caserne:
                 self.gestion_construction_batiment(world, joueur, "caserne")
                 return
 
@@ -117,7 +122,7 @@ class Ia:
                     return
 
             if joueur.resource_manager.resources["food"] > 200 and joueur.resource_manager.resources["wood"] > 200 \
-                    and joueur.resource_manager.resources["stone"] > 20 and "caserne" in self.batiments:
+                    and joueur.resource_manager.resources["stone"] > 20 and caserne:
                 self.plan_debut = False
                 self.plan_petite_armee = True
 
@@ -152,8 +157,8 @@ class Ia:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
-            if joueur.resource_manager.resources["food"] < 300 and joueur.resource_manager.resources["wood"] < 300\
-                    and joueur.resource_manager.resources["stone"] < 30 and self.nbr_clubman > 6:
+            if joueur.resource_manager.resources["food"] > 300 and joueur.resource_manager.resources["wood"] > 300\
+                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 4:
                 self.plan_petite_armee = False
 
             return

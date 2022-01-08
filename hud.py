@@ -136,20 +136,24 @@ class Hud:
         if self.diplo_bouton.is_press and not mouse_action[0]:
             self.diplo_bouton.is_press = False
 
-        for i in range(len(self.option_diplo_bouton)):
-            for j in range(3):
-                if mouse_action[0] and self.option_diplo_bouton[i][j].is_over(mouse_pos) and \
-                        not self.option_diplo_bouton[i][j].is_press:
-                    self.option_diplo_bouton[i][j].is_press = True
-                    if j == 0:
-                        joueurs[0].diplomatie[i+1] = "allié"
-                        joueurs[i+1].diplomatie[0] = "allié"
-                    elif j == 1:
-                        joueurs[0].diplomatie[i+1] = "neutre"
-                        joueurs[i+1].diplomatie[0] = "neutre"
-                    else:
-                        joueurs[0].diplomatie[i+1] = "ennemi"
-                        joueurs[i+1].diplomatie[0] = "ennemi"
+        if self.diplo_actif:
+            for i in range(len(self.option_diplo_bouton)):
+                for j in range(3):
+                    if mouse_action[0] and self.option_diplo_bouton[i][j].is_over(mouse_pos) and \
+                            not self.option_diplo_bouton[i][j].is_press:
+                        self.option_diplo_bouton[i][j].is_press = True
+                        if j == 0:
+                            joueurs[0].diplomatie[i+1] = "allié"
+                            joueurs[i+1].diplomatie[0] = "allié"
+                        elif j == 1:
+                            joueurs[0].diplomatie[i+1] = "neutre"
+                            joueurs[i+1].diplomatie[0] = "neutre"
+                        else:
+                            joueurs[0].diplomatie[i+1] = "ennemi"
+                            joueurs[i+1].diplomatie[0] = "ennemi"
+
+                    if self.option_diplo_bouton[i][j].is_press and not mouse_action[0]:
+                        self.option_diplo_bouton[i][j].is_press = False
 
     def draw(self, screen, joueurs:list[Joueur]):
         screen.blit(self.hud_haut_surface, (0, 0))

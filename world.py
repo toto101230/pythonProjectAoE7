@@ -451,6 +451,7 @@ class World:
         return 1
 
     def achat_villageois(self, joueur, pos_ini, nom_unite):
+        u = None
         if joueur.resource_manager.is_affordable(
                 nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
             unite_a_degage = []
@@ -504,14 +505,19 @@ class World:
                             return
                         u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
                                       last)
+
             if nom_unite == "villageois":
-                self.unites.append(Villageois(pos_ini, joueur))
+                u = Villageois(pos_ini, joueur)
+
             if nom_unite == "clubman":
-                self.unites.append(Clubman(pos_ini, joueur))
+                u = Clubman(pos_ini, joueur)
+
+            if u:
+                self.unites.append(u)
 
             joueur.time_recrut = time()
-            return 1
-        return 0
+            return u
+        return u
 
     def deplace_unite(self, pos, unite):
         if self.can_place_tile(pos) and pos != unite.pos:
