@@ -156,6 +156,8 @@ class World:
                         correctif = 0
                         if isinstance(building, Caserne):
                             correctif = -45
+                        elif isinstance(building, Hdv):
+                            correctif = -20
                         screen.blit(self.tiles[building.name],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctif,
                                  render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y))
@@ -248,11 +250,6 @@ class World:
         samples = noise[tcod.noise.grid(shape=(100, 100), scale=0.1, origin=(0, 0))]
         world_tree = (samples+1)*50
 
-        for x in range(8):
-            for y in range(8):
-                world_random[x+7][y+7] = 100
-                world_tree[x+7][y+7] = 100
-
         world = []
         for grid_x in range(self.grid_length_x):
             world.append([])
@@ -304,13 +301,6 @@ class World:
             "collision": False if tile == "" else True,
             "ressource": ressource
         }
-        if grid_x == 10 and grid_y == 10:
-            out["tile"] = ""
-            out["collision"] = False
-
-        if grid_x == 80 and grid_y == 75:
-            out["tile"] = ""
-            out["collision"] = False
 
         return out
 
@@ -436,8 +426,23 @@ class World:
         if self.can_place_tile(grid_pos):
             render_pos = self.world[grid_pos[0]][grid_pos[1]]["render_pos"]
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
-            collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
-                        self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None
+            if name == "caserne" or name == "grenier":
+                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
+                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None or \
+                            self.find_animal_pos(grid_pos[0], grid_pos[1]) or \
+                            self.world[grid_pos[0]+1][grid_pos[1]]["collision"] or \
+                            self.find_unite_pos(grid_pos[0]+1, grid_pos[1]) is not None or \
+                            self.find_animal_pos(grid_pos[0]+1, grid_pos[1]) or \
+                            self.world[grid_pos[0]][grid_pos[1]+1]["collision"] or \
+                            self.find_unite_pos(grid_pos[0], grid_pos[1]+1) is not None or \
+                            self.find_animal_pos(grid_pos[0], grid_pos[1]+1) or \
+                            self.world[grid_pos[0]+1][grid_pos[1]+1]["collision"] or \
+                            self.find_unite_pos(grid_pos[0]+1, grid_pos[1]+1) is not None or \
+                            self.find_animal_pos(grid_pos[0]+1, grid_pos[1]+1)
+            else:
+                collision = self.world[grid_pos[0]][grid_pos[1]]["collision"] or \
+                            self.find_unite_pos(grid_pos[0], grid_pos[1]) is not None or \
+                            self.find_animal_pos(grid_pos[0], grid_pos[1])
 
             self.temp_tile = {
                 "image": self.tiles[name].copy(),
@@ -448,7 +453,10 @@ class World:
             self.temp_tile["image"].set_alpha(100)
 
             if not collision and visible:
-                if self.hud.selected_tile["name"] == "caserne":
+                print(grid_pos)
+                print(self.buildings[grid_pos[0]][grid_pos[1]])
+                print(self.world[grid_pos[0]][grid_pos[1]]["collision"])
+                if name == "caserne":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1]) is not None
                     collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
@@ -464,10 +472,10 @@ class World:
                         self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] = True
                         self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] = True
                         self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
-                elif self.hud.selected_tile["name"] == "house":
+                elif name == "house":
                     ent = House(grid_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
-                elif self.hud.selected_tile["name"] == "grenier":
+                elif name == "grenier":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1]) is not None
                     collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
@@ -550,7 +558,10 @@ class World:
         buildings = []
         for x in range(self.grid_length_x):
             for y in range(self.grid_length_y):
-                if self.buildings[x][y] and self.buildings[x][y].name == "hdv":
+                if self.buildings[x][y] and self.buildings[x][y].name == "hdv" and self.buildings[x - 1][y - 1] and \
+                        self.buildings[x - 1][y] and self.buildings[x][y - 1] and \
+                        self.buildings[x - 1][y - 1].name == "hdv" and self.buildings[x - 1][y].name == "hdv" and \
+                        self.buildings[x][y - 1].name == "hdv":
                     buildings.append(self.buildings[x][y])
 
         for b in buildings:
@@ -611,7 +622,33 @@ class World:
 
     def create_buildings(self) -> list[list[Batiment]]:
         buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
-        buildings[10][10] = Hdv((10, 10), self.joueurs[0])
-        buildings[80][75] = Hdv((80, 75), self.joueurs[1])
+        b = Hdv((10, 10), self.joueurs[0])
+        buildings[10][10] = b
+        buildings[9][10] = b
+        buildings[10][9] = b
+        buildings[9][9] = b
 
+        b = Hdv((90, 90), self.joueurs[1])
+        buildings[90][90] = b
+        buildings[89][90] = b
+        buildings[90][89] = b
+        buildings[89][89] = b
+
+        for x in range(-4, 5):
+            for y in range(-4, 5):
+                self.world[x + 10][y + 10]["tile"] = ""
+                self.world[x + 10][y + 10]["collision"] = False
+
+                self.world[x + 90][y + 90]["tile"] = ""
+                self.world[x + 90][y + 90]["collision"] = False
+
+        self.world[10][10]["collision"] = True
+        self.world[9][10]["collision"] = True
+        self.world[10][9]["collision"] = True
+        self.world[9][9]["collision"] = True
+
+        self.world[90][90]["collision"] = True
+        self.world[89][90]["collision"] = True
+        self.world[90][89]["collision"] = True
+        self.world[89][89]["collision"] = True
         return buildings
