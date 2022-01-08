@@ -2,9 +2,11 @@ class Ia:
     def __init__(self):
         self.place_event = False
         self.batiments = []
-        self.nbr_clubman = 1
+        self.nbr_clubman = 0
+        self.soldats = []
         self.plan_debut = True
         self.plan_petite_armee = False
+        self.plan_defense = False
 
     def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -38,6 +40,28 @@ class Ia:
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
                     list_case.append((x, y))
+
+    def trouve_rodeur(self, world, joueur):
+        rodeurs_neutres = []
+        rodeurs_ennemis = []
+        for b in self.batiments:
+            for x in range(-20, 21):
+                for y in range(-20, 21):
+                    if b.pos[0] + x >= world.grid_length_x or b.pos[0] + x < 0 or b.pos[1] + y >= world.grid_length_y or b.pos[1] + y < 0:
+                        continue
+                    u = world.find_unite_pos(b.pos[0]+x, b.pos[0]+y)
+                    if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie":
+                        if joueur.diplomatie[u.joueur.numero] == "neutre":
+                            rodeurs_neutres.append(u.pos)
+                        elif joueur.diplomatie[u.joueur.numero] == "ennemi":
+                            rodeurs_ennemis.append(u.pos)
+                    v = world.buildings[b.pos[0]+x][b.pos[1]+y]
+                    if v and v.joueur != joueur and joueur.diplomatie[v.joueur.numero] != "allie":
+                        if joueur.diplomatie[v.joueur.numero] == "neutre":
+                            rodeurs_neutres.append(v.pos)
+                        elif joueur.diplomatie[v.joueur.numero] == "ennemi":
+                            rodeurs_ennemis.append(v.pos)
+        return rodeurs_neutres, rodeurs_ennemis
 
     def deplacement_villageois(self, world, joueur, origine, cible):
         villageois = joueur.resource_manager.villageois[origine][0]
@@ -100,7 +124,7 @@ class Ia:
             return
 
         if self.plan_petite_armee:
-            if self.nbr_clubman < 6:
+            if self.nbr_clubman < 5:
                 if joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["clubman"]["food"] \
                         and len(joueur.resource_manager.villageois["food"]) < 2:
                     self.gestion_ressource(world, joueur, "buisson")
@@ -110,7 +134,10 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "house")
                     return
                 else:
-                    self.nbr_clubman += world.achat_villageois(joueur, (90, 90), "clubman")
+                    u = world.achat_villageois(joueur, (90, 90), "clubman")
+                    if u:
+                        self.nbr_clubman += 1
+                        self.soldats.append(u)
                     return
 
             if joueur.resource_manager.resources["food"] < 300 and len(joueur.resource_manager.villageois["food"]) < 5:
@@ -130,3 +157,20 @@ class Ia:
                 self.plan_petite_armee = False
 
             return
+
+        rodeurs = self.trouve_rodeur(world, joueur)
+        if rodeurs[0] or rodeurs[1] and not self.plan_defense:
+            self.plan_defense = True
+            return
+
+        if self.plan_defense:
+            if rodeurs[1] and len(rodeurs[1]) <= 2:
+                count = 0
+                for u in self.soldats:
+                    if u.cible and u.cible == world.find_unite_pos(rodeurs[1][0 if count <= 2 else 1][0], rodeurs[1][0 if count <= 2 else 1][1]):
+                        count += 1
+                    else:
+                        u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world, world.buildings, rodeurs[1][0 if count <= 2 else 1])
+                        count += 1
+                    if count >= len(rodeurs[1])*2:
+                        break
