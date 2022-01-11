@@ -1,6 +1,6 @@
 class Ia:
     def __init__(self):
-        self.place_event = False
+        self.pos_hdv = (90, 90)  # à changer
         self.batiments = []
         self.nbr_clubman = 0
         self.soldats = []
@@ -27,13 +27,13 @@ class Ia:
                     continue
 
                 if nom_batiment == "house":
-                    if world[x][y]["tile"] == "" and buildings[x][y] is None:
+                    if world[x][y]["tile"] == "" and buildings[x][y] is None:  # and not bloque_hdv(x, y, nom_batiment)
                         return x, y
 
                 if nom_batiment == "caserne" or nom_batiment == "grenier":
                     if world[x][y]["tile"] == "" and world[x+1][y]["tile"] == "" and world[x][y+1]["tile"] == "" and\
                             world[x+1][y+1]["tile"] == "" and buildings[x][y] is None and buildings[x+1][y] is None and\
-                            buildings[x][y+1] is None and buildings[x+1][y+1] is None:
+                            buildings[x][y+1] is None and buildings[x+1][y+1] is None:  # and not bloque_hdv(x, y, nom_batiment)
                         return x, y
 
                 count = cout + 1
@@ -41,13 +41,27 @@ class Ia:
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
+    def bloque_hdv(self, x, y, nom_batiment):
+        # position d'appartition des villageois
+        if self.pos_hdv[0] + 1 == x and self.pos_hdv[1] + 1 == y:
+            return False
+        # if les cases voisines de l'HDV (self.pos_hdv) ne sont pas toutes remplies
+        #    return False
+
+        # for b in self.batiments:
+        #    if b est une caserne
+        #        regardé si x, y ne sont pas la case d'appartion des soldats
+        #           return False
+        return True
+
     def trouve_rodeur(self, world, joueur):
         rodeurs_neutres = []
         rodeurs_ennemis = []
         for b in self.batiments:
             for x in range(-20, 21):
                 for y in range(-20, 21):
-                    if b.pos[0] + x >= world.grid_length_x or b.pos[0] + x < 0 or b.pos[1] + y >= world.grid_length_y or b.pos[1] + y < 0:
+                    if b.pos[0] + x >= world.grid_length_x or b.pos[0] + x < 0 or b.pos[1] + y >= world.grid_length_y \
+                            or b.pos[1] + y < 0:
                         continue
                     u = world.find_unite_pos(b.pos[0]+x, b.pos[0]+y)
                     if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie":
@@ -73,7 +87,7 @@ class Ia:
     def gestion_construction_batiment(self, world, joueur, nom_batiment):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
             pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world,
-                                      world.buildings, (90, 90), nom_batiment)
+                                      world.buildings, self.pos_hdv, nom_batiment)
             world.place_building(pos, joueur, nom_batiment, True)
             if world.buildings[pos[0]][pos[1]]:
                 self.batiments.append(world.buildings[pos[0]][pos[1]])
@@ -88,8 +102,8 @@ class Ia:
     def gestion_ressource(self, world, joueur, nom_tile_ressource):
         if len(joueur.resource_manager.villageois["rien"]) != 0:
             self.deplacement_villageois(world, joueur, "rien", nom_tile_ressource)
-        elif joueur.resource_manager.population["population_actuelle"] == joueur.resource_manager.population[ \
-                "population_maximale"]:
+        elif joueur.resource_manager.population["population_actuelle"] == \
+                joueur.resource_manager.population["population_maximale"]:
             self.gestion_construction_batiment(world, joueur, "house")
         else:
             world.achat_villageois(joueur, (90, 90), "villageois")
@@ -134,8 +148,8 @@ class Ia:
                         and len(joueur.resource_manager.villageois["food"]) < 2:
                     self.gestion_ressource(world, joueur, "buisson")
                     return
-                elif joueur.resource_manager.population["population_actuelle"] == joueur.resource_manager.population[ \
-                        "population_maximale"]:
+                elif joueur.resource_manager.population["population_actuelle"] == \
+                        joueur.resource_manager.population["population_maximale"]:
                     self.gestion_construction_batiment(world, joueur, "house")
                     return
                 else:
@@ -163,6 +177,13 @@ class Ia:
 
             return
 
+        # regardé si les villageois ne font pas trop de trajet
+        # regardé toute les 10 secondes pour eviter de trop calculé
+        # for i in ressource manager villageois
+        #     if len(path) > 10
+        #         construire un grenier
+        #         return
+
         rodeurs = self.trouve_rodeur(world, joueur)
         if rodeurs[0] or rodeurs[1] and not self.plan_defense:
             self.plan_defense = True
@@ -172,10 +193,29 @@ class Ia:
             if rodeurs[1] and len(rodeurs[1]) <= 2:
                 count = 0
                 for u in self.soldats:
+                    # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
                     if u.cible and u.cible == world.find_unite_pos(rodeurs[1][0 if count <= 2 else 1][0], rodeurs[1][0 if count <= 2 else 1][1]):
                         count += 1
                     else:
-                        u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world, world.buildings, rodeurs[1][0 if count <= 2 else 1])
+                        u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
+                                      world.buildings, rodeurs[1][0 if count <= 2 else 1])
                         count += 1
                     if count >= len(rodeurs[1])*2:
-                        break
+                        return
+                # si count <= len(rodeurs[1]) * 2 alors recruter des soldats
+            # sinon lancer l'armée contre toutes unités et recruter en plus d'autre soldats pour faire une armée de resserve
+            #    for u in self.soldats:
+            #        if not u.cible:
+            #            alors attaque
+
+            # neutre
+            # si rodeurs[0] => 3:
+                # alors commencé a attaque les rodeurs (comme la fonction pour les ennemis)
+            # si rodeurs[0] => 5 --> c'est une attaque:
+                # alors lancer l'armée contre toutes unités et recruter en plus d'autre soldats
+
+        # plan d'attaque
+        # trouver la condition pour le lancer
+        # trouver une batiment ennemi le plus proche
+        # prendre une partie de l'armée celon l'armée ennemi (50% - 100%) et attaquer le batiment ennemi
+        # lorsque une unité ennemi attaque une de nos unités alors butté cette unité
