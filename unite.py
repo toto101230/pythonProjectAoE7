@@ -56,12 +56,13 @@ class Unite(metaclass=ABCMeta):
         if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
             self.cible = buildings[pos_end[0]][pos_end[1]]
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
-        a = self.find_animal_pos(pos_end[0], pos_end[1], animaux)
-        if a:
-            self.cible = a
+        animal = self.find_animal_pos(pos_end[0], pos_end[1], animaux)
+        if animal:
+            self.cible = animal
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
 
-        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or buildings[pos_end[0]][pos_end[1]] is not None:
+        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or \
+                buildings[pos_end[0]][pos_end[1]] is not None:
             self.cible = None
             pos = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
             self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos)
@@ -87,7 +88,7 @@ class Unite(metaclass=ABCMeta):
             open_list.pop(current_index)
             closed_list.append(current_node)
 
-            if current_node.position == end_node.position:
+            if current_node == end_node:
                 current = current_node
                 while current is not None:
                     self.path.append(current.position)
@@ -125,9 +126,11 @@ class Unite(metaclass=ABCMeta):
                         (child.position[1] - end_node.position[1]) ** 2)
                 child.f = child.g + child.h
 
-                for open_node in open_list:
-                    if child == open_node and child.g > open_node.g:
-                        continue
+                if child in open_list:
+                    for open_node in open_list:
+                        if child == open_node and child.g > open_node.g:
+                            continue
+
                 open_list.append(child)
 
     # todo à revoir avec la self.speed
@@ -279,8 +282,8 @@ class Unite(metaclass=ABCMeta):
                         x, y = pos_current[0] + new_position[0], pos_current[1] + new_position[1]
                         if x > (len(world) - 1) or x < 0 or y > (len(world[0]) - 1) or y < 0:
                             continue
-                        # todo voir pour le sable et l'eau
-                        if world[x][y]["tile"] != "":
+
+                        if world[x][y]["tile"] != "" and world[x][y]["tile"] != "eau":
                             continue
 
                         if buildings[x][y] is not None:
@@ -352,7 +355,7 @@ class Villageois(Unite):
         if tile == "sable":
             tile = ""
         if tile != "":
-           if tile != "eau":
+            if tile != "eau":
                 if not self.posWork or not self.is_good_work(tile):
                     self.def_metier(tile)
                 self.posWork = pos_end
