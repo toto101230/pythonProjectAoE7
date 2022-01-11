@@ -2,6 +2,7 @@ from settings import TILE_SIZE
 from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
+from model.animal import Animal
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
@@ -42,19 +43,29 @@ class Unite(metaclass=ABCMeta):
         self.attackB = False
         self.cible = None
 
-    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
-        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or buildings[pos_end[0]][pos_end[1]] is not None:
-            self.cible = None
-            return -1
 
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
-        if u:
+        if u and u is not self:
             if u.joueur != self.joueur:
                 self.cible = u
-            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         else:
             self.cible = None
+        if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
+            self.cible = buildings[pos_end[0]][pos_end[1]]
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+        a = self.find_animal_pos(pos_end[0], pos_end[1], animaux)
+        if a:
+            self.cible = a
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+
+        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or buildings[pos_end[0]][pos_end[1]] is not None:
+            self.cible = None
+            pos = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos)
+            return 0
 
         start_node = Node(None, self.pos)
         start_node.g = start_node.h = start_node.f = 0
@@ -97,6 +108,9 @@ class Unite(metaclass=ABCMeta):
                     continue
 
                 if self.find_unite_pos(x, y, unites):
+                    continue
+
+                if self.find_animal_pos(x, y, animaux):
                     continue
 
                 new_node = Node(current_node, (x, y))
@@ -176,6 +190,9 @@ class Unite(metaclass=ABCMeta):
 
             if self.ypixel == 0 and self.ypixel == 0:
                 self.action = "idle"
+        elif self.action == "walk" and not self.path and not self.ypixel and not self.xpixel:
+            self.action = "idle"
+
 
     # met à jour les frames des unités
     def update_frame(self):
@@ -189,27 +206,122 @@ class Unite(metaclass=ABCMeta):
                 return u
         return None
 
-    def find_closer_pos(self, pos_end, world, buildings, unites):
-        pos_min = (5000, 5000)
-        for neighbour in neighbours:
-            x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-            if not (len(world) > x >= 0 and len(world[0]) > y >= 0):
-                continue
-            if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                    self.pos[1] - pos_min[1]) and world[x][y]['tile'] == "" and buildings[x][y] is None and \
-                    self.find_unite_pos(x, y, unites) is None:
-                pos_min = (x, y)
-        if pos_min == (5000, 5000):
-            for neighbour in neighbours:
-                x, y = pos_end[0] + neighbour[0], pos_end[1] + neighbour[1]
-                if abs(self.pos[0] - x) + abs(self.pos[1] - y) < abs(self.pos[0] - pos_min[0]) + abs(
-                        self.pos[1] - pos_min[1]):
-                    pos_min = self.find_closer_pos((x, y), world, buildings, unites)
-        return pos_min
+    def find_animal_pos(self, x, y, animaux):
+        for a in animaux:
+            if a.pos[0] == x and a.pos[1] == y:
+                return a
+        return None
+
+    def find_closer_pos(self, pos_end, world, buildings, unites, animaux) -> tuple:
+        path = []
+
+        start_node = Node(None, self.pos)
+        start_node.g = start_node.h = start_node.f = 0
+        end_node = Node(None, pos_end)
+        end_node.g = end_node.h = end_node.f = 0
+
+        open_list = []
+        closed_list = []
+        open_list.append(start_node)
+
+        while len(open_list) > 0:
+            current_node = open_list[0]
+            current_index = 0
+            for index, item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
+
+            open_list.pop(current_index)
+            closed_list.append(current_node)
+
+            if current_node == end_node:
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                while path:
+                    pos_current = path.pop(0)
+                    x, y = pos_current
+                    if not (x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0) and \
+                            not (world[x][y]["tile"] != "") and not (buildings[x][y] is not None) and \
+                            not (self.find_unite_pos(x, y, unites) and self.find_unite_pos(x, y, unites) != self) and \
+                            not (self.find_animal_pos(x, y, animaux)):
+                        return pos_current
+                    ns = []
+                    x = -1 if self.pos[0] < pos_current[0] else (1 if self.pos[0] > pos_current[0] else 0)
+                    y = -1 if self.pos[1] < pos_current[1] else (1 if self.pos[1] > pos_current[1] else 0)
+                    if (x, y) == (0, 0):
+                        ns.append((0, 0))
+                    else:
+                        index = neighbours.index((x, y))
+                        if (x, y) in [(1, -1), (0, -1), (-1, 1), (0, 1)]:
+                            if (x, y) == (1, -1):
+                                xy1 = neighbours[index - 2]
+                                xy2 = neighbours[index + 1]
+                            elif (x, y) == (-1, 1):
+                                xy1 = neighbours[index - 1]
+                                xy2 = neighbours[index + 2]
+                            elif (x, y) == (0, -1):
+                                xy1 = neighbours[index - 3]
+                                xy2 = neighbours[index + 2]
+                            else:  # elif (x, y) == (0, 1)
+                                xy1 = neighbours[index - 2]
+                                xy2 = neighbours[index + 3]
+                        else:
+                            xy1 = neighbours[index - 1]
+                            xy2 = neighbours[(index + 1) % len(neighbours)]
+
+                        ns.append((x,  y))
+                        ns.append((xy1[0], xy1[1]))
+                        ns.append((xy2[0], xy2[1]))
+                    for new_position in ns:
+                        x, y = pos_current[0] + new_position[0], pos_current[1] + new_position[1]
+                        if x > (len(world) - 1) or x < 0 or y > (len(world[0]) - 1) or y < 0:
+                            continue
+                        # todo voir pour le sable et l'eau
+                        if world[x][y]["tile"] != "":
+                            continue
+
+                        if buildings[x][y] is not None:
+                            continue
+
+                        if self.find_unite_pos(x, y, unites) and self.find_unite_pos(x, y, unites) != self:
+                            continue
+
+                        if self.find_animal_pos(x, y, animaux):
+                            continue
+                        return x, y
+                print("Quoi ?")
+                return ()
+
+            children = []
+            for new_position in neighbours:
+                x, y = current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]
+                if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
+                    continue
+
+                new_node = Node(current_node, (x, y))
+                children.append(new_node)
+
+            for child in children:
+                for closed_child in closed_list:
+                    if child == closed_child:
+                        continue
+
+                child.g = current_node.g + 1
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
+                        (child.position[1] - end_node.position[1]) ** 2)
+                child.f = child.g + child.h
+
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+                open_list.append(child)
 
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
-    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world):
-        if self.cible:
+    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
+        if self.cible and not self.path:
             neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
             neighbours_unite.remove((0, 0))
             x, y = self.pos[0] - self.cible.pos[0], self.pos[1] - self.cible.pos[1]
@@ -221,8 +333,8 @@ class Unite(metaclass=ABCMeta):
                     self.attackB = True
                     if self.cible.health <= 0:
                         self.cible = None
-            elif isinstance(self.cible, Unite):
-                self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.cible.pos)
+            elif isinstance(self.cible, Unite) or isinstance(self.cible, Animal):
+                self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.cible.pos)
 
 
 class Villageois(Unite):
@@ -235,23 +347,47 @@ class Villageois(Unite):
         self.posWork = ()
 
     # création du chemin à parcourir (remplie path de tuple des pos)
-    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, pos_end):
+    def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         tile = world[pos_end[0]][pos_end[1]]["tile"]
         if tile == "sable":
             tile = ""
         if tile != "":
-            if tile != "eau":
+           if tile != "eau":
                 if not self.posWork or not self.is_good_work(tile):
                     self.def_metier(tile)
                 self.posWork = pos_end
-            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
-        elif buildings[pos_end[0]][pos_end[1]] and (buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") and self.stockage > 0:
-            pos_end = self.find_closer_pos(pos_end, world, buildings, unites)
+            pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+        elif self.find_animal_pos(pos_end[0], pos_end[1], animaux):
+            if not self.posWork or not self.is_good_work("animal"):
+                self.def_metier("animal")
+                self.posWork = pos_end
+        elif buildings[pos_end[0]][pos_end[1]]:
+            if(buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") \
+                    and self.stockage > 0:
+                pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+            elif buildings[pos_end[0]][pos_end[1]].joueur == self.joueur and not buildings[pos_end[0]][pos_end[1]].construit:
+                self.def_metier("batiment")
+                self.posWork = pos_end
+                pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         elif self.stockage > 1:
             self.posWork = ()
             self.def_metier(tile)
 
-        return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
+        return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
+
+    def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
+        super().attaque(unites, buildings, grid_length_x, grid_length_y, world, animaux)
+        if self.path and isinstance(self.cible, Animal):
+            self.posWork = self.cible.pos
+
+    def find_closer_pos(self, pos_end, world, buildings, unites, animaux):
+        pos_min = super().find_closer_pos(pos_end, world, buildings, unites, animaux)
+        for neighbour in neighbours:
+            x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
+            if self.posWork == (x, y):
+                return pos_min
+        self.posWork = self.find_closer_ressource(len(world), len(world[0]), world, pos_min, animaux, buildings)
+        return pos_min
 
     def updatepos(self, world, unites):
         i = super().updatepos(world, unites)
@@ -282,32 +418,79 @@ class Villageois(Unite):
         elif tile == "rock":
             self.stockage = 0
             self.work = "miner"
+        elif tile == "animal":
+            self.stockage = 0
+            self.work = "hunter"
+        elif tile == "batiment":
+            self.stockage = 0
+            self.work = "builder"
         elif self.stockage == 0:
             self.work = "default"
 
-    def working(self, grid_length_x, grid_length_y, unites, world, buildings):
+    def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 1:
-                if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
+            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
+                if self.work == "builder":
+                    building = buildings[self.posWork[0]][self.posWork[1]]
+                    building.health += 10
+                    if building.health >= building.max_health:
+                        building.construit = True
+                        building.resource_manager.update_population_max(building.place)
+
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork, animaux, buildings)
+
+                        if self.posWork:
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                        else:
+                            self.def_metier("")
+                            self.action = "idle"
+                            self.posWork = ()
+                    self.time_recup_ressource = time()
+                    return
+                if self.work == "hunter":
+                    if self.cible:
+                        return
+                    if self.find_animal_pos(self.posWork[0], self.posWork[1], animaux):
+                        ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                    else:
+                        ressource = 0
+                else:
+                    ressource = world[self.posWork[0]][self.posWork[1]]["ressource"]
+
+                if ressource > 0:
                     self.stockage += 1
-                    world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
+                    if self.work == "hunter":
+                        self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource -= 1
+                    else:
+                        world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
                     self.action = "gather"
                     self.time_recup_ressource = time()
                 else:
-                    self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork)
-                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                    self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork,
+                                                              animaux, buildings)
+                    if self.posWork:
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                    else:
+                        if self.stockage > 0:
+                            pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
+                            self.posWork = ()
+                        else:
+                            self.action = "idle"
+                            self.work = "default"
 
 
                 #ici pour modifier le nombre de ressource qu'il ramene
                 #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
-                    pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites)
+                    pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
                     pos_temp = self.posWork
-                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, pos_end)
+                    self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
                     self.posWork = pos_temp
 
-            elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and not self.pos_work_is_neighbours():
+            elif self.building_ressource_close(buildings) and time() - self.time_recup_ressource > 1 and \
+                    not self.pos_work_is_neighbours():
                 if self.stockage > 0:
                     if self.work == "lumber":
                         self.joueur.resource_manager.resources["wood"] += round(self.stockage)
@@ -315,18 +498,32 @@ class Villageois(Unite):
                         self.joueur.resource_manager.resources["food"] += round(self.stockage)
                     elif self.work == "miner":
                         self.joueur.resource_manager.resources["stone"] += round(self.stockage)
+                    elif self.work == "hunter":
+                        self.joueur.resource_manager.resources["food"] += round(self.stockage)
                 self.stockage = 0
                 if self.posWork:
-                    if world[self.posWork[0]][self.posWork[1]]["ressource"] > 0:
-                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                    if self.work == "hunter":
+                        if self.find_animal_pos(self.posWork[0], self.posWork[1], animaux):
+                            ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                        else:
+                            ressource = 0
                     else:
-                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos)
-                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, self.posWork)
+                        ressource = world[self.posWork[0]][self.posWork[1]]["ressource"]
+                    if ressource > 0:
+                        self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                    else:
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos,
+                                                                  animaux, buildings)
+                        if self.posWork:
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                        else:
+                            self.action = "idle"
+                            self.work = "default"
                 else:
                     self.action = "idle"
                     self.work = "default"
 
-    def findstockage(self, grid_length_x, grid_length_y, world, buildings, unites):
+    def findstockage(self, grid_length_x, grid_length_y, world, buildings, unites, animaux):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [self.pos]
@@ -344,7 +541,7 @@ class Villageois(Unite):
                 if buildings[x][y] is not None:
                     if (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") \
                             and buildings[x][y].joueur == self.joueur:
-                        return self.find_closer_pos((x, y), world, buildings, unites)
+                        return self.find_closer_pos((x, y), world, buildings, unites, animaux)
                     pass
 
                 count = cout + 1
@@ -368,9 +565,10 @@ class Villageois(Unite):
 
     def is_good_work(self, tile):
         return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") \
-               or (tile == "rock" and self.work == "miner")
+               or (tile == "rock" and self.work == "miner") or (tile == "animal" and self.work == "hunter") or \
+               (tile == "batiment" and self.work == "builder")
 
-    def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start):
+    def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start, animaux, buildings):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -386,22 +584,23 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
 
+
+                if buildings[x][y] and buildings[x][y].joueur == self.joueur and not buildings[x][y].construit and \
+                        self.is_good_work("batiment"):
+                    return x, y
+
                 if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable" and world[x][y]["tile"] != "eau" and \
                         self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
+                    return x, y
+
+                if self.find_animal_pos(x, y, animaux) is not None and self.is_good_work("animal") and \
+                        self.find_animal_pos(x, y, animaux).ressource > 0:
                     return x, y
 
                 count = cout + 1
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
                     list_case.append((x, y))
-
-        # recherche s'il y a une unité pour la pos donnée
-
-    def find_unite_pos(self, x, y, unites):
-        for u in unites:
-            if u.pos[0] == x and u.pos[1] == y:
-                return u
-        return None
 
 
 class Clubman(Unite):

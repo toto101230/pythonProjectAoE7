@@ -4,6 +4,7 @@ import pygame.image
 from unite import Villageois
 from unite import Unite
 from buildings import Batiment
+from model.animal import Animal
 from utils import draw_text
 from bouton import Button
 
@@ -123,12 +124,16 @@ class Hud:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
 
             #affichage de l'image du batiment avec son nom et son nombre de vie
-            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite):
+            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or isinstance(self.examined_tile, Animal):
                 img = self.images_examined[self.examined_tile.name].convert_alpha()
                 draw_text(screen, self.examined_tile.name, 50, "#ff0000",
                           (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
                 draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
+                if isinstance(self.examined_tile, Animal):
+                    draw_text(screen, str(self.examined_tile.ressource), 30, (255, 255, 255),
+                              (self.hud_info_rect.center[0], self.hud_info_rect.center[1]+20))
+
                 if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
                     # affichage du bouton unité
                     if not self.resource_manager.stay_place():
@@ -179,6 +184,8 @@ class Hud:
         hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
         house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
+        gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
+        gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
 
         images = {
             "caserne": caserne,
@@ -186,7 +193,9 @@ class Hud:
             "grenier": grenier,
             "hdv": hdv,
             "house": house,
-            "villageois": villageois
+            "villageois": villageois,
+            "gazelle": gazelle,
+            "gazelle_mort": gazelle_mort,
         }
 
         w, h = self.hud_info_rect.width, self.hud_info_rect.height
