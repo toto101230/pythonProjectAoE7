@@ -61,7 +61,7 @@ class Unite(metaclass=ABCMeta):
             self.cible = a
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
 
-        if world[pos_end[0]][pos_end[1]]["tile"] != "" or buildings[pos_end[0]][pos_end[1]] is not None:
+        if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or buildings[pos_end[0]][pos_end[1]] is not None:
             self.cible = None
             pos = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
             self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos)
@@ -87,7 +87,7 @@ class Unite(metaclass=ABCMeta):
             open_list.pop(current_index)
             closed_list.append(current_node)
 
-            if current_node == end_node:
+            if current_node.position == end_node.position:
                 current = current_node
                 while current is not None:
                     self.path.append(current.position)
@@ -101,7 +101,7 @@ class Unite(metaclass=ABCMeta):
                 if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
                     continue
 
-                if world[x][y]["tile"] != "":
+                if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable":
                     continue
 
                 if buildings[x][y] is not None:
@@ -117,9 +117,8 @@ class Unite(metaclass=ABCMeta):
                 children.append(new_node)
 
             for child in children:
-                for closed_child in closed_list:
-                    if child == closed_child:
-                        continue
+                if child in closed_list:
+                    continue
 
                 child.g = current_node.g + 1
                 child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
@@ -278,9 +277,9 @@ class Unite(metaclass=ABCMeta):
                         ns.append((xy2[0], xy2[1]))
                     for new_position in ns:
                         x, y = pos_current[0] + new_position[0], pos_current[1] + new_position[1]
-                        if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
+                        if x > (len(world) - 1) or x < 0 or y > (len(world[0]) - 1) or y < 0:
                             continue
-
+                        # todo voir pour le sable et l'eau
                         if world[x][y]["tile"] != "":
                             continue
 
@@ -350,10 +349,13 @@ class Villageois(Unite):
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         tile = world[pos_end[0]][pos_end[1]]["tile"]
+        if tile == "sable":
+            tile = ""
         if tile != "":
-            if not self.posWork or not self.is_good_work(tile):
-                self.def_metier(tile)
-            self.posWork = pos_end
+           if tile != "eau":
+                if not self.posWork or not self.is_good_work(tile):
+                    self.def_metier(tile)
+                self.posWork = pos_end
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         elif self.find_animal_pos(pos_end[0], pos_end[1], animaux):
             if not self.posWork or not self.is_good_work("animal"):
@@ -477,6 +479,9 @@ class Villageois(Unite):
                             self.action = "idle"
                             self.work = "default"
 
+
+                #ici pour modifier le nombre de ressource qu'il ramene
+                #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
@@ -579,11 +584,13 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
 
+
                 if buildings[x][y] and buildings[x][y].joueur == self.joueur and not buildings[x][y].construit and \
                         self.is_good_work("batiment"):
                     return x, y
 
-                if world[x][y]["tile"] != "" and self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
+                if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable" and world[x][y]["tile"] != "eau" and \
+                        self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
                     return x, y
 
                 if self.find_animal_pos(x, y, animaux) is not None and self.is_good_work("animal") and \

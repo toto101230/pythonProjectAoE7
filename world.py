@@ -36,13 +36,15 @@ class World:
 
         self.unites = self.create_unites()
 
-        self.animaux = self.create_animaux()
+        #self.animaux = self.create_animaux()
 
         self.temp_tile = None
         self.examine_tile = None
         self.examined_unites_tile = []
 
     def update(self, camera):
+
+        #print(self.examined_unites_tile)
 
         self.temp_tile = None
 
@@ -55,13 +57,21 @@ class World:
             self.examined_unites_tile = []
             self.hud.examined_tile = None
 
-        if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
-            unite = self.hud.examined_tile
-            if self.can_place_tile(grid_pos) and grid_pos != unite.pos:
-                if self.deplace_unite(grid_pos, unite) != -1:
+
+        for unite_pos in self.examined_unites_tile:
+            unite = self.find_unite_pos(unite_pos[0], unite_pos[1])
+            if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                if self.deplace_unite(grid_pos, unite) != -1 and grid_pos != unite.pos:
                     self.examine_tile = None
                     self.hud.examined_tile = None
                     self.examined_unites_tile = []
+
+        #if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
+         #    unite = self.hud.examined_tile
+          #   if self.deplace_unite(grid_pos, unite) != -1:
+          #       self.examine_tile = None
+          #       self.hud.examined_tile = None
+           #      self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
@@ -69,23 +79,24 @@ class World:
                 self.hud.selected_tile = None
 
         elif self.can_place_tile(grid_pos):
-            collision = self.world[grid_pos[0]][grid_pos[1]]["tile"]
+            tile = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
             unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
             animal = self.find_animal_pos(grid_pos[0], grid_pos[1])
 
-            if mouse_action[0] and collision != '':
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
+            if not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
 
-            if mouse_action[0] and building is not None:
-                self.examine_tile = (building.pos[0], building.pos[1])
-                self.hud.examined_tile = building
+                if mouse_action[0] and building is not None:
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = building
 
-            # permet de sélectionner une unité
-            if mouse_action[0] and unite is not None:
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = unite
+                # permet de sélectionner une unité
+                if mouse_action[0] and unite is not None:
+                    self.examined_unites_tile.append(grid_pos)
+                    self.hud.examined_tile = unite
 
             # permet de sélectionner un animal
             if mouse_action[0] and animal is not None:
@@ -133,10 +144,9 @@ class World:
                 # draw dammier
                 tile = self.world[x][y]["tile"]
 
-                if tile != "" and self.world[x][y]["ressource"] <= 0:
+                if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
-
-                if tile != "":
+                if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                  render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
@@ -183,12 +193,15 @@ class World:
                 render_pos = self.world[u.pos[0]][u.pos[1]]["render_pos"]
                 pixel = iso(u.xpixel, u.ypixel)
                 render_pos = [render_pos[0] + pixel[0], render_pos[1] + pixel[1]]
+                extension = ".png"
+                if u.joueur.name != "joueur 1":
+                    extension = "_red.png"
                 if isinstance(u, Villageois):
                     if u.work != "default":
                         u.frameNumber = 0
-                    image = u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png"
+                    image = u.name + "_" + u.work + "_" + u.action + "_" + str(round(u.frameNumber)) + extension
                 else:
-                    image = u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + ".png"
+                    image = u.name + "_" + u.action + "_" + str(round(u.frameNumber)) + extension
 
                 screen.blit(self.images_unites[image],
                             (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
@@ -198,13 +211,17 @@ class World:
                                                        render_pos[1] - (self.tiles["etoile"].get_height() - TILE_SIZE) + camera.scroll.y))
                 if time() - u.tick_attaque > 0.250:
                     u.attackB = False
-                if self.examine_tile is not None:
-                    if (u.pos[0] == self.examine_tile[0]) and (u.pos[1] == self.examine_tile[1]):
-                        mask = pygame.mask.from_surface(self.images_unites[image]).outline()
-                        mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 y + render_pos[1] - (self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
-                                for x, y in mask]
-                        pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
+                if self.examined_unites_tile != []:
+                    for uni in self.examined_unites_tile:
+                        if (u.pos[0] == uni[0]) and (u.pos[1] == uni[1]):
+                            mask = pygame.mask.from_surface(self.images_unites[image]).outline()
+                            mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
+                                     y + render_pos[1] - (
+                                                 self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
+                                    for x, y in mask]
+                            pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
+
 
         # dessine les animaux
         for a in self.animaux:
@@ -247,8 +264,14 @@ class World:
         world_random = np.random.normal(50, 25, (self.grid_length_x, self.grid_length_y))
 
         noise = tcod.noise.Noise(dimensions=2, seed=self.seed)
-        samples = noise[tcod.noise.grid(shape=(100, 100), scale=0.1, origin=(0, 0))]
+        samples = noise[tcod.noise.grid(shape=(self.grid_length_x, self.grid_length_y), scale=0.1, origin=(0, 0))]
         world_tree = (samples+1)*50
+
+#todo voir pour creation buildings
+        for x in range(8):
+            for y in range(8):
+                world_random[x+7][y+7] = 50
+                world_tree[x+7][y+7] = 50
 
         world = []
         for grid_x in range(self.grid_length_x):
@@ -258,8 +281,8 @@ class World:
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
-                self.grass_tiles.blit(self.tiles["grass"],
-                                      (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
+                tile = self.tiles["grass"] if world_tile["tile"] != "eau" and world_tile["tile"] != "sable" else self.tiles[world_tile["tile"]]
+                self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
 
         return world
 
@@ -292,6 +315,21 @@ class World:
                 tile = ""
                 ressource = 0
 
+        if world_tree[grid_x][grid_y] > 85:
+            tile = "eau"
+            ressource = 0
+        else:
+            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 85) or \
+                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 85) or \
+                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 85) or \
+                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 85) or \
+                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y -1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 85) or \
+                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 85) or \
+                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 85):
+                tile = "sable"
+                ressource = 0
+
         out = {
             "grid": [grid_x, grid_y],
             "cart_rect": rect,
@@ -301,6 +339,19 @@ class World:
             "collision": False if tile == "" else True,
             "ressource": ressource
         }
+
+    
+        if out["tile"] == "sable":
+            out["collision"] = False
+          
+#todo voir pour creation buildings
+        if grid_x == 10 and grid_y == 10:
+            out["tile"] = ""
+            out["collision"] = False
+
+        if grid_x == 11 and grid_y == 11:
+            out["tile"] = ""
+            out["collision"] = False
 
         return out
 
@@ -341,6 +392,8 @@ class World:
     def load_images(self):
         # world
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
+        eau = pygame.image.load("assets/eau.png").convert_alpha()
+        sable = pygame.image.load("assets/sable.png").convert_alpha()
         tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
         buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
         rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
@@ -367,6 +420,8 @@ class World:
             "buisson": buisson,
             "rock": rock,
             "grass": grass,
+            "eau": eau,
+            "sable": sable,
 
             "caserne": caserne,
             "grenier": grenier,

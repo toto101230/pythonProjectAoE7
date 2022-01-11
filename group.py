@@ -27,17 +27,18 @@ class Group:
             # print(self.poly_area(A,B,C))
             if not self.selected and self.poly_area(A, B, C) >= 2:
                 for u in world.unites:
-                    if self.is_in_selection(u, A, B, C, D):
+                    if self.is_in_selection(u, A, B, C, D) and (u.joueur.name == "joueur 1"):
                         self.selected.append(u)
                         world.examined_unites_tile.append(u.pos)
-                if len(self.selected):
-                    print(str(len(self.selected)) + " unite(s) selected")
 
-        if pygame.mouse.get_pressed()[2]:  # deselection de toutes les unites
+                # if len(self.selected):
+                    # print(str(len(self.selected)) + " unite(s) selected")
+
+        if pygame.mouse.get_pressed()[2] or pygame.mouse.get_pressed()[0]:  # deselection de toutes les unites
             if self.selected:
-                print(self.selected)
-                for u in self.selected:
-                    print(u.pos)
+                # print(self.selected)
+                # for u in self.selected:
+                    # print(u.pos)
                 self.selected.clear()
 
     def is_in_selection(self, unite, A, B, C, D):
@@ -60,7 +61,9 @@ class Group:
         b = self.segment_len(B, C)
         c = self.segment_len(C, A)
         p = (a + b + c) / 2
-        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)))  # formule de Héron
+        if (p * (p - a) * (p - b) * (p - c)) > 0:
+            return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)))  # formule de Héron
+        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)+0.0000001)) #prend en compte le cas ou on a 0.0 dans le sqrt
 
     def tri_perimeter(self, A, B, C):  # not used
         return self.segment_len(A, B) + self.segment_len(B, C) + self.segment_len(C, A)
