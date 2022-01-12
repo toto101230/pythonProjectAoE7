@@ -16,7 +16,7 @@ class Camera:
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False
 
     def pos_hdv_base(self, pos):
-        cart_x = (pos[0] -TILE_SIZE//5) * TILE_SIZE
+        cart_x = (pos[0] - TILE_SIZE // 5) * TILE_SIZE
         cart_y = (pos[1] - 1) * TILE_SIZE
 
         world_x = cart_x - cart_y
@@ -24,8 +24,6 @@ class Camera:
 
         self.scroll.x -= world_x + 100 * TILE_SIZE
         self.scroll.y -= world_y
-
-        # return x, y
 
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
