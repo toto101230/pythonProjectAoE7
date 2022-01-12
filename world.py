@@ -31,7 +31,6 @@ class World:
         self.images_unites = self.load_images_unites()
         self.world = self.create_world()
 
-
         self.buildings = self.create_buildings()
 
         self.unites = self.create_unites()
@@ -678,8 +677,8 @@ class World:
         buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
 
         for pos in pos_hdv:
-            for x in range(-4, 5):
-                for y in range(-4, 5):
+            for x in range(-5, 6):
+                for y in range(-5, 6):
                     self.world[x + pos[0]][y + pos[1]]["tile"] = ""
                     self.world[x + pos[0]][y + pos[1]]["collision"] = False
 

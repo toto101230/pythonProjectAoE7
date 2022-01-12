@@ -26,14 +26,14 @@ class Game:
 
         self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
 
-        self.joueurs[1].ia = Ia()
-        pygame.time.set_timer(events.ia_play_1_event, 500)
-
         self.resources_manager = self.joueurs[0].resource_manager
 
         self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
 
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
+
+        self.joueurs[1].ia = Ia(self.world.seed)
+        pygame.time.set_timer(events.ia_play_1_event, 500)
 
         self.camera = Camera(self.width, self.height)
         self.camera.pos_hdv_base((90, 90))  # todo a changer lors de repartition random des HDV

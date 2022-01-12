@@ -581,7 +581,8 @@ class Villageois(Unite):
     def building_ressource_close(self, buildings):
         for neighbour in neighbours:
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
-            if buildings[x][y] and (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier"):
+            if len(buildings) > x >= 0 and len(buildings[0]) > y >= 0 and\
+                    buildings[x][y] and (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier"):
                 return True
         return False
 
