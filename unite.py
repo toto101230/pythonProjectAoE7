@@ -48,8 +48,10 @@ class Unite(metaclass=ABCMeta):
 
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
         if u and u is not self:
-            if u.joueur != self.joueur:
+            if u.joueur != self.joueur and self.joueur.diplomatie[u.joueur.numero] != "allié":
                 self.cible = u
+                self.joueur.diplomatie[u.joueur.numero] = "ennemi"
+                u.joueur.diplomatie[self.joueur.numero] = "ennemi"
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         else:
             self.cible = None
@@ -348,6 +350,7 @@ class Villageois(Unite):
         self.work = "default"
         self.stockage = 0
         self.posWork = ()
+        self.resource_manager.villageois["rien"].append(self)
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
@@ -374,7 +377,6 @@ class Villageois(Unite):
                 pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         elif self.stockage > 1:
             self.posWork = ()
-            self.def_metier(tile)
 
         return super().create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end)
 
@@ -411,15 +413,29 @@ class Villageois(Unite):
             self.frameNumber = 0
         # fin
 
+    def villageois_remove(self):
+        if self.work == "lumber":
+            self.joueur.resource_manager.villageois["wood"].remove(self)
+        elif self.work == "forager":
+            self.joueur.resource_manager.villageois["food"].remove(self)
+        elif self.work == "miner":
+            self.joueur.resource_manager.villageois["stone"].remove(self)
+        elif self.work == "default" and self.stockage == 0:
+            self.joueur.resource_manager.villageois["rien"].remove(self)
+
     def def_metier(self, tile):
+        self.villageois_remove()
         if tile == "tree":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["wood"].append(self)
             self.work = "lumber"
         elif tile == "buisson":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["food"].append(self)
             self.work = "forager"
         elif tile == "rock":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["stone"].append(self)
             self.work = "miner"
         elif tile == "animal":
             self.stockage = 0
@@ -428,6 +444,7 @@ class Villageois(Unite):
             self.stockage = 0
             self.work = "builder"
         elif self.stockage == 0:
+            self.joueur.resource_manager.villageois["rien"].append(self)
             self.work = "default"
 
     def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):

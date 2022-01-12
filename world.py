@@ -10,14 +10,12 @@ from model.joueur import Joueur
 from os import walk
 from model.animal import Gazelle, Animal
 
-Joueurs = list[Joueur]
-
 iso = lambda x, y: ((x - y), ((x + y) / 2))
 
 
 class World:
 
-    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: Joueurs, seed):
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed):
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -32,6 +30,7 @@ class World:
         self.tiles = self.load_images()
         self.images_unites = self.load_images_unites()
         self.world = self.create_world()
+
 
         self.buildings = self.create_buildings()
 
@@ -528,7 +527,9 @@ class World:
         return 1
 
     def achat_villageois(self, joueur, pos_ini, nom_unite):
-        if joueur.resource_manager.is_affordable(nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
+        u = None
+        if joueur.resource_manager.is_affordable(
+                nom_unite) and joueur.resource_manager.stay_place() and time() - joueur.time_recrut > 1:
             unite_a_degage = []
             pos_visitee = []
             pos_ini = pos_ini[0] + 1, pos_ini[1] + 1
@@ -537,7 +538,9 @@ class World:
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
-                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and (x, y) not in pos_visitee:
+                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x,
+                                                                                                               y) is None and (
+                    x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
                         unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
                                           self.buildings, self.animaux, (x, y))
@@ -577,8 +580,19 @@ class World:
                             joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                             return
                         u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, last)
-            self.unites.append(Villageois(pos_ini, joueur))
+
+            if nom_unite == "villageois":
+                u = Villageois(pos_ini, joueur)
+
+            if nom_unite == "clubman":
+                u = Clubman(pos_ini, joueur)
+
+            if u:
+                self.unites.append(u)
+
             joueur.time_recrut = time()
+            return u
+        return u
 
     def deplace_unite(self, pos, unite):
         return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
@@ -641,12 +655,20 @@ class World:
 
     def create_unites(self) -> list[Unite]:
         unites = []
-        unites.append(Villageois((7, 7), self.joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((8, 11), self.joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((10, 13), self.joueurs[1]))  # ligne pour tester les villageois
 
         unites.append(Clubman((11, 8), self.joueurs[0]))  # ligne pour tester les soldats
         unites.append(Clubman((12, 15), self.joueurs[1]))  # ligne pour tester les soldats
+        
+        unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((90, 93), joueurs[1]))# ligne pour tester les villageois
+        unites.append(Villageois((92, 93), joueurs[1]))
+        unites.append(Villageois((91, 94), joueurs[1]))
+
+        unites.append(Clubman((65, 65), joueurs[0]))
+        unites.append(Clubman((65, 66), joueurs[0]))
+        unites.append(Clubman((66, 66), joueurs[0]))
+        unites.append(Clubman((66, 65), joueurs[0]))
 
         return unites
 
