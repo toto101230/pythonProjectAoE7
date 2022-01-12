@@ -8,7 +8,7 @@ class Ia:
         self.plan_petite_armee = False
         self.plan_defense = False
 
-    def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, buildings, pos_start, nom_batiment):
+    def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -27,13 +27,14 @@ class Ia:
                     continue
 
                 if nom_batiment == "house":
-                    if world[x][y]["tile"] == "" and buildings[x][y] is None and not self.bloque_hdv(x, y, "house"):
+                    if world.world[x][y]["tile"] == "" and world.buildings[x][y] is None and not \
+                            self.bloque_hdv(x, y, "house", world):
                         return x, y
 
                 if nom_batiment == "caserne" or nom_batiment == "grenier":
-                    if world[x][y]["tile"] == "" and world[x+1][y]["tile"] == "" and world[x][y+1]["tile"] == "" and\
-                            world[x+1][y+1]["tile"] == "" and buildings[x][y] is None and buildings[x+1][y] is None and\
-                            buildings[x][y+1] is None and buildings[x+1][y+1] is None and not self.bloque_hdv(x, y, nom_batiment):
+                    if world.world[x][y]["tile"] == "" and world.world[x+1][y]["tile"] == "" and world.world[x][y+1]["tile"] == "" and\
+                            world.world[x+1][y+1]["tile"] == "" and world.buildings[x][y] is None and world.buildings[x+1][y] is None and\
+                            world.buildings[x][y+1] is None and world.buildings[x+1][y+1] is None and not self.bloque_hdv(x, y, "house", world):
                         return x, y
 
                 count = cout + 1
@@ -41,12 +42,19 @@ class Ia:
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
-    def bloque_hdv(self, x, y, nom_batiment):
+    def bloque_hdv(self, x, y, nom_batiment, world):
         # true bloque hdv ; false ne bloque pas
         # position d'appartition des villageois
         if self.pos_hdv[0] + 1 == x and self.pos_hdv[1] + 1 == y:
             return True
 
+        if nom_batiment != "house":
+            if self.pos_hdv[0] + 1 == x and self.pos_hdv[1] == y or \
+                    self.pos_hdv[0] == x and self.pos_hdv[1] + 1 == y or \
+                    self.pos_hdv[0] == x and self.pos_hdv[1] == y:
+                return True
+
+        # todo faire la même chose avec les batiments qui prennent 4 cases
         # if les cases voisines de l'HDV (self.pos_hdv) sont toutes remplies
         if (self.pos_hdv[0]-1 == x and self.pos_hdv[1]-1 == y) or (self.pos_hdv[0]-1 == x and self.pos_hdv[1] == y) or \
                 (self.pos_hdv[0]+1 == x and self.pos_hdv[1]-1 == y) or (self.pos_hdv[0]+2 == x and self.pos_hdv[1]-1 == y)\
@@ -56,6 +64,7 @@ class Ia:
                 or (self.pos_hdv[0]+2 == x and self.pos_hdv[1]+1 == y) or (self.pos_hdv[0]+2 == x and self.pos_hdv[1] == y):
             return True
 
+        # todo faire la même chose avec les batiments qui prennent 4 cases
         for b in self.batiments:
             if b.name == "caserne":
                 if b.pos[0] + 1 == x and b.pos[1] + 1 == y:
@@ -96,8 +105,7 @@ class Ia:
 
     def gestion_construction_batiment(self, world, joueur, nom_batiment):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world.world,
-                                      world.buildings, self.pos_hdv, nom_batiment)
+            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, self.pos_hdv, nom_batiment)
             world.place_building(pos, joueur, nom_batiment, True)
             if world.buildings[pos[0]][pos[1]]:
                 self.batiments.append(world.buildings[pos[0]][pos[1]])
@@ -211,12 +219,10 @@ class Ia:
                     # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
                     if u.cible and u.cible == world.find_unite_pos(rodeurs[1][0 if count <= 2 else 1][0], rodeurs[1][0 if count <= 2 else 1][1]):
                         count += 1
-                        print("tota")
                     else:
                         u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
-                                      world.buildings, rodeurs[1][0 if count <= 2 else 1])
+                                      world.buildings, world.animaux, rodeurs[1][0 if count <= 2 else 1])
                         count += 1
-                        print("toto")
                     if count >= len(rodeurs[1])*2:
                         return
                     elif count <= len(rodeurs[1]) * 2 and len(self.soldats) < len(rodeurs[1]) * 2:
@@ -230,7 +236,7 @@ class Ia:
                         count += 1
                     else:
                         u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
-                                      world.buildings, rodeurs[1][count // 2])
+                                      world.buildings, world.animaux, rodeurs[1][count // 2])
                         count += 1
 
                     if count >= len(rodeurs[1])*2:
