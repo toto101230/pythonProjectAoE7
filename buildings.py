@@ -1,14 +1,15 @@
 class Batiment:
 
-    def __init__(self, pos, name, max_health, place, joueur, place_batiment):
+    def __init__(self, pos, name, max_health, place_unite, joueur, place_batiment):
         self.name = name
         self.health = 0
         self.max_health = max_health
         self.counter = 0
-        self.place = place
+        self.place_unite = place_unite
         self.joueur = joueur
         self.resource_manager = self.joueur.resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
+        self.resource_manager.update_population_max(place_unite)
         self.pos = pos
         self.place_batiment = place_batiment
         self.construit = False
@@ -16,11 +17,10 @@ class Batiment:
 
 class Hdv(Batiment):
 
-    def __init__(self, pos, joueur):*
+    def __init__(self, pos, joueur):
         Batiment.__init__(self, pos, "hdv", 500, 5, joueur, 4)
         self.health = self.max_health
         self.construit = True
-        self.resource_manager.update_population_max(self.place)
 
 
 class Caserne(Batiment):

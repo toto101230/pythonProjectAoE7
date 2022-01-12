@@ -55,6 +55,8 @@ class Unite(metaclass=ABCMeta):
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
         else:
             self.cible = None
+        if not pos_end:
+            return
         if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
             self.cible = buildings[pos_end[0]][pos_end[1]]
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)

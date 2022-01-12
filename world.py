@@ -164,7 +164,8 @@ class World:
                         if isinstance(building, Caserne):
                             correctifx = -45
                         elif isinstance(building, Hdv):
-                            correctifx = -20
+                            correctifx = -40
+                            correctify = -15
                         elif isinstance(building, House):
                             correctify = -15
                         screen.blit(self.tiles[building.name],
@@ -659,16 +660,16 @@ class World:
         unites.append(Clubman((11, 8), self.joueurs[0]))  # ligne pour tester les soldats
         unites.append(Clubman((12, 15), self.joueurs[1]))  # ligne pour tester les soldats
         
-        unites.append(Villageois((7, 7), joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((8, 11), joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((90, 93), joueurs[1]))# ligne pour tester les villageois
-        unites.append(Villageois((92, 93), joueurs[1]))
-        unites.append(Villageois((91, 94), joueurs[1]))
+        unites.append(Villageois((7, 7), self.joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((8, 11), self.joueurs[0]))  # ligne pour tester les villageois
+        unites.append(Villageois((90, 93), self.joueurs[1]))# ligne pour tester les villageois
+        unites.append(Villageois((92, 93), self.joueurs[1]))
+        unites.append(Villageois((91, 94), self.joueurs[1]))
 
-        unites.append(Clubman((65, 65), joueurs[0]))
-        unites.append(Clubman((65, 66), joueurs[0]))
-        unites.append(Clubman((66, 66), joueurs[0]))
-        unites.append(Clubman((66, 65), joueurs[0]))
+        unites.append(Clubman((65, 65), self.joueurs[0]))
+        unites.append(Clubman((65, 66), self.joueurs[0]))
+        unites.append(Clubman((66, 66), self.joueurs[0]))
+        unites.append(Clubman((66, 65), self.joueurs[0]))
 
         return unites
 

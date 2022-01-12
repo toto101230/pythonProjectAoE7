@@ -36,7 +36,7 @@ class Game:
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
 
         self.camera = Camera(self.width, self.height)
-        self.camera.pos_hdv_base((10, 10))  # todo a changer lors de repartition random des HDV
+        self.camera.pos_hdv_base((90, 90))  # todo a changer lors de repartition random des HDV
 
         self.group = Group()
         self.selection = Selection()
