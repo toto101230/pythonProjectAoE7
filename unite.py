@@ -105,7 +105,6 @@ class Unite(metaclass=ABCMeta):
                 x, y = current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]
                 if x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0:
                     continue
-
                 if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable":
                     continue
 
@@ -199,7 +198,6 @@ class Unite(metaclass=ABCMeta):
                 self.action = "idle"
         elif self.action == "walk" and not self.path and not self.ypixel and not self.xpixel:
             self.action = "idle"
-
 
     # met à jour les frames des unités
     def update_frame(self):

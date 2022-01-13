@@ -21,10 +21,13 @@ class Game:
         self.menu_diplo = False
         self.screen = screen
         self.clock = clock
-        self.seed = 0
+        self.seed = 9584417
         self.width, self.height = self.screen.get_size()
 
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 7, 0), Joueur(ResourceManager(), "joueur 2", 7, 1),
+                        Joueur(ResourceManager(), "joueur 3", 7, 2), Joueur(ResourceManager(), "joueur 4", 7, 3),
+                        Joueur(ResourceManager(), "joueur 5", 7, 4), Joueur(ResourceManager(), "joueur 6", 7, 5),
+                        Joueur(ResourceManager(), "joueur 7", 7, 6)]
 
         self.resources_manager = self.joueurs[0].resource_manager
 
@@ -32,11 +35,8 @@ class Game:
 
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
 
-        self.joueurs[1].ia = Ia(self.world.seed)
-        pygame.time.set_timer(events.ia_play_1_event, 500)
-
         self.camera = Camera(self.width, self.height)
-        self.camera.pos_hdv_base((90, 90))  # todo a changer lors de repartition random des HDV
+        self.camera.pos_hdv_base(self.joueurs[0].hdv_pos)
 
         self.group = Group()
         self.selection = Selection()
@@ -46,8 +46,15 @@ class Game:
 
         self.save = Save()
 
-        # todo a modif
-        self.joueurs[1].ia.batiments.append(self.world.buildings[90][90])
+        self.lancement_ia()
+
+    def lancement_ia(self):
+        for i in range(1, len(self.joueurs)):
+            pos = self.joueurs[i].hdv_pos
+            self.joueurs[i].ia = Ia(self.world.seed, pos)
+            pygame.time.set_timer(events.ia_events[i], 500)
+
+            self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 
     def run(self):
         while self.playing:
@@ -99,7 +106,6 @@ class Game:
         if self.hud.diplo_actif:
             self.playing = False
             self.menu_diplo = True
-
 
     def update(self):
         self.camera.update()

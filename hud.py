@@ -1,3 +1,5 @@
+from os import walk
+
 import pygame as pg
 import pygame.image
 
@@ -156,10 +158,22 @@ class Hud:
                     if self.option_diplo_bouton[i][j].is_press and not mouse_action[0]:
                         self.option_diplo_bouton[i][j].is_press = False
 
-    def draw(self, screen, joueurs:list[Joueur]):
+    def draw(self, screen, joueurs: list[Joueur]):
         screen.blit(self.hud_haut_surface, (0, 0))
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
+        # a voir
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["gold"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["rien"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 550, self.hud_haut_rect.bottomleft[1]))
+
         self.diplo_bouton.draw(screen)
 
         if self.diplo_actif:
@@ -204,7 +218,7 @@ class Hud:
                         self.unite_bouton.image.set_alpha(150)
                     self.unite_bouton.draw(screen)
             else:
-                img = self.images_terre[self.examined_tile["tile"]].convert_alpha()
+                img = self.images_terre[self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
                 draw_text(screen, str(self.examined_tile["tile"]), 50, (0,255,255), (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1]- 90))
 
@@ -286,18 +300,11 @@ class Hud:
         return image
 
     def load_image_terre(self):
-        tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
-        buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
-        rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
+        images = {}
+        for (repertoire, sousRepertoires, fichiers) in walk("assets/ressource"):
+            for nom in fichiers:
+                image = pygame.image.load(repertoire + "/" + nom).convert_alpha()
+                rect = image.get_rect(topleft=(0, 0))
+                images[nom] = self.scale_image(image, h=rect.height * 1.8, w=rect.width * 1.8)
 
-        terre = {
-            "tree": tree,
-             "buisson": buisson,
-             "rock": rock
-        }
-
-        w, h = self.hud_info_rect.width, self.hud_info_rect.height
-        for i in terre:
-            terre[i] = self.scale_image(terre[i], h=h * 0.7)
-
-        return terre
+        return images

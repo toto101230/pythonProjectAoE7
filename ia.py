@@ -4,8 +4,8 @@ from unite import Villageois
 
 
 class Ia:
-    def __init__(self, seed):
-        self.pos_hdv = (90, 90)  # à changer
+    def __init__(self, seed, pos):
+        self.pos_hdv = pos
         self.batiments = []
         self.nbr_clubman = 0
         self.soldats = []
@@ -16,8 +16,8 @@ class Ia:
 
     def create_zone(self, seed):
         case = []
-        for i in range(-5, 6):
-            for j in range(-5, 6):
+        for i in range(-4, 5):
+            for j in range(-4, 5):
                 if (i <= -3) or (i >= 2) or (j <= -2) or (j >= 3):
                     case.append((self.pos_hdv[0] + i, self.pos_hdv[1] + j))
         np.random.seed(seed)
@@ -46,12 +46,14 @@ class Ia:
                             self.pos_interdites(x, y, "house", world):
                         return x, y
 
-                if nom_batiment == "caserne" or nom_batiment == "grenier":
-                    if world.world[x][y]["tile"] == "" and world.world[x+1][y]["tile"] == "" and world.world[x][y+1]["tile"] == "" and\
-                            world.world[x+1][y+1]["tile"] == "" and world.buildings[x][y] is None and world.buildings[x+1][y] is None and\
-                            world.buildings[x][y+1] is None and world.buildings[x+1][y+1] is None and not self.pos_interdites(x, y, "house", world):
+                if nom_batiment == "caserne" or nom_batiment == "grenier" and (0 <= x + 1 < grid_length_x and
+                                                                               0 <= y + 1 < grid_length_y):
+                    if world.world[x][y]["tile"] == "" and world.world[x+1][y]["tile"] == "" and \
+                            world.world[x][y+1]["tile"] == "" and world.world[x+1][y+1]["tile"] == "" and \
+                            world.buildings[x][y] is None and world.buildings[x+1][y] is None and \
+                            world.buildings[x][y+1] is None and world.buildings[x+1][y+1] is None and \
+                            not self.pos_interdites(x, y, nom_batiment, world):
                         return x, y
-
                 count = cout + 1
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
@@ -68,11 +70,12 @@ class Ia:
                 if b.pos[0] + 1 == x and b.pos[1] + 1 == y:
                     return True
 
-        pos_interdit = [(i + self.pos_hdv[0], j + self.pos_hdv[0]) for i in range(-3, 2) for j in range(-2, 2)]
+        pos_interdit = [(i + self.pos_hdv[0], j + self.pos_hdv[1]) for i in range(-3, 3) for j in range(-2, 3)]
         if (x, y) in pos_interdit:
             return True
 
-        if nom_batiment != "house" and (x - 1, y) in pos_interdit or (x, y - 1) in pos_interdit or (x - 1, y - 1) in pos_interdit:
+        if nom_batiment != "house" and ((x + 1, y) in pos_interdit or (x, y + 1) in pos_interdit or (x + 1, y + 1)
+                                        in pos_interdit):
             return True
 
         if nom_batiment == "caserne" and (world.world[x+1][y+1]["tile"] != "" or world.buildings[x+1][y+1]):
@@ -130,7 +133,7 @@ class Ia:
                 joueur.resource_manager.population["population_maximale"]:
             self.gestion_construction_batiment(world, joueur, "house", self.zone_residentielle)
         else:
-            world.achat_villageois(joueur, (90, 90), "villageois")
+            world.achat_villageois(joueur, self.pos_hdv, "villageois")
 
     def gestion_achat_unite(self, world, joueur, nom_unite):
         if joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs[nom_unite]["food"] \

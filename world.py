@@ -24,6 +24,7 @@ class World:
         self.seed = seed if seed != 0 else np.random.randint(100, 10000000)
         print(self.seed)
         self.joueurs = joueurs
+        self.pos_hdv = self.create_pos_hdv()
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -35,7 +36,7 @@ class World:
 
         self.unites = self.create_unites()
 
-        self.animaux = []  #self.create_animaux()
+        self.animaux = []  # self.create_animaux()
 
         self.temp_tile = None
         self.examine_tile = None
@@ -137,20 +138,21 @@ class World:
         for x in range(xmin, xmax):
             for y in range(ymin, ymax):
                 render_pos = self.world[x][y]["render_pos"]
+                frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
 
                 if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
-                    screen.blit(self.tiles[tile],
+                    screen.blit(self.tiles[tile + "_" + frame + ".png"],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y))
+                                 render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() - TILE_SIZE) + camera.scroll.y))
                     if self.examine_tile is not None:
                         if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
-                            mask = pygame.mask.from_surface(self.tiles[tile]).outline()
+                            mask = pygame.mask.from_surface(self.tiles[tile + "_" + frame + ".png"]).outline()
                             mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                     y + render_pos[1] - (self.tiles[tile].get_height() - TILE_SIZE) + camera.scroll.y)
+                                     y + render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
                 # draw buildings
@@ -210,7 +212,7 @@ class World:
                 if time() - u.tick_attaque > 0.250:
                     u.attackB = False
 
-                if self.examined_unites_tile != []:
+                if self.examined_unites_tile:
                     for uni in self.examined_unites_tile:
                         if (u.pos[0] == uni[0]) and (u.pos[1] == uni[1]):
                             mask = pygame.mask.from_surface(self.images_unites[image]).outline()
@@ -261,21 +263,24 @@ class World:
         np.random.seed(self.seed)
         world_random = np.random.normal(50, 25, (self.grid_length_x, self.grid_length_y))
 
+        np.random.seed(self.seed)
+        world_frame = np.random.randint(0, 6, self.grid_length_x * self.grid_length_y)
+        print(len(world_frame))
+
         noise = tcod.noise.Noise(dimensions=2, seed=self.seed)
         samples = noise[tcod.noise.grid(shape=(self.grid_length_x, self.grid_length_y), scale=0.1, origin=(0, 0))]
         world_tree = (samples+1)*50
 
-        pos_hdv = [(10, 10), (90, 90)]
-        for pos in pos_hdv:
-            for x in range(-4, 5):
-                for y in range(-4, 5):
+        for pos in self.pos_hdv:
+            for x in range(-5, 6):
+                for y in range(-5, 6):
                     world_tree[x + pos[0]][y + pos[1]] = 50
 
         world = []
         for grid_x in range(self.grid_length_x):
             world.append([])
             for grid_y in range(self.grid_length_y):
-                world_tile = self.grid_to_world(grid_x, grid_y, world_random, world_tree)
+                world_tile = self.grid_to_world(grid_x, grid_y, world_random, world_tree, world_frame)
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
@@ -284,7 +289,7 @@ class World:
 
         return world
 
-    def grid_to_world(self, grid_x, grid_y, world_random, world_tree):
+    def grid_to_world(self, grid_x, grid_y, world_random, world_tree, world_frame):
         # cube de base (tile)
         rect = [
             (grid_x * TILE_SIZE, grid_y * TILE_SIZE),
@@ -301,17 +306,25 @@ class World:
         if world_tree[grid_x][grid_y] <= 15:
             tile = "tree"
             ressource = 150
+            frame = world_frame[grid_x * self.grid_length_x+grid_y]
         else:
             r = world_random[grid_x][grid_y]
-            if r <= 5:
-                tile = "rock"
+            if r <= 3:
+                tile = "stone"
                 ressource = 250
-            elif r <= 22:
+                frame = world_frame[grid_x * self.grid_length_x+grid_y]
+            elif r <= 20:
                 tile = "buisson"
                 ressource = 75
+                frame = 0
+            elif r <= 23:
+                tile = "gold"
+                ressource = 250
+                frame = world_frame[grid_x * self.grid_length_x + grid_y]
             else:
                 tile = ""
                 ressource = 0
+                frame = 0
 
         if world_tree[grid_x][grid_y] > 85:
             tile = "eau"
@@ -334,6 +347,7 @@ class World:
             "iso_poly": iso_poly,
             "render_pos": [minx, miny],
             "tile": tile,
+            "frame": frame,
             "collision": False if tile == "" else True,
             "ressource": ressource
         }
@@ -382,13 +396,10 @@ class World:
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
         eau = pygame.image.load("assets/eau.png").convert_alpha()
         sable = pygame.image.load("assets/sable.png").convert_alpha()
-        tree = pygame.image.load("assets/hud/tree.png").convert_alpha()
-        buisson = pygame.image.load("assets/hud/buisson.png").convert_alpha()
-        rock = pygame.image.load("assets/hud/rock.png").convert_alpha()
 
-        rock = pygame.transform.scale(rock, (78, 52)).convert_alpha()
-        tree = pygame.transform.scale(tree, (152, 138)).convert_alpha()
-        buisson = pygame.transform.scale(buisson, (88, 62)).convert_alpha()
+        # rock = pygame.transform.scale(rock, (78, 52)).convert_alpha()
+        # tree = pygame.transform.scale(tree, (152, 138)).convert_alpha()
+        # buisson0 = pygame.transform.scale(buisson0, (88, 62)).convert_alpha()
 
         # bâtiments
         caserne = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
@@ -404,9 +415,6 @@ class World:
         gazelle_mort = pygame.image.load("assets/animaux/gazelle_mort.png").convert_alpha()
 
         images = {
-            "tree": tree,
-            "buisson": buisson,
-            "rock": rock,
             "grass": grass,
             "eau": eau,
             "sable": sable,
@@ -422,7 +430,30 @@ class World:
             "gazelle_mort": gazelle_mort,
         }
 
+        for (repertoire, sousRepertoires, fichiers) in walk("assets/ressource"):
+            for nom in fichiers:
+                image = pygame.image.load(repertoire + "/" + nom).convert_alpha()
+                rect = image.get_rect(topleft=(0, 0))
+                images[nom] = self.scale_image(image, h=rect.height*1.8, w=rect.width*1.8)
+
         return images
+
+    def scale_image(self, image, w=None, h=None):
+
+        if (w is None) and (h is None):
+            pass
+        elif h is None:
+            scale = w / image.get_width()
+            h = scale * image.get_height()
+            image = pygame.transform.scale(image, (int(w), int(h)))
+        elif w is None:
+            scale = h / image.get_height()
+            w = scale * image.get_width()
+            image = pygame.transform.scale(image, (int(w), int(h)))
+        else:
+            image = pygame.transform.scale(image, (int(w), int(h)))
+
+        return image
 
     def load_images_unites(self):
         images = {}
@@ -432,7 +463,6 @@ class World:
                 image = pygame.image.load(repertoire+"/" + nom).convert_alpha()
                 image = pygame.transform.scale(image, (76, 67)).convert_alpha()
                 images[nom] = image
-
         return images
 
     def can_place_tile(self, grid_pos):
@@ -538,9 +568,8 @@ class World:
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
-                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x,
-                                                                                                               y) is None and (
-                    x, y) not in pos_visitee:
+                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is \
+                            None and (x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
                         unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
                                           self.buildings, self.animaux, (x, y))
@@ -653,18 +682,40 @@ class World:
                 return a
         return None
 
+    def create_buildings(self) -> list[list[Batiment]]:
+        buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
+
+        for i in range(len(self.pos_hdv)):
+            for x in range(-5, 6):
+                for y in range(-5, 6):
+                    self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["tile"] = ""
+                    self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["collision"] = False
+
+            b = Hdv((self.pos_hdv[i][0], self.pos_hdv[i][1]), self.joueurs[i])
+            self.joueurs[i].hdv_pos = self.pos_hdv[i]
+            buildings[self.pos_hdv[i][0]][self.pos_hdv[i][1]] = b
+            buildings[self.pos_hdv[i][0]-1][self.pos_hdv[i][1]] = b
+            buildings[self.pos_hdv[i][0]][self.pos_hdv[i][1]-1] = b
+            buildings[self.pos_hdv[i][0]-1][self.pos_hdv[i][1]-1] = b
+
+            self.world[self.pos_hdv[i][0]][self.pos_hdv[i][1]]["collision"] = True
+            self.world[self.pos_hdv[i][0]-1][self.pos_hdv[i][1]]["collision"] = True
+            self.world[self.pos_hdv[i][0]][self.pos_hdv[i][1]-1]["collision"] = True
+            self.world[self.pos_hdv[i][0]-1][self.pos_hdv[i][1]-1]["collision"] = True
+
+        return buildings
+
     def create_unites(self) -> list[Unite]:
         unites = []
 
-        unites.append(Clubman((11, 8), self.joueurs[0]))  # ligne pour tester les soldats
-        unites.append(Clubman((12, 15), self.joueurs[1]))  # ligne pour tester les soldats
-        
-        unites.append(Villageois((7, 7), self.joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((8, 11), self.joueurs[0]))  # ligne pour tester les villageois
-        unites.append(Villageois((90, 93), self.joueurs[1]))# ligne pour tester les villageois
-        unites.append(Villageois((92, 93), self.joueurs[1]))
-        unites.append(Villageois((91, 94), self.joueurs[1]))
+        for i in range(len(self.joueurs)):
+            pos = self.joueurs[i].hdv_pos
+            unites.append(Villageois((pos[0] - 3, pos[1] - 3), self.joueurs[i]))
+            unites.append(Villageois((pos[0] - 2, pos[1] + 1), self.joueurs[i]))
+            unites.append(Villageois((pos[0], pos[1] - 3), self.joueurs[i]))
+            unites.append(Clubman((pos[0] + 2, pos[1] + 1), self.joueurs[i]))
 
+        # a enlever quand l'ia sera finis
         unites.append(Clubman((65, 65), self.joueurs[0]))
         unites.append(Clubman((65, 66), self.joueurs[0]))
         unites.append(Clubman((66, 66), self.joueurs[0]))
@@ -672,28 +723,15 @@ class World:
 
         return unites
 
-    def create_buildings(self) -> list[list[Batiment]]:
-        pos_hdv = [(10, 10, 0), (90, 90, 1)] # a remplacer par une faction de calcul
-        buildings = [[None for _ in range(self.grid_length_x)] for _ in range(self.grid_length_y)]
-
-        for pos in pos_hdv:
-            for x in range(-5, 6):
-                for y in range(-5, 6):
-                    self.world[x + pos[0]][y + pos[1]]["tile"] = ""
-                    self.world[x + pos[0]][y + pos[1]]["collision"] = False
-
-            b = Hdv((pos[0], pos[1]), self.joueurs[pos[2]])
-            buildings[pos[0]][pos[0]] = b
-            buildings[pos[0]-1][pos[0]] = b
-            buildings[pos[0]][pos[0]-1] = b
-            buildings[pos[0]-1][pos[0]-1] = b
-
-            self.world[pos[0]][pos[0]]["collision"] = True
-            self.world[pos[0]-1][pos[0]]["collision"] = True
-            self.world[pos[0]][pos[0]-1]["collision"] = True
-            self.world[pos[0]-1][pos[0]-1]["collision"] = True
-
-        return buildings
-
     def collision_pos(self, x, y):
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)
+
+    def create_pos_hdv(self):
+        poss = [[(10, 10), (90, 90)],
+                [(10, 50), (90, 90), (90, 10)],
+                [(10, 10), (10, 90), (90, 90), (90, 10)],
+                [(10, 25), (10, 75), (50, 90), (90, 50), (50, 10)],
+                [(10, 25), (10, 75), (50, 90), (90, 75), (90, 25), (50, 10)],
+                [(10, 50), (25, 90), (75, 90), (90, 75), (90, 25), (75, 10), (25, 10)],
+                [(10, 10), (10, 50), (10, 90), (50, 90), (90, 90), (90, 50), (90, 10), (50, 10)]]
+        return poss[len(self.joueurs) - 2]
