@@ -23,22 +23,14 @@ class Group:
             # bottomleft
             D = (world.mouse_to_grid(selection.rec_coord[0], selection.rec_coord[3], camera.scroll))
 
-            # print(A,B,C,D)
-            # print(self.poly_area(A,B,C))
             if not self.selected and self.poly_area(A, B, C) >= 2:
                 for u in world.unites:
                     if self.is_in_selection(u, A, B, C, D) and (u.joueur.name == "joueur 1"):
                         self.selected.append(u)
-                        world.examined_unites_tile.append(u.pos)
+                        world.examined_unites_tile.append(u)
 
-                # if len(self.selected):
-                    # print(str(len(self.selected)) + " unite(s) selected")
-
-        if pygame.mouse.get_pressed()[2] or pygame.mouse.get_pressed()[0]:  # deselection de toutes les unites
+        if pygame.mouse.get_pressed(3)[2] or pygame.mouse.get_pressed(3)[0]:  # deselection de toutes les unites
             if self.selected:
-                # print(self.selected)
-                # for u in self.selected:
-                    # print(u.pos)
                 self.selected.clear()
 
     def is_in_selection(self, unite, A, B, C, D):

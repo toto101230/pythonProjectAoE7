@@ -8,5 +8,7 @@ class Joueur:
         self.resource_manager = resource_manager
         self.time_recrut = 0
         self.ia = None
-        self.diplomatie = ["neutre" for i in range(nb_joueur)]
+        self.diplomatie = ["neutre" for _ in range(nb_joueur)]
         self.numero = numero
+        self.hdv_pos = ()
+        self.en_vie = True

@@ -4,9 +4,9 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 200,
+            "wood": 2000,
             "food": 200,
-            "gold": 0,
+            "gold": 100,
             "stone": 300
         }
 
@@ -53,6 +53,9 @@ class ResourceManager:
             if cost > self.resources[resource]:
                 affordable = False
         return affordable
+
+    def get_cost(self, name):
+        return self.costs[name]
 
     def popu_isnotmax(self, objet):
         pass
