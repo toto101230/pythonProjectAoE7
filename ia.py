@@ -194,7 +194,7 @@ class Ia:
                 attack = 1
                 self.defense(world, joueur, 1)
 
-            if self.rodeurs[0] and len(self.rodeurs[0]) > 3 and len(self.rodeurs[0]) < 5:
+            if self.rodeurs[0] and len(self.rodeurs[0]) >= 3 and len(self.rodeurs[0]) < 5:
                     self.defense(world, joueur, 0)
 
             if self.rodeurs[0] and len(self.rodeurs[0]) > 5:
