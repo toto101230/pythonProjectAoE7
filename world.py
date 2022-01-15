@@ -755,6 +755,7 @@ class World:
 
     def load(self, seed, game):
         self.seed = seed
+        self.joueurs = game.joueurs
         self.pos_hdv = self.create_pos_hdv()
 
         self.grass_tiles = pygame.Surface(
