@@ -41,22 +41,23 @@ class Game:
         self.selection = Selection()
 
         self.cheat_enabled = False
-        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.cheat_box = None
 
         self.save = Save()
 
     def create_game(self):
         self.chargement(0)
-        self.seed = 9584417
+        self.seed = 0
         self.joueurs = [Joueur(ResourceManager(), "joueur 1", 3, 0), Joueur(ResourceManager(), "joueur 2", 3, 1),
                         Joueur(ResourceManager(), "joueur 3", 3, 2), Joueur(ResourceManager(), "joueur 4", 7, 3),
                         Joueur(ResourceManager(), "joueur 5", 7, 4), Joueur(ResourceManager(), "joueur 6", 7, 5),
                         Joueur(ResourceManager(), "joueur 7", 7, 6)]
         self.resources_manager = self.joueurs[0].resource_manager
-        self.chargement(10)
+        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.chargement(15)
 
         self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
-        self.chargement(30)
+        self.chargement(33)
 
         # les deux premiers int sont longueur et largeur du monde
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
@@ -132,7 +133,9 @@ class Game:
                     self.save.save(self)
                 elif event.key == pygame.K_l:
                     if self.save.hasload():
-                        self.world.world, self.world.buildings, self.world.unites, self.joueurs = self.save.load()
+                        self.seed, self.world.world, self.world.buildings, self.world.unites, self.world.animaux, \
+                            self.joueurs = self.save.load()
+                        self.world.load(self.seed, self)
                         self.resources_manager = self.joueurs[0].resource_manager
                         self.world.examine_tile = None
                         self.hud.examined_tile = None

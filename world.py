@@ -72,18 +72,12 @@ class World:
 
         if self.can_place_tile(grid_pos):
             for unite in self.examined_unites_tile:
-                if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and \
+                        not pygame.key.get_pressed()[pygame.K_LCTRL]:
                     if grid_pos != unite.pos and self.deplace_unite(grid_pos, unite) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         self.examined_unites_tile = []
-
-        #if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
-         #    unite = self.hud.examined_tile
-          #   if self.deplace_unite(grid_pos, unite) != -1:
-          #       self.examine_tile = None
-          #       self.hud.examined_tile = None
-           #      self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
@@ -122,7 +116,8 @@ class World:
         for u in self.unites:
             if u.updatepos(self.world, self.unites) == -1:
                 pos = u.posWork if isinstance(u, Villageois) and u.posWork else u.path[-1]
-                u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
+                u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
+                              self.animaux, pos)
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux)
             u.update_frame()
@@ -148,7 +143,8 @@ class World:
                     a.vie = False
                     a.name += "_mort"
                 else:
-                    a.updatepos(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.unites, self.animaux)
+                    a.updatepos(self.grid_length_x, self.grid_length_y, self.world, self.buildings, self.unites,
+                                self.animaux)
             elif a.ressource <= 0:
                 self.animaux.remove(a)
 
@@ -168,18 +164,21 @@ class World:
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                 render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() - TILE_SIZE) + camera.scroll.y))
+                                 render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() - TILE_SIZE) +
+                                 camera.scroll.y))
                     if self.examine_tile is not None:
                         if (x == self.examine_tile[0]) and (y == self.examine_tile[1]):
                             mask = pygame.mask.from_surface(self.tiles[tile + "_" + frame + ".png"]).outline()
                             mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                     y + render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() - TILE_SIZE) + camera.scroll.y)
+                                     y + render_pos[1] - (self.tiles[tile + "_" + frame + ".png"].get_height() -
+                                                          TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
                 # draw buildings
                 building = self.buildings[x][y]
                 if building is not None:
-                    if building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or building == self.buildings[x][y + 1]:
+                    if building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or \
+                            building == self.buildings[x][y + 1]:
                         continue
                     else:
                         correctifx, correctify = 0, 0
@@ -301,7 +300,8 @@ class World:
                 world[grid_x].append(world_tile)
 
                 render_pos = world_tile["render_pos"]
-                tile = self.tiles["grass"] if world_tile["tile"] != "eau" and world_tile["tile"] != "sable" else self.tiles[world_tile["tile"]]
+                tile = self.tiles["grass"] if world_tile["tile"] != "eau" and world_tile["tile"] != "sable" else \
+                    self.tiles[world_tile["tile"]]
                 self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
 
         return world
@@ -351,7 +351,7 @@ class World:
                     (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 85) or \
                     (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 85) or \
                     (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 85) or \
-                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y -1] > 85) or \
+                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y - 1] > 85) or \
                     (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 85) or \
                     (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 85) or \
                     (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 85):
@@ -705,7 +705,7 @@ class World:
         for i in range(len(self.pos_hdv)):
             for x in range(-5, 6):
                 for y in range(-5, 6):
-                    self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["tile"] = ""
+                    self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["tile"] = "" if self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["tile"] != "sable" else "sable"
                     self.world[x + self.pos_hdv[i][0]][y + self.pos_hdv[i][1]]["collision"] = False
 
             b = Hdv((self.pos_hdv[i][0], self.pos_hdv[i][1]), self.joueurs[i])
@@ -752,3 +752,18 @@ class World:
                 [(10, 50), (25, 90), (75, 90), (90, 75), (90, 25), (75, 10), (25, 10)],
                 [(10, 10), (10, 50), (10, 90), (50, 90), (90, 90), (90, 50), (90, 10), (50, 10)]]
         return poss[len(self.joueurs) - 2]
+
+    def load(self, seed, game):
+        self.seed = seed
+        self.pos_hdv = self.create_pos_hdv()
+
+        self.grass_tiles = pygame.Surface(
+            (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
+        for grid_x in range(self.grid_length_x):
+            for grid_y in range(self.grid_length_y):
+                render_pos = self.world[grid_x][grid_y]["render_pos"]
+                tile = self.tiles["grass"] if self.world[grid_x][grid_y]["tile"] != "eau" and self.world[grid_x][grid_y]["tile"] != "sable" else self.tiles[self.world[grid_x][grid_y]["tile"]]
+                self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
+            if grid_x % 10 == 0:
+                game.chargement(grid_x)
+

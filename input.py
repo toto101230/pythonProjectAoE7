@@ -63,6 +63,7 @@ class InputBox:
                 self.player_rmanage.resources["wood"] += 10000
                 self.player_rmanage.resources["stone"] += 10000
                 self.player_rmanage.resources["food"] += 10000
+                self.player_rmanage.resources["gold"] += 10000
             elif strcmp(message, self.cheatlist[1]):    # bigdaddy
                 pass
             elif strcmp(message, self.cheatlist[2]):    # steroids
