@@ -5,7 +5,7 @@ class ResourceManager:
         # resources
         self.resources = {
             "wood": 2000,
-            "food": 200,
+            "food": 2000,
             "gold": 100,
             "stone": 300
         }

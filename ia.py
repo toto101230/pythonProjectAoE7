@@ -13,6 +13,7 @@ class Ia:
         self.plan_petite_armee = False
         self.plan_defense = False
         self.zone_residentielle = self.create_zone(seed)
+        self.rodeurs = []
 
     def create_zone(self, seed):
         case = []
@@ -84,6 +85,7 @@ class Ia:
         return False
 
     def trouve_rodeur(self, world, joueur):
+        print(self.rodeurs)
         rodeurs_neutres = []
         rodeurs_ennemis = []
         for b in self.batiments:
@@ -104,7 +106,8 @@ class Ia:
                             rodeurs_neutres.append(v.pos)
                         elif joueur.diplomatie[v.joueur.numero] == "ennemi":
                             rodeurs_ennemis.append(v.pos)
-        return rodeurs_neutres, rodeurs_ennemis
+        self.rodeurs = [rodeurs_neutres, rodeurs_ennemis]
+        return
 
     def deplacement_villageois(self, world, joueur, origine, cible):
         villageois = joueur.resource_manager.villageois[origine][0]
@@ -160,7 +163,53 @@ class Ia:
                     self.soldats.append(u)
             return
 
+    def defense(self, world, joueur, numero_rodeurs):
+        count = 0
+        for u in self.soldats:
+            # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
+            if u.cible and u.cible == world.find_unite_pos(self.rodeurs[numero_rodeurs][count // 2][0],
+                                                           self.rodeurs[numero_rodeurs][count // 2][1]):
+                count += 1
+            else:
+                u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
+                              world.buildings, world.animaux, self.rodeurs[numero_rodeurs][count // 2])
+                count += 1
+            if count >= len(self.rodeurs[numero_rodeurs]) * 2:
+                return
+            elif count <= len(self.rodeurs[numero_rodeurs]) * 2 and len(self.soldats) < len(self.rodeurs[numero_rodeurs]) * 2:
+                self.gestion_achat_unite(world, joueur, "clubman")
+                return
+
     def play(self, world, joueur):
+        self.trouve_rodeur(world, joueur)
+        if (self.rodeurs[0] or self.rodeurs[1]) and not self.plan_defense:
+            self.plan_defense = True
+            return
+
+        if self.plan_defense:
+            attack = 0
+            if self.rodeurs[1] and len(self.rodeurs[1]) <= 2:
+                self.defense(world, joueur, 1)
+
+            if self.rodeurs[1] and len(self.rodeurs[1]) > 2:
+                attack = 1
+                self.defense(world, joueur, 1)
+
+            if self.rodeurs[0] and len(self.rodeurs[0]) > 5:
+                attack = 1
+                self.defense(world, joueur, 0)
+
+
+            if attack and (self.nbr_clubman < len(self.rodeurs[0]) * 2 + 10 or self.nbr_clubman < len(self.rodeurs[1]) * 2 + 10):
+                self.gestion_achat_unite(world, joueur, "clubman")
+                attack = 0
+                return
+
+            if not attack:
+                for u in self.soldats:
+                    if not u.cible:
+                        u.cible = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "hdv")
+
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
                 self.gestion_ressource(world, joueur, "buisson")
@@ -195,7 +244,7 @@ class Ia:
             return
 
         if self.plan_petite_armee:
-            if self.nbr_clubman < 5:
+            if self.nbr_clubman < 8:
                 self.gestion_achat_unite(world, joueur, "clubman")
 
             if joueur.resource_manager.resources["food"] < 300 and len(joueur.resource_manager.villageois["food"]) < 5:
@@ -216,7 +265,7 @@ class Ia:
                     return
 
             if joueur.resource_manager.resources["food"] > 300 and joueur.resource_manager.resources["wood"] > 300\
-                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 4:
+                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 7:
                 self.plan_petite_armee = False
 
             return
@@ -224,58 +273,8 @@ class Ia:
         # regardé si les villageois ne font pas trop de trajet
         # regardé toute les 10 secondes pour eviter de trop calculé
 
-        rodeurs = self.trouve_rodeur(world, joueur)
-        if rodeurs[0] or rodeurs[1] and not self.plan_defense:
-            self.plan_defense = True
-            return
 
-        if self.plan_defense:
-            if rodeurs[1] and len(rodeurs[1]) <= 2:
-                count = 0
-                for u in self.soldats:
-                    # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
-                    if u.cible and u.cible == world.find_unite_pos(rodeurs[1][0 if count <= 2 else 1][0], rodeurs[1][0 if count <= 2 else 1][1]):
-                        count += 1
-                    else:
-                        u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
-                                      world.buildings, world.animaux, rodeurs[1][0 if count <= 2 else 1])
-                        count += 1
-                    if count >= len(rodeurs[1])*2:
-                        return
-                    elif count <= len(rodeurs[1]) * 2 and len(self.soldats) < len(rodeurs[1]) * 2:
-                        self.gestion_achat_unite(world, joueur, "clubman")
-                        return
 
-            if rodeurs[1] and len(rodeurs[1]) > 2:
-                count = 0
-                for u in self.soldats:
-                    if u.cible and u.cible == world.find_unite_pos(rodeurs[1][count // 2][0], rodeurs[1][count // 2][1]):
-                        count += 1
-                    else:
-                        u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
-                                      world.buildings, world.animaux, rodeurs[1][count // 2])
-                        count += 1
-
-                    if count >= len(rodeurs[1])*2:
-                        return
-                    elif count <= len(rodeurs[1]) * 2 and len(self.soldats) < len(rodeurs[1]) * 2:
-                        self.gestion_achat_unite(world, joueur, "clubman")
-                        return
-
-                if self.nbr_clubman < len(rodeurs[1]) * 2 + 10:
-                    self.gestion_achat_unite(world, joueur, "clubman")
-                    return
-
-            # sinon lancer l'armée contre toutes unités et recruter en plus d'autre soldats pour faire une armée de resserve
-            #    for u in self.soldats:
-            #        if not u.cible:
-            #            alors attaque
-
-            # neutre
-            # si rodeurs[0] => 3:
-                # alors commencé a attaque les rodeurs (comme la fonction pour les ennemis)
-            # si rodeurs[0] => 5 --> c'est une attaque:
-                # alors lancer l'armée contre toutes unités et recruter en plus d'autre soldats
 
         # plan d'attaque
         # trouver la condition pour le lancer
