@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import tcod
 
+import events
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
 from unite import Unite, Villageois, Clubman, neighbours
@@ -44,6 +45,20 @@ class World:
 
     def update(self, camera):
 
+        for j in self.joueurs:
+            if j.en_vie and not self.buildings[j.hdv_pos[0]][j.hdv_pos[1]]:
+                j.en_vie = False
+                if j.ia:
+                    pygame.time.set_timer(events.ia_events[j.numero], 0)
+                    count = 0
+                    for jia in self.joueurs:
+                        if jia.en_vie:
+                            count += 1
+                    if count <= 1:
+                        pygame.time.set_timer(events.victory, 10, loops=1)
+                else:
+                    pygame.time.set_timer(events.defeat, 10, loops=1)
+
         self.temp_tile = None
 
         mouse_pos = pygame.mouse.get_pos()
@@ -55,13 +70,13 @@ class World:
             self.examined_unites_tile = []
             self.hud.examined_tile = None
 
-        for unite_pos in self.examined_unites_tile:
-            unite = self.find_unite_pos(unite_pos[0], unite_pos[1])
-            if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and not pygame.key.get_pressed()[pygame.K_LCTRL]:
-                if grid_pos != unite.pos and self.deplace_unite(grid_pos, unite) != -1:
-                    self.examine_tile = None
-                    self.hud.examined_tile = None
-                    self.examined_unites_tile = []
+        if self.can_place_tile(grid_pos):
+            for unite in self.examined_unites_tile:
+                if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                    if grid_pos != unite.pos and self.deplace_unite(grid_pos, unite) != -1:
+                        self.examine_tile = None
+                        self.hud.examined_tile = None
+                        self.examined_unites_tile = []
 
         #if mouse_action[0] and isinstance(self.hud.examined_tile, Unite):  # and self.hud.examined_tile.joueur.name == "joueur 1":
          #    unite = self.hud.examined_tile
@@ -85,20 +100,24 @@ class World:
                 if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
+                    self.examined_unites_tile = []
 
                 if mouse_action[0] and building is not None:
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = building
+                    self.examined_unites_tile = []
 
                 # permet de sélectionner une unité
-                if mouse_action[0] and unite is not None and not grid_pos in self.examined_unites_tile:
-                    self.examined_unites_tile.append(grid_pos)
+                if mouse_action[0] and unite is not None and not unite in self.examined_unites_tile:
+                    self.examined_unites_tile.append(unite)
                     self.hud.examined_tile = unite
+                    self.examined_unites_tile = []
 
-            # permet de sélectionner un animal
-            if mouse_action[0] and animal is not None:
-                self.examine_tile = grid_pos
-                self.hud.examined_tile = animal
+                # permet de sélectionner un animal
+                if mouse_action[0] and animal is not None:
+                    self.examine_tile = grid_pos
+                    self.hud.examined_tile = animal
+                    self.examined_unites_tile = []
 
         for u in self.unites:
             if u.updatepos(self.world, self.unites) == -1:
@@ -115,12 +134,14 @@ class World:
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
                     self.hud.examined_tile = None
+            if time() - u.tick_attaque > 0.250:
+                u.attackB = False
 
         if self.hud.unite_recrut is not None:
             self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
             self.hud.unite_recrut = None
 
-        # mise a jour des animaux
+        # mise à jour des animaux
         for a in self.animaux:
             if a.vie:
                 if a.health <= 0:
@@ -209,19 +230,16 @@ class World:
                 if u.attackB:
                     screen.blit(self.tiles["etoile"], (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                                        render_pos[1] - (self.tiles["etoile"].get_height() - TILE_SIZE) + camera.scroll.y))
-                if time() - u.tick_attaque > 0.250:
-                    u.attackB = False
 
                 if self.examined_unites_tile:
                     for uni in self.examined_unites_tile:
-                        if (u.pos[0] == uni[0]) and (u.pos[1] == uni[1]):
+                        if (u.pos[0] == uni.pos[0]) and (u.pos[1] == uni.pos[1]):
                             mask = pygame.mask.from_surface(self.images_unites[image]).outline()
                             mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
                                      y + render_pos[1] - (
                                                  self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
-
 
         # dessine les animaux
         for a in self.animaux:
@@ -265,7 +283,6 @@ class World:
 
         np.random.seed(self.seed)
         world_frame = np.random.randint(0, 6, self.grid_length_x * self.grid_length_y)
-        print(len(world_frame))
 
         noise = tcod.noise.Noise(dimensions=2, seed=self.seed)
         samples = noise[tcod.noise.grid(shape=(self.grid_length_x, self.grid_length_y), scale=0.1, origin=(0, 0))]

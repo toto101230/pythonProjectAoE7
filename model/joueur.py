@@ -11,3 +11,4 @@ class Joueur:
         self.diplomatie = ["neutre" for _ in range(nb_joueur)]
         self.numero = numero
         self.hdv_pos = ()
+        self.en_vie = True

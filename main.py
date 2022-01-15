@@ -21,6 +21,8 @@ def main():
 
         # start menu
 
+        game.create_game()
+
         while playing:
             # game loop
             game.run()

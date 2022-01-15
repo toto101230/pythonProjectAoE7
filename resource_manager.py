@@ -54,5 +54,8 @@ class ResourceManager:
                 affordable = False
         return affordable
 
+    def get_cost(self, name):
+        return self.costs[name]
+
     def popu_isnotmax(self, objet):
         pass

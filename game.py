@@ -1,4 +1,6 @@
 import sys
+import time
+
 import pygame
 
 import events
@@ -21,22 +23,19 @@ class Game:
         self.menu_diplo = False
         self.screen = screen
         self.clock = clock
-        self.seed = 9584417
+        self.seed = 0
+        self.end = 0
         self.width, self.height = self.screen.get_size()
 
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 7, 0), Joueur(ResourceManager(), "joueur 2", 7, 1),
-                        Joueur(ResourceManager(), "joueur 3", 7, 2), Joueur(ResourceManager(), "joueur 4", 7, 3),
-                        Joueur(ResourceManager(), "joueur 5", 7, 4), Joueur(ResourceManager(), "joueur 6", 7, 5),
-                        Joueur(ResourceManager(), "joueur 7", 7, 6)]
+        self.joueurs = []
 
-        self.resources_manager = self.joueurs[0].resource_manager
+        self.resources_manager = None
 
-        self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
+        self.hud = None
 
-        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)  # les deux premiers int sont longueur et largeur du monde
+        self.world = None
 
         self.camera = Camera(self.width, self.height)
-        self.camera.pos_hdv_base(self.joueurs[0].hdv_pos)
 
         self.group = Group()
         self.selection = Selection()
@@ -46,13 +45,44 @@ class Game:
 
         self.save = Save()
 
+    def create_game(self):
+        self.chargement(0)
+        self.seed = 9584417
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 3, 0), Joueur(ResourceManager(), "joueur 2", 3, 1),
+                        Joueur(ResourceManager(), "joueur 3", 3, 2), Joueur(ResourceManager(), "joueur 4", 7, 3),
+                        Joueur(ResourceManager(), "joueur 5", 7, 4), Joueur(ResourceManager(), "joueur 6", 7, 5),
+                        Joueur(ResourceManager(), "joueur 7", 7, 6)]
+        self.resources_manager = self.joueurs[0].resource_manager
+        self.chargement(10)
+
+        self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
+        self.chargement(30)
+
+        # les deux premiers int sont longueur et largeur du monde
+        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
+        self.chargement(80)
+
+        self.camera.to_pos(self.joueurs[0].hdv_pos)
         self.lancement_ia()
+        self.chargement(100)
+
+    def chargement(self, pourcentage):
+        self.screen.fill((0, 0, 0))
+        pygame.draw.rect(self.screen, (255, 255, 255),
+                         pygame.Rect(self.width / 2 - 150, self.height - 150, 300, 50))
+        pygame.draw.rect(self.screen, (0, 0, 0),
+                         pygame.Rect(self.width / 2 - 145, self.height - 145, pourcentage * 290 / 100, 40))
+
+        draw_text(self.screen, "Chargement :", 25, (255, 255, 255), (self.width / 2 - 50, self.height - 200))
+        draw_text(self.screen, "{}%".format(pourcentage), 25, (255, 0, 0), (self.width / 2 - 5, self.height - 130))
+        pygame.display.flip()
+        time.sleep(0.1)
 
     def lancement_ia(self):
         for i in range(1, len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
             self.joueurs[i].ia = Ia(self.world.seed, pos)
-            pygame.time.set_timer(events.ia_events[i], 500)
+            # pygame.time.set_timer(events.ia_events[i], 500)
 
             self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 
@@ -66,18 +96,30 @@ class Game:
         while self.menu_diplo:
             self.clock.tick(600)
             self.events()
-            self.hud.update(self.joueurs)
+            self.hud.update(self.joueurs, None, None)
             self.cheat_box.update()
             self.draw()
             if not self.hud.diplo_actif:
                 self.playing = True
                 self.menu_diplo = False
 
+        while self.end:
+            self.clock.tick(60)
+            self.events()
+            self.hud.end(self.end, self.screen)
+
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == events.victory:
+                self.end = 1
+                self.playing = False
+            if event.type == events.defeat:
+                self.end = 2
+                self.playing = False
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -108,9 +150,9 @@ class Game:
             self.menu_diplo = True
 
     def update(self):
-        self.camera.update()
-        self.hud.update(None)
         self.world.update(self.camera)
+        self.camera.update()
+        self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)

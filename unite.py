@@ -418,8 +418,10 @@ class Villageois(Unite):
             self.joueur.resource_manager.villageois["wood"].remove(self)
         elif self.work == "forager":
             self.joueur.resource_manager.villageois["food"].remove(self)
-        elif self.work == "miner":
+        elif self.work == "miner_carry_stone":
             self.joueur.resource_manager.villageois["stone"].remove(self)
+        elif self.work == "miner_carry_gold":
+            self.joueur.resource_manager.villageois["gold"].remove(self)
         elif self.work == "default" and self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].remove(self)
 
@@ -433,10 +435,14 @@ class Villageois(Unite):
             self.stockage = 0
             self.joueur.resource_manager.villageois["food"].append(self)
             self.work = "forager"
-        elif tile == "rock":
+        elif tile == "stone":
             self.stockage = 0
             self.joueur.resource_manager.villageois["stone"].append(self)
-            self.work = "miner"
+            self.work = "miner_carry_stone"
+        elif tile == "gold":
+            self.stockage = 0
+            self.joueur.resource_manager.villageois["gold"].append(self)
+            self.work = "miner_carry_gold"
         elif tile == "animal":
             self.stockage = 0
             self.work = "hunter"
@@ -516,8 +522,10 @@ class Villageois(Unite):
                         self.joueur.resource_manager.resources["wood"] += round(self.stockage)
                     elif self.work == "forager":
                         self.joueur.resource_manager.resources["food"] += round(self.stockage)
-                    elif self.work == "miner":
+                    elif self.work == "miner_carry_stone":
                         self.joueur.resource_manager.resources["stone"] += round(self.stockage)
+                    elif self.work == "miner_carry_gold":
+                        self.joueur.resource_manager.resources["gold"] += round(self.stockage)
                     elif self.work == "hunter":
                         self.joueur.resource_manager.resources["food"] += round(self.stockage)
                 self.stockage = 0
@@ -585,9 +593,10 @@ class Villageois(Unite):
         return False
 
     def is_good_work(self, tile):
-        return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") \
-               or (tile == "rock" and self.work == "miner") or (tile == "animal" and self.work == "hunter") or \
-               (tile == "batiment" and self.work == "builder")
+        return (tile == "tree" and self.work == "lumber") or (tile == "buisson" and self.work == "forager") or \
+               (tile == "stone" and self.work == "miner_carry_stone") or \
+               (tile == "gold" and self.work == "miner_carry_gold") or \
+               (tile == "animal" and self.work == "hunter") or (tile == "batiment" and self.work == "builder")
 
     def find_closer_ressource(self, grid_length_x, grid_length_y, world, pos_start, animaux, buildings):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
@@ -604,7 +613,6 @@ class Villageois(Unite):
 
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
-
 
                 if buildings[x][y] and buildings[x][y].joueur == self.joueur and not buildings[x][y].construit and \
                         self.is_good_work("batiment"):
