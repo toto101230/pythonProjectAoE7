@@ -85,7 +85,6 @@ class Ia:
         return False
 
     def trouve_rodeur(self, world, joueur):
-        print(self.rodeurs)
         rodeurs_neutres = []
         rodeurs_ennemis = []
         for b in self.batiments:
@@ -195,15 +194,18 @@ class Ia:
                 attack = 1
                 self.defense(world, joueur, 1)
 
+            if self.rodeurs[0] and len(self.rodeurs[0]) > 3 and len(self.rodeurs[0]) < 5:
+                    self.defense(world, joueur, 0)
+
             if self.rodeurs[0] and len(self.rodeurs[0]) > 5:
                 attack = 1
                 self.defense(world, joueur, 0)
 
-
             if attack and (self.nbr_clubman < len(self.rodeurs[0]) * 2 + 10 or self.nbr_clubman < len(self.rodeurs[1]) * 2 + 10):
                 self.gestion_achat_unite(world, joueur, "clubman")
-                attack = 0
                 return
+            else:
+                attack = 0
 
             if not attack:
                 for u in self.soldats:
