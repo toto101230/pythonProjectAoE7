@@ -42,9 +42,9 @@ class Ia:
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
 
-                if nom_batiment == "house":
+                if nom_batiment == "house" or nom_batiment == "clubman":
                     if world.world[x][y]["tile"] == "" and world.buildings[x][y] is None and not \
-                            self.pos_interdites(x, y, "house", world):
+                            self.pos_interdites(x, y, nom_batiment, world):
                         return x, y
 
                 if nom_batiment == "caserne" or nom_batiment == "grenier" and (0 <= x + 1 < grid_length_x and
@@ -75,7 +75,7 @@ class Ia:
         if (x, y) in pos_interdit:
             return True
 
-        if nom_batiment != "house" and ((x + 1, y) in pos_interdit or (x, y + 1) in pos_interdit or (x + 1, y + 1)
+        if (nom_batiment != "house" or nom_batiment != "clubman") and ((x + 1, y) in pos_interdit or (x, y + 1) in pos_interdit or (x + 1, y + 1)
                                         in pos_interdit):
             return True
 
@@ -210,7 +210,7 @@ class Ia:
             if not attack:
                 for u in self.soldats:
                     if not u.cible:
-                        u.cible = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "hdv")
+                        u.cible = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "clubman")
 
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
