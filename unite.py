@@ -248,10 +248,11 @@ class Unite(metaclass=ABCMeta):
                 while path:
                     pos_current = path.pop(0)
                     x, y = pos_current
-                    if not (x > (len(world) - 1) or x < 0 or y > (len(world[len(world) - 1]) - 1) or y < 0) and \
-                            not (world[x][y]["tile"] != "") and not (buildings[x][y] is not None) and \
-                            not (self.find_unite_pos(x, y, unites) and self.find_unite_pos(x, y, unites) != self) and \
-                            not (self.find_animal_pos(x, y, animaux)):
+                    if len(world) > x > 0 and len(world[0]) > y > 0 and (world[x][y]["tile"] == "" or
+                                                                         world[x][y]["tile"] == "sable") and \
+                            buildings[x][y] is None and (self.find_unite_pos(x, y, unites) is None or
+                                                         self.find_unite_pos(x, y, unites) == self) and \
+                            self.find_animal_pos(x, y, animaux) is None:
                         return pos_current
                     ns = []
                     x = -1 if self.pos[0] < pos_current[0] else (1 if self.pos[0] > pos_current[0] else 0)
@@ -277,7 +278,7 @@ class Unite(metaclass=ABCMeta):
                             xy1 = neighbours[index - 1]
                             xy2 = neighbours[(index + 1) % len(neighbours)]
 
-                        ns.append((x,  y))
+                        ns.append((x, y))
                         ns.append((xy1[0], xy1[1]))
                         ns.append((xy2[0], xy2[1]))
                     for new_position in ns:
@@ -285,7 +286,7 @@ class Unite(metaclass=ABCMeta):
                         if x > (len(world) - 1) or x < 0 or y > (len(world[0]) - 1) or y < 0:
                             continue
 
-                        if world[x][y]["tile"] != "" and world[x][y]["tile"] != "eau":
+                        if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable":
                             continue
 
                         if buildings[x][y] is not None:
