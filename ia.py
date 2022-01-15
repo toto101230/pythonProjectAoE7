@@ -210,7 +210,7 @@ class Ia:
             if not attack:
                 for u in self.soldats:
                     if not u.cible:
-                        u.cible = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "clubman")
+                        u.pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "clubman")
 
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
