@@ -105,7 +105,7 @@ class World:
                 if mouse_action[0] and unite is not None and not unite in self.examined_unites_tile:
                     self.examined_unites_tile.append(unite)
                     self.hud.examined_tile = unite
-                    self.examined_unites_tile = []
+                    self.examine_tile = None
 
                 # permet de sélectionner un animal
                 if mouse_action[0] and animal is not None:
