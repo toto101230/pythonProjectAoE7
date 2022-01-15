@@ -96,15 +96,15 @@ class Ia:
                         continue
                     u = world.find_unite_pos(b.pos[0]+x, b.pos[0]+y)
                     if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie":
-                        if joueur.diplomatie[u.joueur.numero] == "neutre":
+                        if joueur.diplomatie[u.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(u.pos)
-                        elif joueur.diplomatie[u.joueur.numero] == "ennemi":
+                        elif joueur.diplomatie[u.joueur.numero] == "ennemi" and u.pos not in rodeurs_ennemis:
                             rodeurs_ennemis.append(u.pos)
                     v = world.buildings[b.pos[0]+x][b.pos[1]+y]
                     if v and v.joueur != joueur and joueur.diplomatie[v.joueur.numero] != "allie":
-                        if joueur.diplomatie[v.joueur.numero] == "neutre":
+                        if joueur.diplomatie[v.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(v.pos)
-                        elif joueur.diplomatie[v.joueur.numero] == "ennemi":
+                        elif joueur.diplomatie[v.joueur.numero] == "ennemi" and u.pos not in rodeurs_ennemis:
                             rodeurs_ennemis.append(v.pos)
         self.rodeurs = [rodeurs_neutres, rodeurs_ennemis]
         return

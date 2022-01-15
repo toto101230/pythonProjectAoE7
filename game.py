@@ -62,6 +62,7 @@ class Game:
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
         self.lancement_ia()
+        self.world.create_unites()
         self.chargement(100)
 
     def chargement(self, pourcentage):

@@ -35,7 +35,7 @@ class World:
 
         self.buildings = self.create_buildings()
 
-        self.unites = self.create_unites()
+        self.unites = []
 
         self.animaux = []  # self.create_animaux()
 
@@ -722,23 +722,23 @@ class World:
 
         return buildings
 
-    def create_unites(self) -> list[Unite]:
-        unites = []
-
+    def create_unites(self):
         for i in range(len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
-            unites.append(Villageois((pos[0] - 3, pos[1] - 3), self.joueurs[i]))
-            unites.append(Villageois((pos[0] - 2, pos[1] + 1), self.joueurs[i]))
-            unites.append(Villageois((pos[0], pos[1] - 3), self.joueurs[i]))
-            unites.append(Clubman((pos[0] + 2, pos[1] + 1), self.joueurs[i]))
+            self.unites.append(Villageois((pos[0] - 3, pos[1] - 3), self.joueurs[i]))
+            self.unites.append(Villageois((pos[0] - 2, pos[1] + 1), self.joueurs[i]))
+            self.unites.append(Villageois((pos[0], pos[1] - 3), self.joueurs[i]))
+            c = Clubman((pos[0] + 2, pos[1] + 1), self.joueurs[i])
+            self.unites.append(c)
+            if self.joueurs[i].ia:
+                self.joueurs[i].ia.nbr_clubman += 1
+                self.joueurs[i].ia.soldats.append(c)
 
         # a enlever quand l'ia sera finis
-        unites.append(Clubman((65, 65), self.joueurs[0]))
-        unites.append(Clubman((65, 66), self.joueurs[0]))
-        unites.append(Clubman((66, 66), self.joueurs[0]))
-        unites.append(Clubman((66, 65), self.joueurs[0]))
-
-        return unites
+        self.unites.append(Clubman((65, 65), self.joueurs[0]))
+        self.unites.append(Clubman((65, 66), self.joueurs[0]))
+        self.unites.append(Clubman((66, 66), self.joueurs[0]))
+        self.unites.append(Clubman((66, 65), self.joueurs[0]))
 
     def collision_pos(self, x, y):
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)
