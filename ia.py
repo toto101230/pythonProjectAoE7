@@ -186,6 +186,15 @@ class Ia:
             return
 
         if self.plan_defense:
+            caserne = 0
+            for b in self.batiments:
+                if b.name == "caserne":
+                    caserne = 1
+
+            if not caserne:
+                self.gestion_construction_batiment(world, joueur, "caserne", self.pos_hdv)
+                return
+
             attack = 0
             if self.rodeurs[1] and len(self.rodeurs[1]) <= 2:
                 self.defense(world, joueur, 1)
@@ -209,8 +218,14 @@ class Ia:
 
             if not attack:
                 for u in self.soldats:
+                    pos_caserne = ()
+                    for b in self.batiments:
+                        if b.name == "caserne":
+                            pos_caserne = b.pos
                     if not u.cible:
-                        u.pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, u.pos, "clubman")
+                        x, y = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
+                        world.deplace_unite((x, y), u)
+
 
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:

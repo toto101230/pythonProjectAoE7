@@ -72,8 +72,8 @@ class World:
 
         if self.can_place_tile(grid_pos):
             for unite in self.examined_unites_tile:
-                if mouse_action[0] and isinstance(unite, Unite) and unite.joueur.name == "joueur 1" and \
-                        not pygame.key.get_pressed()[pygame.K_LCTRL]:
+                if mouse_action[0] and isinstance(unite, Unite) and not pygame.key.get_pressed()[pygame.K_LCTRL] and \
+                        unite.joueur.name == "joueur 1":
                     if grid_pos != unite.pos and self.deplace_unite(grid_pos, unite) != -1:
                         self.examine_tile = None
                         self.hud.examined_tile = None
@@ -125,6 +125,10 @@ class World:
                 u.attaque(self.unites, self.buildings, self.grid_length_x, self.grid_length_y, self.world, self.animaux)
             if u.health <= 0:
                 self.unites.remove(u)
+                if u.joueur.ia and isinstance(u, Clubman):
+                    u.joueur.ia.soldats.remove(u)
+                    u.joueur.ia.nbr_clubman -= 1
+
                 u.joueur.resource_manager.population["population_actuelle"] -= 1
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
