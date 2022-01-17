@@ -128,7 +128,8 @@ class World:
                 if u.joueur.ia and isinstance(u, Clubman):
                     u.joueur.ia.soldats.remove(u)
                     u.joueur.ia.nbr_clubman -= 1
-
+                if isinstance(u, Villageois):
+                    u.villageois_remove()
                 u.joueur.resource_manager.population["population_actuelle"] -= 1
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
