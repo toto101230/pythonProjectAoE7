@@ -48,10 +48,7 @@ class Game:
     def create_game(self):
         self.chargement(0)
         self.seed = 0
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 7, 0), Joueur(ResourceManager(), "joueur 2", 7, 1),
-                        Joueur(ResourceManager(), "joueur 3", 7, 2), Joueur(ResourceManager(), "joueur 4", 7, 3),
-                        Joueur(ResourceManager(), "joueur 5", 7, 4), Joueur(ResourceManager(), "joueur 6", 7, 5),
-                        Joueur(ResourceManager(), "joueur 7", 7, 6)]
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.chargement(15)
@@ -65,6 +62,7 @@ class Game:
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
         self.lancement_ia()
+        self.world.create_unites()
         self.chargement(100)
 
     def chargement(self, pourcentage):
@@ -83,7 +81,7 @@ class Game:
         for i in range(1, len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
             self.joueurs[i].ia = Ia(self.world.seed, pos)
-            # pygame.time.set_timer(events.ia_events[i], 500)
+            pygame.time.set_timer(events.ia_events[i], 500)
 
             self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 
