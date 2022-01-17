@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import tcod
 
+import unite
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier
 from unite import Unite, Villageois, Clubman, neighbours
@@ -511,7 +512,7 @@ class World:
                 self.unites.append(Villageois(pos_ini, joueur))
             if nom_unite == "clubman":
                 self.unites.append(Clubman(pos_ini, joueur))
-                print("toto")
+
 
             joueur.time_recrut = time()
 
@@ -525,10 +526,18 @@ class World:
             joueur.resource_manager.resources["wood"] -= 500
             joueur.resource_manager.resources["stone"] -= 500
             joueur.age = Feodal(joueur)
+
             for u in self.unites:
                 if isinstance(u, Villageois):
                     u.health = 30
                     u.attack = 4
+                if isinstance(u, Clubman):
+                    u.health = 50
+                    u.attack = 7
+            for b in self.buildings:
+                if isinstance(b, Caserne):
+                    b.health = 100
+            #self.hud.images["house"] = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
 
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):
@@ -540,3 +549,6 @@ class World:
                 if isinstance(u, Villageois):
                     u.health = 35
                     u.attack = 5
+                if isinstance(u, Clubman):
+                    u.health = 60
+                    u.attack = 9

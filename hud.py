@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame.image
 
+import buildings
 from unite import Villageois
 from unite import Unite
 from buildings import Batiment
@@ -37,7 +38,7 @@ class Hud:
         # self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
-        self.images = self.load_images()
+        self.images = buildings.Batiment.load_images(self)
         self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
         self.tiles = self.create_build_hud()
@@ -192,19 +193,7 @@ class Hud:
         txt_units = str(self.resource_manager.population["population_actuelle"]) + "/" + str(self.resource_manager.population["population_maximale"])
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
 
-    def load_images(self):
 
-        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
-        house = pg.image.load("assets/batiments/house.png").convert_alpha()
-        grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
-
-        images = {
-            "caserne": caserne,
-            "house": house,
-            "grenier": grenier
-        }
-
-        return images
 
     def load_images_examined(self):
         caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()

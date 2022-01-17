@@ -21,12 +21,14 @@ class Node:
 
 class Unite(metaclass=ABCMeta):
 
-    def __init__(self, nom, pos, health, speed, attack, range_attack, vitesse_attack, taille_prise, joueur: Joueur):
+    def __init__(self, nom, pos, spawn_health, speed, spawn_attack, range_attack, vitesse_attack, taille_prise, joueur: Joueur):
         self.frameNumber = 0
         self.taille_prise = taille_prise
         self.name = nom
         self.pos = pos
-        self.health = health
+        self.spawn_attack = spawn_attack
+        self.spawn_health = spawn_health
+        self.health = spawn_health
         self.speed = speed
         self.xpixel, self.ypixel = 0, 0
         self.path = []
@@ -35,7 +37,7 @@ class Unite(metaclass=ABCMeta):
         self.resource_manager = self.joueur.resource_manager
         self.resource_manager.apply_cost_to_resource(self.name)
         self.resource_manager.update_population(self.taille_prise)
-        self.attack = attack
+        self.attack = spawn_attack
         self.range_attack = range_attack
         self.vitesse_attack = vitesse_attack
         self.tick_attaque = -1
@@ -226,7 +228,16 @@ class Unite(metaclass=ABCMeta):
 class Villageois(Unite):
 
     def __init__(self, pos, joueur):
-        super().__init__("villageois", pos, 25, 1.1, 3, 1, 1.5, 1, joueur)
+        if joueur.age.name == "sombre":
+            self.spawn_health = 25
+            self.spawn_attack = 3
+        elif joueur.age.name == "feodal":
+            self.spawn_health = 30
+            self.spawn_attack = 4
+        elif joueur.age.name == "castle":
+            self.spawn_health = 35
+            self.spawn_attack = 5
+        super().__init__("villageois", pos, self.spawn_health, 1.1, self.spawn_attack, 1, 1.5, 1, joueur)
         self.time_recup_ressource = -1
         self.work = "default"
         self.stockage = 0
@@ -397,4 +408,13 @@ class Villageois(Unite):
 
 class Clubman(Unite):
     def __init__(self, pos, joueur):
-        super().__init__("clubman", pos, 40, 1.2, 3, 1, 1.5, 1, joueur)
+        if joueur.age.name == "sombre":
+            self.spawn_health = 40
+            self.spawn_attack = 5
+        elif joueur.age.name == "feodal":
+            self.spawn_health = 50
+            self.spawn_attack = 7
+        elif joueur.age.name == "castle":
+            self.spawn_health = 60
+            self.spawn_attack = 9
+        super().__init__("clubman", pos, self.spawn_health, 1.2, self.spawn_attack, 1, 1.5, 1, joueur)
