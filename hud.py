@@ -117,17 +117,21 @@ class Hud:
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
-            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.can_press and \
-                    not self.villageois_bouton.is_press:
+            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.can_press and not self.villageois_bouton.is_press:
                 if mouse_action[0]:
                     self.unite_recrut = self.villageois_bouton.text[:-7]
                     self.villageois_bouton.is_press = True
 
-            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.can_press and \
-                    not self.clubman_bouton.is_press:
+
+            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.can_press and not self.clubman_bouton.is_press:
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
                     self.clubman_bouton.is_press = True
+
+            if self.villageois_bouton.is_press and not mouse_action[0]:
+                self.villageois_bouton.is_press = False
+            if self.clubman_bouton.is_press and not mouse_action[0]:
+                self.clubman_bouton.is_press = False
 
             if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press:
                 if mouse_action[0]:
@@ -164,10 +168,8 @@ class Hud:
                 if mouse_action[0]:
                     self.selected_tile = tile
 
-        if self.villageois_bouton.is_press and not mouse_action[0]:
-            self.villageois_bouton.is_press = False
-        if self.clubman_bouton.is_press and not mouse_action[0]:
-            self.clubman_bouton.is_press = False
+
+
         if camera:
             for i in range(5):
                 if mouse_action[0] and self.tp_villageois[i].is_over(mouse_pos) and \
@@ -259,17 +261,21 @@ class Hud:
                               (self.hud_info_rect.center[0], self.hud_info_rect.center[1]+20))
 
                 if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
+                    self.clubman_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.villageois_bouton.draw(screen)
-                        self.villageois_bouton.canPress = True
+                        self.villageois_bouton.can_press = True
+
                     if self.examined_tile.joueur.age.name == "sombre": #and self.examined_tile.joueur.age.can_pass_age():
                         self.age_feodal_bouton.draw(screen)
                     if self.examined_tile.joueur.age.name == "feodal":
                         self.age_castel_bouton.draw(screen)
                 if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
+                    self.villageois_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.clubman_bouton.draw(screen)
-                        self.clubman_bouton.canPress = True
+                        self.clubman_bouton.can_press = True
+
 
             else:
                 img = self.images_terre[self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
