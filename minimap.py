@@ -112,19 +112,21 @@ class Minimap:
         lineCoords = []
         for coord in [self.camera.viewArea.topleft, self.camera.viewArea.topright, self.camera.viewArea.bottomright, self.camera.viewArea.bottomleft]:
             lineCoords.append(self.mmap_to_pos(coord))
-        print(lineCoords)
+        #print(lineCoords)
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
 
     def handle_event(self,event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.crop.get_rect(topleft=self.rect.topleft).collidepoint(event.pos):
+            if self.intermediate.get_rect(topleft=self.rect.topleft).collidepoint(event.pos):
                 self.mpos = pygame.mouse.get_pos()
-                if self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
-                    if self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
-                        if self.crop.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != 0: # empecher de cliquer sur le fond noir autour minimap
+                if self.mpos[0]-self.intermediate.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
+                    if self.mpos[1]-self.intermediate.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
+                        if self.intermediate.get_at_mapped((self.mpos[0]-self.crop.get_rect(topleft=self.rect.topleft).x,self.mpos[1]-self.crop.get_rect(topleft=self.rect.topleft).y)) != 0: # empecher de cliquer sur le fond noir autour minimap
                             #pygame.mouse.set_pos(1920/2,1080/2)
-                            test = self.mmap_to_pos((self.mpos[0],self.mpos[1]))
-                            print(test)
+                            x = int((self.mpos[0]-self.intermediate.get_rect(topleft=self.rect.topleft).x)//(2*math.sqrt(2)))
+                            y = int((self.mpos[1]-self.intermediate.get_rect(topleft=self.rect.topleft).y)//(2*math.sqrt(2)))
+                            print(str(x) + ":" + str(y))
+
 
 
 
