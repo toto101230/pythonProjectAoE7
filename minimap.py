@@ -76,16 +76,18 @@ class Minimap:
             if case == "":
                 colour = GRASSTEST
                 #continue
-            elif case == "rock":
+            elif case == "stone":
                 colour = DARKGREY
+            elif case == "gold":
+                colour = YELLOW
             elif case == "tree":
                 colour = GREEN
             elif case == "buisson":
                 colour = CREAM
-            #elif case == "sable":
-            #   colour = SANDYELLOW
-            #elif case == "eau":
-            #   colour = OCEANBLUE
+            elif case == "sable":
+              colour = SANDYELLOW
+            elif case == "eau":
+              colour = OCEANBLUE
             else:
                 colour = WHITE
             self.newSurf.fill(colour, (self.row, y, 1, 1))
