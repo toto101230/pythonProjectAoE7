@@ -4,16 +4,24 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 13300,
-            "food": 5000,
-            "gold": 0,
-            "stone": 5000
+            "wood": 300,
+            "food": 300,
+            "gold": 100,
+            "stone": 300
         }
 
         # population
         self.population = {
             "population_actuelle": 0,
             "population_maximale": 0
+        }
+
+        self.villageois = {
+            "food": [],
+            "wood": [],
+            "stone": [],
+            "gold": [],
+            "rien": []
         }
 
         # costs
@@ -47,6 +55,9 @@ class ResourceManager:
             if cost > self.resources[resource]:
                 affordable = False
         return affordable
+
+    def get_cost(self, name):
+        return self.costs[name]
 
     def popu_isnotmax(self, objet):
         pass
