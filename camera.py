@@ -9,11 +9,12 @@ class Camera:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-
+        self.viewArea = pygame.Rect((0, 0), (self.width, self.height))
         self.scroll = pygame.Vector2(0, 0)
+        self.bscroll = pygame.Vector2(0, 0)
         self.dx = 0
         self.dy = 0
-        self.speed = 20
+        self.speed = 30
 
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False
 
@@ -28,6 +29,9 @@ class Camera:
 
         self.scroll.x = -(world_x + 100 * TILE_SIZE)
         self.scroll.y = -world_y
+        
+        self.bscroll.x = -(world_x + 100 * TILE_SIZE)
+        self.bscroll.y = -world_y
 
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -48,6 +52,13 @@ class Camera:
 
         self.scroll.x += self.dx
         self.scroll.y += self.dy
+
+        #MINIMAP
+        self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
+        self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
+
+        self.viewArea = pygame.Rect((-self.bscroll.x-6500,-self.bscroll.y+200),(int(self.width*1.16),int(self.height)))
+        #
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:

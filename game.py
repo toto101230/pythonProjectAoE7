@@ -10,6 +10,7 @@ from camera import Camera
 from hud import Hud
 from resource_manager import ResourceManager
 from input import InputBox
+from minimap import Minimap
 from group import Group
 from selection import Selection
 from save import Save
@@ -37,6 +38,8 @@ class Game:
 
         self.camera = Camera(self.width, self.height)
 
+        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
+        
         self.group = Group()
         self.selection = Selection()
 
@@ -146,6 +149,8 @@ class Game:
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
+            self.minimap.handle_event(event)
+            
         if self.hud.diplo_actif:
             self.playing = False
             self.menu_diplo = True
@@ -155,6 +160,7 @@ class Game:
         self.camera.update()
         self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
+        self.minimap.update()
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)
 
@@ -163,6 +169,7 @@ class Game:
         self.world.draw(self.screen, self.camera)
         self.hud.draw(self.screen, self.joueurs)
         self.cheat_box.draw(self.screen)
+        self.minimap.draw(self.screen)
         if pygame.mouse.get_pressed(3)[0] and pygame.key.get_pressed()[pygame.K_LCTRL]:
             self.selection.draw(self.screen)
 
