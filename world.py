@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import tcod
 
+import unite
 import events
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
@@ -9,6 +10,8 @@ from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
 from os import walk
+from age import *
+
 from model.animal import Gazelle, Animal
 
 iso = lambda x, y: ((x - y), ((x + y) / 2))
@@ -26,6 +29,10 @@ class World:
         print(self.seed)
         self.joueurs = joueurs
         self.pos_hdv = self.create_pos_hdv()
+
+
+
+
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -60,10 +67,10 @@ class World:
                     pygame.time.set_timer(events.defeat, 10, loops=1)
 
         self.temp_tile = None
-
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed(3)
         grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
+
 
         if mouse_action[2]:
             self.examine_tile = None
@@ -140,6 +147,11 @@ class World:
         if self.hud.unite_recrut is not None:
             self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
             self.hud.unite_recrut = None
+
+        if self.hud.action_age == "feodal":
+            self.pass_feodal(self.joueurs[0])
+        if self.hud.action_age == "castle":
+            self.pass_castle(self.joueurs[0])
 
         # mise à jour des animaux
         for a in self.animaux:
@@ -630,7 +642,6 @@ class World:
                         if u is None:
                             joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
                             return
-                        u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, last)
 
             if nom_unite == "villageois":
                 u = Villageois(pos_ini, joueur)
@@ -646,7 +657,38 @@ class World:
         return u
 
     def deplace_unite(self, pos, unite):
-        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
+        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
+
+    def pass_feodal(self,joueur):
+        if joueur.resource_manager.is_affordable("sombre"):
+            joueur.resource_manager.resources["food"] -= 500
+            joueur.resource_manager.resources["wood"] -= 500
+            joueur.resource_manager.resources["stone"] -= 500
+            joueur.age = Feodal(joueur)
+
+            for u in self.unites:
+                if isinstance(u, Villageois):
+                    u.health = 30
+                    u.attack = 4
+                if isinstance(u, Clubman):
+                    u.health = 50
+                    u.attack = 7
+
+
+
+    def pass_castle(self, joueur):
+        if joueur.resource_manager.is_affordable("feodal"):
+            joueur.resource_manager.resources["food"] -= 800
+            joueur.resource_manager.resources["wood"] -= 800
+            joueur.resource_manager.resources["stone"] -= 800
+            joueur.age = Castle(joueur)
+            for u in self.unites:
+                if isinstance(u, Villageois):
+                    u.health = 35
+                    u.attack = 5
+                if isinstance(u, Clubman):
+                    u.health = 60
+                    u.attack = 9
 
     def create_animaux(self) -> list[Animal]:
         animaux = []
@@ -772,4 +814,3 @@ class World:
                 self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
             if grid_x % 10 == 0:
                 game.chargement(grid_x)
-

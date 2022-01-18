@@ -12,7 +12,7 @@ from buildings import Batiment
 from model.animal import Animal
 from utils import draw_text
 from bouton import Button
-
+import age
 
 class Hud:
 
@@ -22,7 +22,6 @@ class Hud:
 
         self.width = width
         self.height = height
-
         self.hud_colour = (198, 155, 93, 175)
 
         self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
@@ -56,9 +55,10 @@ class Hud:
                                            self.height / 2 - self.diplo_surface.get_height() / 2 - 50 + 25 + 75 + 100 * i, 'Ennemi')] for i in range(nb_joueur)]
 
         self.images = self.load_images()
+        self.tiles = self.create_build_hud()
         self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
-        self.tiles = self.create_build_hud()
+
 
         self.tp_villageois = [Button(None, self.hud_haut.get_width()//5.8 * (i+1) - 80, 7, 'inv') for i in range(5)]
         self.tp_villageois[4].x += 110
@@ -66,8 +66,14 @@ class Hud:
         self.selected_tile = None
         self.examined_tile = None
         self.unite_recrut = None
+        self.action_age = None
+        self.can_pass_age = None
 
-        self.unite_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
+        self.villageois_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'villageois_recrut')
+        self.age_feodal_bouton = Button((0, 255, 0), self.width - 500, self.height - 100, 'age_feodal')
+        self.age_castel_bouton = Button((0, 255, 0), self.width - 500, self.height - 150, 'age_castle')
+        self.clubman_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'clubman_recrut')
+
 
         self.diplo_bouton = Button(None, self.hud_haut.get_width() + 30, 10, 'diplomatie')
 
@@ -107,12 +113,38 @@ class Hud:
 
         return tiles
 
-    def update(self, joueurs: list[Joueur], camera: Camera, world):
+    def update(self, joueurs: list[Joueur], camera: Camera, world):v
+
+
 
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
+            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.canPress and not self.villageois_bouton.isPress:
+                if mouse_action[0]:
+                    self.unite_recrut = self.villageois_bouton.text[:-7]
+                    self.villageois_bouton.isPress = True
+
+
+            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.canPress and not self.clubman_bouton.isPress:
+                if mouse_action[0]:
+                    self.unite_recrut = self.clubman_bouton.text[:-7]
+                    self.clubman_bouton.isPress = True
+
+
+
+            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.isPress:
+                if mouse_action[0]:
+                    self.action_age = "feodal"
+                    self.age_feodal_bouton.isPress = True
+            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.isPress:
+                if mouse_action[0]:
+                    self.action_age = "castle"
+                    self.age_castel_bouton.isPress = True
+            else:
+                self.action_age = None
+
             if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.is_press:
                 self.unite_bouton.color = '#FFFB00'
                 if mouse_action[0]:
@@ -120,7 +152,7 @@ class Hud:
                     self.unite_bouton.is_press = True
             elif self.resource_manager.stay_place():
                 self.unite_bouton.color = self.unite_bouton.color_de_base
-
+                
         if mouse_action[0] and self.diplo_bouton.is_over(mouse_pos) and not self.diplo_bouton.is_press:
             self.diplo_actif = not self.diplo_actif
             self.diplo_bouton.is_press = True
@@ -133,11 +165,14 @@ class Hud:
                 tile["affordable"] = True
             else:
                 tile["affordable"] = False
-
             if tile["rect"].collidepoint(mouse_pos) and tile["affordable"]:
                 if mouse_action[0]:
                     self.selected_tile = tile
 
+        if self.villageois_bouton.isPress and not mouse_action[0]:
+            self.villageois_bouton.isPress = False
+        if self.clubman_bouton.isPress and not mouse_action[0]:
+            self.clubman_bouton.isPress = False
         if camera:
             for i in range(5):
                 if mouse_action[0] and self.tp_villageois[i].is_over(mouse_pos) and \
@@ -229,10 +264,18 @@ class Hud:
                               (self.hud_info_rect.center[0], self.hud_info_rect.center[1]+20))
 
                 if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
-                    # affichage du bouton unité
-                    if not self.resource_manager.stay_place():
-                        self.unite_bouton.image.set_alpha(150)
-                    self.unite_bouton.draw(screen)
+                    if self.resource_manager.stay_place():
+                        self.villageois_bouton.draw(screen)
+                        self.villageois_bouton.canPress = True
+                    if self.examined_tile.joueur.age.name == "sombre": #and self.examined_tile.joueur.age.can_pass_age():
+                        self.age_feodal_bouton.draw(screen)
+                    if self.examined_tile.joueur.age.name == "feodal":
+                        self.age_castel_bouton.draw(screen)
+                if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
+                    if self.resource_manager.stay_place():
+                        self.clubman_bouton.draw(screen)
+                        self.clubman_bouton.canPress = True
+
             else:
                 img = self.images_terre[self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
@@ -276,6 +319,9 @@ class Hud:
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
 
+
+
+
         images = {
             "caserne": caserne,
             "house": house,
@@ -283,6 +329,7 @@ class Hud:
         }
 
         return images
+
 
     def load_images_examined(self):
         caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()

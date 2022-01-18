@@ -3,6 +3,7 @@ import pygame
 
 class Button:
     def __init__(self, color, x, y, text):
+        self.can_press = False
         self.is_press = False
         self.color_de_base = color
         self.color = color
@@ -11,6 +12,7 @@ class Button:
         self.text = text
         self.image_origine = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
         self.image = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (50,50))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
