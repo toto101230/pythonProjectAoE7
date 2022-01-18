@@ -462,7 +462,7 @@ class Villageois(Unite):
                     building.health += 10
                     if building.health >= building.max_health:
                         building.construit = True
-                        building.resource_manager.update_population_max(building.place)
+                        building.resource_manager.update_population_max(building.place_unite)
 
                         self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork, animaux, buildings)
 
