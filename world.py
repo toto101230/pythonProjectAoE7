@@ -657,7 +657,7 @@ class World:
         return u
 
     def deplace_unite(self, pos, unite):
-        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, pos)
+        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
     def pass_feodal(self,joueur):
         if joueur.resource_manager.is_affordable("sombre"):
