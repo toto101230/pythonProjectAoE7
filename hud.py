@@ -39,7 +39,8 @@ class Hud:
         # self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
-
+        self.images = self.load_images()
+        self.tiles = self.create_build_hud()
         self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
 
@@ -92,8 +93,7 @@ class Hud:
 
     def update(self):
 
-        self.images = self.load_images()
-        self.tiles = self.create_build_hud()
+
 
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed(3)
