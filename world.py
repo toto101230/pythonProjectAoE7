@@ -26,6 +26,10 @@ class World:
         self.height = height
         self.seed = seed if seed != 0 else np.random.randint(1000000, 10000000)
 
+
+
+
+
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
         self.tiles = self.load_images()
@@ -534,10 +538,8 @@ class World:
                 if isinstance(u, Clubman):
                     u.health = 50
                     u.attack = 7
-            for b in self.buildings:
-                if isinstance(b, Caserne):
-                    b.health = 100
-            #self.hud.images["house"] = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+
+
 
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):

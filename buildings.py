@@ -1,4 +1,8 @@
-import pygame as pg
+import pygame
+import pygame.image
+
+
+
 
 class Batiment:
 
@@ -13,20 +17,9 @@ class Batiment:
         self.resource_manager.update_population_max(self.place)
         self.pos = pos
 
-    def load_images(self):
-        
-        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
-        house = pg.image.load("assets/batiments/house.png").convert_alpha()
-        grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
 
 
-        images = {
-            "caserne": caserne,
-            "house": house,
-            "grenier": grenier
-        }
 
-        return images
 
 class Hdv(Batiment):
 

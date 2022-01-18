@@ -7,6 +7,7 @@ from unite import Unite
 from buildings import Batiment
 from utils import draw_text
 from bouton import Button
+import age
 
 class Hud:
 
@@ -38,10 +39,10 @@ class Hud:
         # self.hud_info_surface.fill(self.hud_colour)
         self.hud_info = pg.image.load("assets/hud/hud_info.png")
 
-        self.images = buildings.Batiment.load_images(self)
+
         self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
-        self.tiles = self.create_build_hud()
+
 
         self.selected_tile = None
         self.examined_tile = None
@@ -88,7 +89,11 @@ class Hud:
 
         return tiles
 
+
     def update(self):
+
+        self.images = self.load_images()
+        self.tiles = self.create_build_hud()
 
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed(3)
@@ -193,6 +198,22 @@ class Hud:
         txt_units = str(self.resource_manager.population["population_actuelle"]) + "/" + str(self.resource_manager.population["population_maximale"])
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
 
+    def load_images(self):
+
+        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
+        house = pg.image.load("assets/batiments/house.png").convert_alpha()
+        grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
+
+
+
+
+        images = {
+            "caserne": caserne,
+            "house": house,
+            "grenier": grenier
+        }
+
+        return images
 
 
     def load_images_examined(self):
