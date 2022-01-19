@@ -29,9 +29,6 @@ class Camera:
 
         self.scroll.x = -(world_x + 100 * TILE_SIZE)
         self.scroll.y = -world_y
-        
-        self.bscroll.x = -(world_x + 100 * TILE_SIZE)
-        self.bscroll.y = -world_y
 
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -54,10 +51,10 @@ class Camera:
         self.scroll.y += self.dy
 
         #MINIMAP
-        self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
-        self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
+        self.bscroll.x += self.dx*0.00001 # scroll bcp plus smooth en x
+        self.bscroll.y += self.dy*0.00001 # scroll bcp plus smooth en y
 
-        self.viewArea = pygame.Rect((-self.bscroll.x-6900,-self.bscroll.y+500),(int(self.width),int(self.height)))
+        self.viewArea = pygame.Rect((-self.bscroll.x-1350,-self.bscroll.y+650),(int(self.width),int(self.height)))
         #
 
     def events(self, event):
