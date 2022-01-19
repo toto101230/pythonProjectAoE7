@@ -163,7 +163,7 @@ class Game:
         self.camera.update()
         self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
-        self.minimap.update()
+        self.minimap.update(self.world)
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)
 
@@ -190,4 +190,5 @@ class Game:
         draw_text(self.screen, "pop : {}".format(self.joueurs[1].resource_manager.population["population_actuelle"]), 25, (255, 255, 255), (320, 80))
         draw_text(self.screen, "pop_max : {}".format(self.joueurs[1].resource_manager.population["population_maximale"]), 25, (255, 255, 255), (420, 80))
         draw_text(self.screen, "nbr_clubman : {}".format(self.joueurs[1].ia.nbr_clubman), 25, (255, 255, 255), (550, 80))
+
         pygame.display.flip()

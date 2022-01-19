@@ -17,7 +17,6 @@ def strcmp(stringa, stringb):
 
 
 class InputBox:
-    # add rmanageai quand ai.py sera intégré
     def __init__(self, x, y, w, h, state, rmanage, text=''):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
@@ -25,9 +24,8 @@ class InputBox:
         self.text_surface = font.render(text, True, self.color)
         self.active = False
         self.player_rmanage = rmanage
-        # self.AI_rmanage = rmanageai
 
-        self.cheatlist = ["ninjalui", "bigdaddy", "steroids", "reveal map", "no fog", "ai_ninjalui"]
+        self.cheatlist = ["ninjalui", "bigdaddy", "steroids"]
         self.nrofcheat = len(self.cheatlist)  # unused atm
         self.window = state
 
@@ -68,15 +66,7 @@ class InputBox:
                 pass
             elif strcmp(message, self.cheatlist[2]):    # steroids
                 pass
-            elif strcmp(message, self.cheatlist[3]):    # reveal map
-                pass
-            elif strcmp(message, self.cheatlist[4]):    # no fog
-                pass
-            # uncomment quand ai.py sera intégré
-            # elif strcmp(message, self.cheatlist[5]): # ai_ninjalui
-                # self.ai_rmanage.resources["wood"] += 20000
-                # self.ai_rmanage.resources["stone"] += 20000
-                # self.ai_rmanage.resources["food"] += 20000
+
             return message
 
     def update(self):
