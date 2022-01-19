@@ -163,8 +163,7 @@ class World:
                 frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
-
-                if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
+                if tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],

@@ -36,16 +36,16 @@ class Camera:
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
 
-        if mouse_pos[0] > self.width * 0.97:
+        if mouse_pos[0] > self.width * 0.99:
             self.dx = -self.speed
-        elif mouse_pos[0] < self.width * 0.03:
+        elif mouse_pos[0] < self.width * 0.01:
             self.dx = self.speed
         elif not self.yBoolM and not self.yBoolP and not self.xBoolM and not self.xBoolP:
             self.dx = 0
 
-        if mouse_pos[1] > self.height * 0.97:
+        if mouse_pos[1] > self.height * 0.99:
             self.dy = -self.speed
-        elif mouse_pos[1] < self.height * 0.03:
+        elif mouse_pos[1] < self.height * 0.01:
             self.dy = self.speed
         elif not self.yBoolM and not self.yBoolP and not self.xBoolM and not self.xBoolP:
             self.dy = 0
