@@ -111,8 +111,8 @@ class Minimap:
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
 
     def handle_event(self,event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.intermediate.get_rect(topleft=self.rect.topleft).collidepoint(event.pos):
+        if pygame.mouse.get_pressed(3)[0]:
+            if self.intermediate.get_rect(topleft=self.rect.topleft).collidepoint(pygame.mouse.get_pos()):
                 self.mpos = pygame.mouse.get_pos()
                 if self.mpos[0]-self.intermediate.get_rect(topleft=self.rect.topleft).x <= int(SIZE*math.sqrt(2)):
                     if self.mpos[1]-self.intermediate.get_rect(topleft=self.rect.topleft).y <= int(SIZE*math.sqrt(2)):
