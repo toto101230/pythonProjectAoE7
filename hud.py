@@ -319,11 +319,13 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
+        tower = pg.image.load("assets/batiments/tower.png").convert_alpha()
 
         images = {
             "caserne": caserne,
             "house": house,
-            "grenier": grenier
+            "grenier": grenier,
+            "tower": tower,
         }
 
         return images
@@ -335,6 +337,7 @@ class Hud:
         grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
         hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
         house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
+        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
         gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
@@ -345,6 +348,7 @@ class Hud:
             "grenier": grenier,
             "hdv": hdv,
             "house": house,
+            "tower": tower,
             "villageois": villageois,
             "gazelle": gazelle,
             "gazelle_mort": gazelle_mort,

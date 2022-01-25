@@ -5,7 +5,7 @@ import tcod
 import unite
 import events
 from settings import TILE_SIZE
-from buildings import Caserne, House, Hdv, Grenier, Batiment
+from buildings import Caserne, House, Hdv, Grenier, Batiment, Tower
 from unite import Unite, Villageois, Clubman, neighbours
 from time import time
 from model.joueur import Joueur
@@ -457,6 +457,7 @@ class World:
         grenier = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
         hdv = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
         house = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
 
         # etoile des combats
         etoile = pygame.image.load("assets/etoile.png").convert_alpha()
@@ -474,6 +475,7 @@ class World:
             "grenier": grenier,
             "hdv": hdv,
             "house": house,
+            "tower": tower,
 
             "etoile": etoile,
 
@@ -584,6 +586,9 @@ class World:
                         self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] = True
                 elif name == "house":
                     ent = House(grid_pos, joueur)
+                    self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                elif name == "tower":
+                    ent = Tower(grid_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
                 elif name == "grenier":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
