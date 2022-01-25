@@ -13,7 +13,7 @@ class ResourceManager:
         # population
         self.population = {
             "population_actuelle": 0,
-            "population_maximale": 100
+            "population_maximale": 0
         }
 
         self.villageois = {

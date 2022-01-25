@@ -517,9 +517,9 @@ class Villageois(Unite):
                             self.action = "idle"
                             self.work = "default"
 
-
-                #ici pour modifier le nombre de ressource qu'il ramene
-                #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
+                # ici pour modifier le nombre de ressource qu'il ramene
+                # faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que
+                # cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
