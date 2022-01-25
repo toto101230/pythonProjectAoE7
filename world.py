@@ -224,14 +224,6 @@ class World:
                                         for x, y in mask]
                                 pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
-                                pygame.draw.rect(screen, (255, 0, 0),
-                                                 pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                 render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30, 200, 10))
-                                pygame.draw.rect(screen, (0, 255, 0),
-                                                 pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                 render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30,
-                                                             building.health * 100 / building.max_health * 200 / 100, 10))
-
         # dessine les unités
         for u in self.unites:
             if xmax > u.pos[0] >= xmin and ymax > u.pos[1] >= ymin:
@@ -264,15 +256,6 @@ class World:
                                                  self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
-
-                            pygame.draw.rect(screen, (255, 0, 0),
-                                             pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                                         render_pos[1] - (self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y - 30,
-                                                         100, 10))
-                            pygame.draw.rect(screen, (0, 255, 0),
-                                             pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
-                                                         render_pos[1] - (self.images_unites[image].get_height() - TILE_SIZE) + camera.scroll.y - 30,
-                                                         (u.health * 100 / u.spawn_health) * 100 / 100, 10))
 
         # dessine les animaux
         for a in self.animaux:
@@ -685,13 +668,13 @@ class World:
 
             for u in self.unites:
                 if isinstance(u, Villageois):
-                    u.health += 5
-                    u.spawn_health = 30
+                    u.health = 30
                     u.attack = 4
                 if isinstance(u, Clubman):
-                    u.health += 10
-                    u.spawn_health = 50
+                    u.health = 50
                     u.attack = 7
+
+
 
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):
@@ -701,12 +684,10 @@ class World:
             joueur.age = Castle(joueur)
             for u in self.unites:
                 if isinstance(u, Villageois):
-                    u.health += 3
-                    u.spawn_health = 35
+                    u.health = 35
                     u.attack = 5
                 if isinstance(u, Clubman):
-                    u.health += 10
-                    u.spawn_health = 60
+                    u.health = 60
                     u.attack = 9
 
     def create_animaux(self) -> list[Animal]:
