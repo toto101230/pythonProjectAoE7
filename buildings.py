@@ -20,13 +20,10 @@ class Batiment:
         self.construit = False
 
 
-
-
-
 class Hdv(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "hdv", 500, 5, joueur, 4 )
+        Batiment.__init__(self, pos, "hdv", 500, 5, joueur, 4)
         self.health = self.max_health
         self.construit = True
         self.resource_manager.update_population_max(self.place_unite)
