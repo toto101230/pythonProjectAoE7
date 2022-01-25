@@ -12,7 +12,7 @@ from buildings import Batiment
 from model.animal import Animal
 from utils import draw_text
 from bouton import Button
-
+import age
 
 class Hud:
 
@@ -59,6 +59,7 @@ class Hud:
         self.images_examined = self.load_images_examined()
         self.images_terre = self.load_image_terre()
 
+
         self.tp_villageois = [Button(None, self.hud_haut.get_width()//5.8 * (i+1) - 80, 7, 'inv') for i in range(5)]
         self.tp_villageois[4].x += 110
 
@@ -73,14 +74,15 @@ class Hud:
         self.age_castel_bouton = Button((0, 255, 0), self.width - 500, self.height - 150, 'age_castle')
         self.clubman_bouton = Button((0, 255, 0), self.width - 550, self.height - 100, 'clubman_recrut')
 
+
         self.diplo_bouton = Button(None, self.hud_haut.get_width() + 30, 10, 'diplomatie')
 
         self.diplo_actif = False
 
     def create_build_hud(self):
 
-        render_pos = [self.hud_action_rect.x + 30, self.hud_action_rect.y + 40]
-        # 1280 / self.width
+        render_pos = [self.hud_action_rect.x + 30, self.hud_action_rect.y + 40 ]
+        #* 1280 / self.width
         # (867 * 1.035 / self.hud_action_rect.x)
         # (515 * 1.08 / self.hud_action_rect.y)
         object_width = self.hud_action_surface.get_width() // 15
@@ -111,46 +113,45 @@ class Hud:
 
         return tiles
 
-    def update(self, joueurs: list[Joueur], camera: Camera, world):
+    def update(self, joueurs: list[Joueur], camera: Camera, world):v
+
+
 
         mouse_pos = pg.mouse.get_pos()
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
-            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.can_press and not self.villageois_bouton.is_press:
+            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.canPress and not self.villageois_bouton.isPress:
                 if mouse_action[0]:
                     self.unite_recrut = self.villageois_bouton.text[:-7]
-                    self.villageois_bouton.is_press = True
+                    self.villageois_bouton.isPress = True
 
 
-            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.can_press and not self.clubman_bouton.is_press:
+            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.canPress and not self.clubman_bouton.isPress:
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
-                    self.clubman_bouton.is_press = True
+                    self.clubman_bouton.isPress = True
 
-            if self.villageois_bouton.is_press and not mouse_action[0]:
-                self.villageois_bouton.is_press = False
-            if self.clubman_bouton.is_press and not mouse_action[0]:
-                self.clubman_bouton.is_press = False
 
-            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press:
+
+            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.isPress:
                 if mouse_action[0]:
                     self.action_age = "feodal"
-                    self.age_feodal_bouton.is_press = True
-            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press:
+                    self.age_feodal_bouton.isPress = True
+            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.isPress:
                 if mouse_action[0]:
                     self.action_age = "castle"
-                    self.age_castel_bouton.is_press = True
+                    self.age_castel_bouton.isPress = True
             else:
                 self.action_age = None
 
-            # if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.is_press:
-            #     self.unite_bouton.color = '#FFFB00'
-            #     if mouse_action[0]:
-            #         self.unite_recrut = self.unite_bouton.text[:-7]
-            #         self.unite_bouton.is_press = True
-            # elif self.resource_manager.stay_place():
-            #     self.unite_bouton.color = self.unite_bouton.color_de_base
+            if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.is_press:
+                self.unite_bouton.color = '#FFFB00'
+                if mouse_action[0]:
+                    self.unite_recrut = self.unite_bouton.text[:-7]
+                    self.unite_bouton.is_press = True
+            elif self.resource_manager.stay_place():
+                self.unite_bouton.color = self.unite_bouton.color_de_base
                 
         if mouse_action[0] and self.diplo_bouton.is_over(mouse_pos) and not self.diplo_bouton.is_press:
             self.diplo_actif = not self.diplo_actif
@@ -168,8 +169,10 @@ class Hud:
                 if mouse_action[0]:
                     self.selected_tile = tile
 
-
-
+        if self.villageois_bouton.isPress and not mouse_action[0]:
+            self.villageois_bouton.isPress = False
+        if self.clubman_bouton.isPress and not mouse_action[0]:
+            self.clubman_bouton.isPress = False
         if camera:
             for i in range(5):
                 if mouse_action[0] and self.tp_villageois[i].is_over(mouse_pos) and \
@@ -179,8 +182,8 @@ class Hud:
                 if self.tp_villageois[i].is_press and not mouse_action[0]:
                     self.tp_villageois[i].is_press = False
 
-        # if self.unite_bouton.is_press and not mouse_action[0]:
-        #     self.unite_bouton.is_press = False
+        if self.unite_bouton.is_press and not mouse_action[0]:
+            self.unite_bouton.is_press = False
 
         if self.diplo_bouton.is_press and not mouse_action[0]:
             self.diplo_bouton.is_press = False
@@ -249,7 +252,7 @@ class Hud:
         if self.examined_tile is not None:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
 
-            # affichage de l'image du batiment avec son nom et son nombre de vie
+            #affichage de l'image du batiment avec son nom et son nombre de vie
             if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or isinstance(self.examined_tile, Animal):
                 img = self.images_examined[self.examined_tile.name].convert_alpha()
                 draw_text(screen, self.examined_tile.name, 50, "#ff0000",
@@ -261,21 +264,17 @@ class Hud:
                               (self.hud_info_rect.center[0], self.hud_info_rect.center[1]+20))
 
                 if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
-                    self.clubman_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.villageois_bouton.draw(screen)
-                        self.villageois_bouton.can_press = True
-
+                        self.villageois_bouton.canPress = True
                     if self.examined_tile.joueur.age.name == "sombre": #and self.examined_tile.joueur.age.can_pass_age():
                         self.age_feodal_bouton.draw(screen)
                     if self.examined_tile.joueur.age.name == "feodal":
                         self.age_castel_bouton.draw(screen)
                 if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
-                    self.villageois_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.clubman_bouton.draw(screen)
-                        self.clubman_bouton.can_press = True
-
+                        self.clubman_bouton.canPress = True
 
             else:
                 img = self.images_terre[self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
@@ -319,6 +318,9 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
+
+
+
 
         images = {
             "caserne": caserne,
