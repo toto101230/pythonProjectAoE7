@@ -3,6 +3,8 @@ import numpy as np
 import tcod
 
 import events
+from camera import Camera
+from minimap import Minimap
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
 from unite import Unite, Villageois, Clubman, neighbours
@@ -16,7 +18,7 @@ iso = lambda x, y: ((x - y), ((x + y) / 2))
 
 class World:
 
-    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed):
+    def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed, screen):
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -42,6 +44,10 @@ class World:
         self.temp_tile = None
         self.examine_tile = None
         self.examined_unites_tile = []
+
+        self.screen = screen
+        self.fakeCamera = Camera(width,height) # pour créer fake mmap
+        self.fakeMinimap = Minimap(self,self.screen,self.fakeCamera,width,height) # pour ne pas cliquer sur tile et mmap
 
     def update(self, camera):
 
@@ -91,7 +97,7 @@ class World:
             animal = self.find_animal_pos(grid_pos[0], grid_pos[1])
 
             if not pygame.key.get_pressed()[pygame.K_LCTRL]:
-                if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
+                if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable" and not self.fakeMinimap.intermediate.get_rect(topleft=self.fakeMinimap.rect.topleft).collidepoint(pygame.mouse.get_pos()):
                     self.examine_tile = grid_pos
                     self.hud.examined_tile = self.world[grid_pos[0]][grid_pos[1]]
                     self.examined_unites_tile = []

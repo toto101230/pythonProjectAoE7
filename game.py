@@ -60,7 +60,7 @@ class Game:
         self.chargement(33)
 
         # les deux premiers int sont longueur et largeur du monde
-        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
+        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed, self.screen)
         self.chargement(70)
 
         self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
@@ -152,8 +152,8 @@ class Game:
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
-            self.minimap.handle_event(event)
-            
+            self.minimap.handle_event()
+
         if self.hud.diplo_actif:
             self.playing = False
             self.menu_diplo = True

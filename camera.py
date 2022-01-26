@@ -51,8 +51,8 @@ class Camera:
         self.scroll.y += self.dy
 
         #MINIMAP
-        self.bscroll.x += self.dx*0.00001 # scroll bcp plus smooth en x
-        self.bscroll.y += self.dy*0.00001 # scroll bcp plus smooth en y
+        self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
+        self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
 
         self.viewArea = pygame.Rect((-self.bscroll.x-1350,-self.bscroll.y+650),(int(self.width),int(self.height)))
         #

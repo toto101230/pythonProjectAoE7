@@ -80,10 +80,8 @@ class Minimap:
         gridy = self.world.grid_length_y
         for y in range(gridy):
             case = self.world.world[self.row][y]["tile"]
-            #print(case + " au coords x,y : " + str(self.row) + ":" + str(y))
             if case == "":
                 colour = GRASSTEST
-                #continue
             elif case == "stone":
                 colour = DARKGREY
             elif case == "gold":
@@ -110,7 +108,7 @@ class Minimap:
             lineCoords.append(self.mmap_to_pos(coord))
         pygame.draw.lines(self.surf, RED, True, lineCoords, 2)
 
-    def handle_event(self,event):
+    def handle_event(self):
         if pygame.mouse.get_pressed(3)[0]:
             if self.intermediate.get_rect(topleft=self.rect.topleft).collidepoint(pygame.mouse.get_pos()):
                 self.mpos = pygame.mouse.get_pos()

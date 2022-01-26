@@ -23,7 +23,9 @@ class InputBox:
         self.text = text
         self.text_surface = font.render(text, True, self.color)
         self.active = False
+
         self.player_rmanage = rmanage
+        self.steroids = False
 
         self.cheatlist = ["ninjalui", "bigdaddy", "steroids"]
         self.nrofcheat = len(self.cheatlist)  # unused atm
@@ -65,7 +67,8 @@ class InputBox:
             elif strcmp(message, self.cheatlist[1]):    # bigdaddy
                 pass
             elif strcmp(message, self.cheatlist[2]):    # steroids
-                pass
+                if not self.steroids:
+                    self.steroids = True
 
             return message
 
