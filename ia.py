@@ -122,8 +122,7 @@ class Ia:
     def gestion_construction_batiment(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
             pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
-            world.place_building(pos, joueur, nom_batiment, True)
-            if world.buildings[pos[0]][pos[1]]:
+            if world.place_building(pos, joueur, nom_batiment, True):
                 self.batiments.append(world.buildings[pos[0]][pos[1]])
                 self.batiments_a_const.append(world.buildings[pos[0]][pos[1]])
         elif len(joueur.resource_manager.villageois["wood"]) < 3:
