@@ -14,6 +14,7 @@ class Batiment:
         self.pos = pos
         self.place_batiment = place_batiment
         self.construit = False
+        self.pos_spawn_u = ()
 
 
 class Hdv(Batiment):
@@ -23,12 +24,14 @@ class Hdv(Batiment):
         self.health = self.max_health
         self.construit = True
         self.resource_manager.update_population_max(self.place_unite)
+        self.pos_spawn_u = (self.pos[0]+1, self.pos[1]+1)
 
 
 class Caserne(Batiment):
 
     def __init__(self, pos, joueur):
         Batiment.__init__(self, pos, "caserne", 350, 0, joueur, 4)
+        self.pos_spawn_u = (self.pos[0]+1, self.pos[1]+1)
 
 
 class House(Batiment):

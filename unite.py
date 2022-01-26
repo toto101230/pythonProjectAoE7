@@ -3,21 +3,10 @@ from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
 from model.animal import Animal
+from utils import Node
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
-
-
-class Node:
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __eq__(self, other):
-        return self.position == other.position
 
 
 class Unite(metaclass=ABCMeta):

@@ -199,16 +199,16 @@ class Hud:
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
         # a voir
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]-45))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]-45))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["gold"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]-45))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]-45))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["rien"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 550, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 530, self.hud_haut_rect.bottomleft[1]-45))
 
         self.diplo_bouton.draw(screen)
 
