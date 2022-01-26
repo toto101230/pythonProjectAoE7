@@ -60,10 +60,11 @@ class Game:
         self.chargement(33)
 
         # les deux premiers int sont longueur et largeur du monde
-        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed, self.screen)
+        self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
         self.chargement(70)
 
         self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
+        self.world.minimap = self.minimap
         self.chargement(80)
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
