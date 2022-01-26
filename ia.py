@@ -104,9 +104,9 @@ class Ia:
                             rodeurs_ennemis.append(u.pos)
                     v = world.buildings[b.pos[0]+x][b.pos[1]+y]
                     if v and v.joueur != joueur and joueur.diplomatie[v.joueur.numero] != "allie":
-                        if joueur.diplomatie[v.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
+                        if joueur.diplomatie[v.joueur.numero] == "neutre" and v.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(v.pos)
-                        elif joueur.diplomatie[v.joueur.numero] == "ennemi" and u.pos not in rodeurs_ennemis:
+                        elif joueur.diplomatie[v.joueur.numero] == "ennemi" and v.pos not in rodeurs_ennemis:
                             rodeurs_ennemis.append(v.pos)
         self.rodeurs = [rodeurs_neutres, rodeurs_ennemis]
         return

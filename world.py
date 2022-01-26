@@ -41,6 +41,7 @@ class World:
         self.world = self.create_world()
 
         self.buildings = self.create_buildings()
+        self.buildings_update = []
 
         self.unites = []
 
@@ -70,7 +71,6 @@ class World:
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed(3)
         grid_pos = self.mouse_to_grid(mouse_pos[0], mouse_pos[1], camera.scroll)
-
 
         if mouse_action[2]:
             self.examine_tile = None
@@ -141,8 +141,15 @@ class World:
                 if self.hud.examined_tile == u:
                     self.examine_tile = None
                     self.hud.examined_tile = None
-            if time() - u.tick_attaque > 0.250:
+            if time() - u.tick_attaque > 0.25:
                 u.attackB = False
+
+        for b in self.buildings_update:
+            if b.construit:
+                if not b.attackB:
+                    b.attaque(self)
+                elif time() - b.tick_attaque > 1.5:
+                    b.attackB = False
 
         if self.hud.unite_recrut is not None:
             self.achat_villageois(self.joueurs[0], self.examine_tile, self.hud.unite_recrut)
@@ -590,6 +597,7 @@ class World:
                 elif name == "tower":
                     ent = Tower(grid_pos, joueur)
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
+                    self.buildings_update.append(ent)
                 elif name == "grenier":
                     collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
                         grid_pos[0] + 1, grid_pos[1]) is not None
