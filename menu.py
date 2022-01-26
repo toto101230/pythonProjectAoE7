@@ -14,8 +14,8 @@ class GameMenu:
         self.CLICK, self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False, False
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = screen
-        self.font_name = 'assets/Police  & Wallpaper/Trajan Pro.ttf'
-        self.font_name2 = 'assets/Police  & Wallpaper/Trajan Pro Bold.ttf'
+        self.font_name = 'assets/Polices&Wallpaper/Trajan_Pro_.ttf'
+        self.font_name2 = 'assets/Polices&Wallpaper/Trajan_Pro_Bold.ttf'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
         self.play_menu = PlayMenu(self)
@@ -98,7 +98,7 @@ class MainMenu(Menu):
 
     def display_menu(self):
         pygame.display.init()
-        image = pygame.image.load("assets/Police  & Wallpaper/sparta.jpeg").convert_alpha()
+        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
             self.game.check_events()
