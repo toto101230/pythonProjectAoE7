@@ -1,5 +1,6 @@
 import numpy as np
 
+from buildings import Hdv
 from unite import Villageois
 
 
@@ -24,7 +25,7 @@ class Ia:
         np.random.seed(seed)
         return case[np.random.randint(len(case))]
 
-    def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, pos_start, nom_batiment):
+    def calcul_pos_batiment(self, grid_length_x, grid_length_y, world, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -55,6 +56,35 @@ class Ia:
                             world.buildings[x][y+1] is None and world.buildings[x+1][y+1] is None and \
                             not self.pos_interdites(x, y, nom_batiment, world):
                         return x, y
+                count = cout + 1
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
+
+    def cherche_ennemi(self, grid_length_x, grid_length_y, world, joueur, pos_start):
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+
+        list_case = [pos_start]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
+
+        while list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
+
+            neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
+            neighbours.remove((0, 0))
+            for neighbour in neighbours:
+                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+
+                if world.buildings[x][y] and isinstance(world.buildings[x][y], Hdv) \
+                        and (joueur.diplomatie[world.buildings[x][y].joueur.numero] == "neutre" \
+                        or joueur.diplomatie[world.buildings[x][y].joueur.numero] == "ennemi")\
+                        and world.buildings[x][y].joueur != joueur:
+                    return x, y
+
                 count = cout + 1
                 if t_cout[x][y] > count or t_cout[x][y] == -1:
                     t_cout[x][y] = count
@@ -116,7 +146,7 @@ class Ia:
 
     def gestion_construction_batiment(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
+            pos = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
             world.place_building(pos, joueur, nom_batiment, True)
             if world.buildings[pos[0]][pos[1]]:
                 self.batiments.append(world.buildings[pos[0]][pos[1]])
@@ -185,6 +215,8 @@ class Ia:
             self.plan_defense = True
             return
 
+        print(self.cherche_ennemi(world.grid_length_x, world.grid_length_y,world, joueur, self.pos_hdv))
+
         if self.plan_defense:
             caserne = 0
             for b in self.batiments:
@@ -223,9 +255,8 @@ class Ia:
                         if b.name == "caserne":
                             pos_caserne = b.pos
                     if not u.cible:
-                        x, y = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
+                        x, y = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
                         world.deplace_unite((x, y), u)
-
 
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 5:
