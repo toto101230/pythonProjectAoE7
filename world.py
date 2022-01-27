@@ -707,6 +707,7 @@ class World:
         if joueur.resource_manager.is_affordable("sombre"):
             joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
+            joueur.numero_age = 2
 
             for u in self.unites:
                 if isinstance(u, Villageois):
@@ -722,6 +723,8 @@ class World:
         if joueur.resource_manager.is_affordable("feodal"):
             joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
+            joueur.numero_age = 3
+
             for u in self.unites:
                 if isinstance(u, Villageois):
                     u.health += 3

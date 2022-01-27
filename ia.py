@@ -1,6 +1,7 @@
 import numpy as np
 
-from buildings import House, Caserne
+from age import Feodal
+from buildings import Hdv
 from unite import Villageois
 
 
@@ -8,7 +9,6 @@ class Ia:
     def __init__(self, seed, pos):
         self.pos_hdv = pos
         self.batiments = []
-        self.batiments_a_const = []
         self.nbr_clubman = 0
         self.soldats = []
         self.plan_debut = True
@@ -16,6 +16,7 @@ class Ia:
         self.plan_defense = False
         self.zone_residentielle = self.create_zone(seed)
         self.rodeurs = []
+        self.plan_attaque = False
 
     def create_zone(self, seed):
         case = []
@@ -26,7 +27,7 @@ class Ia:
         np.random.seed(seed)
         return case[np.random.randint(len(case))]
 
-    def calcul_pos_hdv(self, grid_length_x, grid_length_y, world, pos_start, nom_batiment):
+    def calcul_pos_batiment(self, grid_length_x, grid_length_y, world, pos_start, nom_batiment):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -62,6 +63,35 @@ class Ia:
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
+    def cherche_ennemi(self, grid_length_x, grid_length_y, world, joueur, pos_start):
+        t_cout = [[-1 for _ in range(100)] for _ in range(100)]
+
+        list_case = [pos_start]
+        t_cout[list_case[0][0]][list_case[0][1]] = 0
+
+        while list_case:
+            cur_pos = list_case.pop(0)
+            cout = t_cout[cur_pos[0]][cur_pos[1]]
+
+            neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
+            neighbours.remove((0, 0))
+            for neighbour in neighbours:
+                x, y = cur_pos[0] + neighbour[0], cur_pos[1] + neighbour[1]
+
+                if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
+                    continue
+
+                if world.buildings[x][y] and isinstance(world.buildings[x][y], Hdv) \
+                        and (joueur.diplomatie[world.buildings[x][y].joueur.numero] == "neutre" \
+                        or joueur.diplomatie[world.buildings[x][y].joueur.numero] == "ennemi")\
+                        and world.buildings[x][y].joueur != joueur:
+                    return x, y
+
+                count = cout + 1
+                if t_cout[x][y] > count or t_cout[x][y] == -1:
+                    t_cout[x][y] = count
+                    list_case.append((x, y))
+
     def pos_interdites(self, x, y, nom_batiment, world):
         # true bloque hdv ; false ne bloque pas
         # position d'appartition des villageois
@@ -77,9 +107,8 @@ class Ia:
         if (x, y) in pos_interdit:
             return True
 
-        if (nom_batiment != "house" or nom_batiment != "clubman") and ((x + 1, y) in pos_interdit or
-                                                                       (x, y + 1) in pos_interdit or
-                                                                       (x + 1, y + 1) in pos_interdit):
+        if (nom_batiment != "house" or nom_batiment != "clubman") and ((x + 1, y) in pos_interdit or (x, y + 1) in pos_interdit or (x + 1, y + 1)
+                                        in pos_interdit):
             return True
 
         if nom_batiment == "caserne" and (world.world[x+1][y+1]["tile"] != "" or world.buildings[x+1][y+1]):
@@ -104,42 +133,53 @@ class Ia:
                             rodeurs_ennemis.append(u.pos)
                     v = world.buildings[b.pos[0]+x][b.pos[1]+y]
                     if v and v.joueur != joueur and joueur.diplomatie[v.joueur.numero] != "allie":
-                        if joueur.diplomatie[v.joueur.numero] == "neutre" and v.pos not in rodeurs_neutres:
+                        if joueur.diplomatie[v.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(v.pos)
-                        elif joueur.diplomatie[v.joueur.numero] == "ennemi" and v.pos not in rodeurs_ennemis:
+                        elif joueur.diplomatie[v.joueur.numero] == "ennemi" and u.pos not in rodeurs_ennemis:
                             rodeurs_ennemis.append(v.pos)
         self.rodeurs = [rodeurs_neutres, rodeurs_ennemis]
         return
 
-    def deplacement_villageois(self, world, joueur, origine, cible, pos):
+    def trouve_ennemi_attaque(self, world, joueur, pos):
+        ennemi = []
+        for x in range(-20, 21):
+            for y in range(-20, 21):
+                if pos[0] + x >= world.grid_length_x or pos[0] + x < 0 or pos[1] + y >= world.grid_length_y \
+                        or pos[1] + y < 0:
+                    continue
+                u = world.find_unite_pos(pos[0] + x, pos[0] + y)
+                if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie" and u.pos not in ennemi:
+                        ennemi.append(u.pos)
+                v = world.buildings[pos[0] + x][pos[1] + y]
+                if v and v.joueur != joueur and joueur.diplomatie[v.joueur.numero] != "allie" and v.pos not in ennemi:
+                   ennemi.append(v.pos)
+        return ennemi
+
+    def deplacement_villageois(self, world, joueur, origine, cible):
         villageois = joueur.resource_manager.villageois[origine][0]
         villageois.def_metier(cible)
-        if not pos:
-            pos[0], pos[1] = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
-                                                              villageois.pos, world.animaux, world.buildings)
-        world.deplace_unite(pos, villageois)
+        x, y = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world, villageois.pos, world.animaux, world.buildings)
+        world.deplace_unite((x, y), villageois)
 
     def gestion_construction_batiment(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
-            pos = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
-            if world.place_building(pos, joueur, nom_batiment, True):
+            pos = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
+            world.place_building(pos, joueur, nom_batiment, True)
+            if world.buildings[pos[0]][pos[1]]:
                 self.batiments.append(world.buildings[pos[0]][pos[1]])
-                self.batiments_a_const.append(world.buildings[pos[0]][pos[1]])
         elif len(joueur.resource_manager.villageois["wood"]) < 3:
             if len(joueur.resource_manager.villageois["rien"]) > 0:
-                self.deplacement_villageois(world, joueur, "rien", "tree", None)
+                self.deplacement_villageois(world, joueur, "rien", "tree")
             elif len(joueur.resource_manager.villageois["stone"]) > 0:
-                self.deplacement_villageois(world, joueur, "stone", "tree", None)
+                self.deplacement_villageois(world, joueur, "stone", "tree")
             elif len(joueur.resource_manager.villageois["food"]) > 0:
-                self.deplacement_villageois(world, joueur, "food", "tree", None)
+                self.deplacement_villageois(world, joueur, "food", "tree")
 
     def gestion_ressource(self, world, joueur, nom_tile_ressource):
         if len(joueur.resource_manager.villageois["rien"]) != 0:
-            self.deplacement_villageois(world, joueur, "rien", nom_tile_ressource, None)
+            self.deplacement_villageois(world, joueur, "rien", nom_tile_ressource)
         elif joueur.resource_manager.population["population_actuelle"] >= \
                 joueur.resource_manager.population["population_maximale"]:
-            if self.house_in_construct():
-                return
             self.gestion_construction_batiment(world, joueur, "house", self.zone_residentielle)
         else:
             world.achat_villageois(joueur, self.pos_hdv, "villageois")
@@ -151,14 +191,10 @@ class Ia:
             return
         elif joueur.resource_manager.population["population_actuelle"] >= \
                 joueur.resource_manager.population["population_maximale"]:
-            if self.house_in_construct():
-                return
             self.gestion_construction_batiment(world, joueur, "house", self.zone_residentielle)
             return
         else:
             pos_caserne = ()
-            if nom_unite == "clubman" and self.caserne_in_construct():
-                return
             for b in self.batiments:
                 if b.name == "caserne":
                     pos_caserne = b.pos
@@ -172,18 +208,6 @@ class Ia:
                     self.nbr_clubman += 1
                     self.soldats.append(u)
             return
-
-    def house_in_construct(self):
-        for b in self.batiments:
-            if isinstance(b, House) and not b.construit:
-                return True
-        return False
-
-    def caserne_in_construct(self):
-        for b in self.batiments:
-            if isinstance(b, Caserne) and not b.construit:
-                return True
-        return False
 
     def defense(self, world, joueur, numero_rodeurs):
         count = 0
@@ -203,27 +227,6 @@ class Ia:
                 return
 
     def play(self, world, joueur):
-        if self.batiments_a_const:
-            b = self.batiments_a_const.pop(0)
-            if len(joueur.resource_manager.villageois["rien"]) != 0:
-                self.deplacement_villageois(world, joueur, "rien", "batiment", b.pos)
-            elif joueur.resource_manager.population["population_actuelle"] >= \
-                    joueur.resource_manager.population["population_maximale"]:
-                if len(joueur.resource_manager.villageois["wood"]) > 0:
-                    self.deplacement_villageois(world, joueur, "wood", "batiment", b.pos)
-                elif len(joueur.resource_manager.villageois["stone"]) > 0:
-                    self.deplacement_villageois(world, joueur, "stone", "batiment", b.pos)
-                elif len(joueur.resource_manager.villageois["food"]) > 0:
-                    self.deplacement_villageois(world, joueur, "food", "batiment", b.pos)
-                elif len(joueur.resource_manager.villageois["gold"]) > 0:
-                    self.deplacement_villageois(world, joueur, "gold", "batiment", b.pos)
-                else:
-                    self.batiments_a_const.append(b)
-                    return
-            else:
-                world.achat_villageois(joueur, self.pos_hdv, "villageois")
-            return
-
         self.trouve_rodeur(world, joueur)
         if (self.rodeurs[0] or self.rodeurs[1]) and not self.plan_defense:
             self.plan_defense = True
@@ -267,7 +270,7 @@ class Ia:
                         if b.name == "caserne":
                             pos_caserne = b.pos
                     if not u.cible:
-                        x, y = self.calcul_pos_hdv(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
+                        x, y = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
                         world.deplace_unite((x, y), u)
 
         if self.plan_debut:
@@ -324,15 +327,59 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
                     return
 
+            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
+                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and\
+                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"]:
+                world.pass_feodal(joueur)
+            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"]:
+                self.gestion_ressource(world, joueur, "tree")
+                return
+            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["feodal"]["food"]:
+                self.gestion_ressource(world, joueur, "buisson")
+                return
+            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["feodal"]["stone"]:
+                self.gestion_ressource(world, joueur, "rock")
+                return
+
             if joueur.resource_manager.resources["food"] > 300 and joueur.resource_manager.resources["wood"] > 300\
-                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 7:
+                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 7 and joueur.numero_age == 2:
                 self.plan_petite_armee = False
+                self.plan_attaque = True
 
             return
-
         # regardé si les villageois ne font pas trop de trajet
         # regardé toute les 10 secondes pour eviter de trop calculé
+        if self.plan_attaque:
+            pos = self.cherche_ennemi(world.grid_length_x, world.grid_length_y, world, joueur, self.pos_hdv)
+            if pos:
+                pos_ennemi = self.trouve_ennemi_attaque(world, joueur, pos)
+                if self.nbr_clubman >= len(pos_ennemi) * 2:
+                    count = 0
+                    for u in self.soldats:
+                        if u.cible and u.cible == world.find_unite_pos(pos_ennemi[count // 2][0],
+                                                                       pos_ennemi[count // 2][1]):
+                            count += 1
+                        else:
+                            u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
+                                          world.buildings, world.animaux, pos_ennemi[count // 2])
+                            count += 1
+                        if count >= len(pos_ennemi) * 2:
+                            return
 
+                elif self.nbr_clubman < len(pos_ennemi) * 2:
+                    self.gestion_achat_unite(world, joueur, "clubman")
+                    return
+
+                else:
+                    for u in self.soldats:
+                        pos_caserne = ()
+                        for b in self.batiments:
+                            if b.name == "caserne":
+                                pos_caserne = b.pos
+                        if not u.cible:
+                            x, y = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_caserne, "clubman")
+                            world.deplace_unite((x, y), u)
+            return
 
 
 

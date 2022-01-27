@@ -15,6 +15,7 @@ class Joueur:
         self.time_recrut = 0
         self.ia = None
         self.age = Sombre(self)
+        self.numero_age = 1
         self.diplomatie = ["neutre" for _ in range(nb_joueur)]
         self.numero = numero
         self.hdv_pos = ()
