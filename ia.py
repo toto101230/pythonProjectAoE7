@@ -345,10 +345,10 @@ class Ia:
                     and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 7 and joueur.numero_age == 2:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
-
             return
         # regardé si les villageois ne font pas trop de trajet
         # regardé toute les 10 secondes pour eviter de trop calculé
+
         if self.plan_attaque:
             pos = self.cherche_ennemi(world.grid_length_x, world.grid_length_y, world, joueur, self.pos_hdv)
             if pos:
