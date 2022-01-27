@@ -5,7 +5,13 @@ from pygame_widgets.textbox import TextBox
 from pygame_widgets.dropdown import Dropdown
 import settings
 from bouton2 import *
+from game import Game
+import settings
+from save import Save
 
+clock = pygame.time.Clock()
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+GM = Game(screen, clock)
 
 class GameMenu:
     def __init__(self, screen):
@@ -57,12 +63,21 @@ class GameMenu:
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
 
+
     def draw_text2(self, text, size, x, y):
         font = pygame.font.Font(self.font_name2, size)
         text_surface = font.render(text, True, self.WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
+
+    def draw_text_from_var(self, var, size, x, y):
+        font = pygame.font.Font(self.font_name2, size)
+        text_surface = font.render(str(var), True, self.WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.center = (x, y)
+        self.display.blit(text_surface, text_rect)
+
 
 
 class Menu:
@@ -72,7 +87,7 @@ class Menu:
         self.run_display = True
         #self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.offset = - 100
-
+        self.save = Save()
     #def draw_cursor(self):
     #    self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
@@ -168,13 +183,14 @@ class PlayMenu(Menu):
                 self.game.CLICK = False
 
             if self.LoadGameButton.is_over(mouse_pos):
-                #                if self.save.hasload():
-                #                    self.world.world, self.world.buildings, self.world.unites, self.joueurs = self.save.load()
-                #                    self.resources_manager = self.joueurs[0].resource_manager
-                #                    self.world.examine_tile = None
-                #                    self.hud.examined_tile = None
-                #                    self.hud.selected_tile = None
-                #                    self.cheat_enabled = False
+                if self.save.hasload():
+                    self.save.load()
+                    #                    self.world.world, self.world.buildings, self.world.unites, self.joueurs = self.save.load()
+                    #                    self.resources_manager = self.joueurs[0].resource_manager
+                    #                    self.world.examine_tile = None
+                    #                    self.hud.examined_tile = None
+                    #                    self.hud.selected_tile = None
+                    #                    self.cheat_enabled = False
                 self.game.playing = True
                 self.game.running = False
                 self.game.CLICK = False
@@ -192,7 +208,7 @@ class NewGame(Menu):
         self.intermediairex, self.intermediairey = self.mid_w , self.mid_h + 50
         self.difficilex, self.difficiley =  self.mid_w +300 , self.mid_h + 50
         #self.cursor_rect.midtop = (self.playx + self.offset, self.playy)
-        self.PlayButton = Button((0, 255, 0), self.playx, self.playy, "villageois_recrut")
+        #self.PlayButton = Button((0, 255, 0), self.playx, self.playy, "villageois_recrut")
         self.FacileButton = Button((0, 255, 0), self.facilex, self.faciley, "villageois_recrut")
         self.InterButton = Button((0, 255, 0), self.intermediairex, self.intermediairey, "villageois_recrut")
         self.DifficileButton =Button((0, 255, 0), self.difficilex, self.difficiley, "villageois_recrut")
@@ -207,7 +223,7 @@ class NewGame(Menu):
             self.game.draw_text("Facile", 40, self.facilex, self.faciley)
             self.game.draw_text("Intermédiaire", 40, self.intermediairex, self.intermediairey)
             self.game.draw_text("Difficile", 40, self.difficilex, self.difficiley)
-            self.game.draw_text("Play", 15, self.playx, self.playy)
+            #self.game.draw_text("Play", 15, self.playx, self.playy)
             #self.draw_cursor()
             self.blit_screen()
 
@@ -217,10 +233,32 @@ class NewGame(Menu):
             self.run_display = False
         if self.game.CLICK:
             mouse_pos = pygame.mouse.get_pos()
-            if self.PlayButton.is_over(mouse_pos):
-                self.game.playing = True
-                self.game.running = False
+            #if self.PlayButton.is_over(mouse_pos):
+            #    self.game.playing = True
+            #    self.game.running = False
+            #    self.game.CLICK = False
+            if self.FacileButton.is_over(mouse_pos):
+                settings.START_WOOD = 1
+                settings.START_FOOD = 1
+                settings.START_STONE = 1
+                settings.START_GOLD = 1
                 self.game.CLICK = False
+                self.game.draw_text
+            if self.FacileButton.is_over(mouse_pos):
+                settings.START_WOOD = 2
+                settings.START_FOOD = 2
+                settings.START_STONE = 2
+                settings.START_GOLD = 2
+                self.game.CLICK = False
+
+            if self.FacileButton.is_over(mouse_pos):
+                settings.START_WOOD = 3
+                settings.START_FOOD = 3
+                settings.START_STONE = 3
+                settings.START_GOLD = 3
+
+                self.game.CLICK = False
+
             self.run_display = False
             pass
 
@@ -283,7 +321,7 @@ class CreditsMenu(Menu):
                 self.run_display = False
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text2('Credits', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text('Fait par le Groupe 7', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Fait avec amour par le Groupe 7', 30, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
             self.blit_screen()
 
     def check_input(self):
@@ -295,26 +333,23 @@ class CreditsMenu(Menu):
 class VolumeMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.state = 'Volume'
+        self.plusx, self.plusy = self.mid_w+100, self.mid_h
+        self.moinsx, self.moinsy = self.mid_w -100, self.mid_h
+        self.volumex, self.volumey = self.mid_w , self.mid_h
+        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
+        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
-            if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-                self.game.curr_menu = self.game.options
-                self.run_display = False
-            self.game.display.fill((self.game.BLACK))
+            self.check_input()
+            self.game.display.fill((0, 0, 0))
             self.game.draw_text2('Volume', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            slider = Slider(self.game.display, 100, 100, 800, 40, min=0, max=100, step=1)
-            output = TextBox(self.game.display, 475, 200, 50, 50, fontSize=30)
-            output.disable()
-            output.setText(slider.getValue())
-            settings.VOLUME = (slider.getValue()) / 100
-            events = pygame.event.get()
-            slider.listen(events)
-            slider.draw()
-            output.setText(slider.getValue())
-            output.draw()
+            self.game.draw_text("+", 40, self.plusx, self.plusy)
+            self.game.draw_text("-", 40, self.moinsx, self.moinsy)
+            self.game.draw_text_from_var(settings.Volume,40,self.volumex,self.volumey)
             self.blit_screen()
 
     def check_input(self):
@@ -322,6 +357,15 @@ class VolumeMenu(Menu):
             self.game.curr_menu = self.game.options
             self.run_display = False
             self.blit_screen()
+        if self.game.CLICK:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.PlusButton.is_over(mouse_pos):
+                settings.Volume+=2
+                self.game.CLICK = False
+            if self.MoinsButton.is_over(mouse_pos):
+                settings.Volume-=2
+                self.game.CLICK = False
+
 
 
 class CommandsMenu(Menu):
@@ -335,6 +379,13 @@ class CommandsMenu(Menu):
 class ResolutionMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.state = 'Résolution'
+        self.plusx, self.plusy = self.mid_w+100, self.mid_h
+        self.moinsx, self.moinsy = self.mid_w -100, self.mid_h
+        self.volumex, self.volumey = self.mid_w , self.mid_h
+        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
+        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+
 
     def display_menu(self):
         self.game.check_events()
@@ -344,21 +395,3 @@ class ResolutionMenu(Menu):
         self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
                             self.game.DISPLAY_H / 2 - 20)
 
-
-class ResolutionMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            if self.game.START_KEY or self.game.BACK_KEY or self.game.ESCAPE_KEY:
-                self.game.curr_menu = self.game.options
-                self.run_display = False
-            self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Resolution', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
-                                self.game.DISPLAY_H / 2 - 20)
-
-            self.blit_screen()

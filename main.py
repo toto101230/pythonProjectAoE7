@@ -20,7 +20,7 @@ def main():
 
     menuP = menu.GameMenu(screen)
     while running:
-
+        game.create_game()
         while menuP.running:
             menuP.curr_menu.display_menu()
         while menuP.playing:
