@@ -214,7 +214,9 @@ class NewGame(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
         self.state = 'NewGame'
+
         self.playx, self.playy = self.mid_w, self.mid_h + 100
+        self.selectx, self.selecty=self.mid_w-100, self.mid_h + 100
         self.facilex, self.faciley = self.mid_w - 300, self.mid_h + 50
         self.intermediairex, self.intermediairey = self.mid_w, self.mid_h + 50
         self.difficilex, self.difficiley = self.mid_w + 300, self.mid_h + 50
@@ -223,6 +225,8 @@ class NewGame(Menu):
         self.FacileButton = Button((0, 255, 0), self.facilex, self.faciley, "villageois_recrut")
         self.InterButton = Button((0, 255, 0), self.intermediairex, self.intermediairey, "villageois_recrut")
         self.DifficileButton = Button((0, 255, 0), self.difficilex, self.difficiley, "villageois_recrut")
+        self.etat =""
+
 
     def display_menu(self):
         self.run_display = True
@@ -234,6 +238,12 @@ class NewGame(Menu):
             self.game.draw_text("Facile", 40, self.facilex, self.faciley)
             self.game.draw_text("Intermédiaire", 40, self.intermediairex, self.intermediairey)
             self.game.draw_text("Difficile", 40, self.difficilex, self.difficiley)
+            if self.etat == "Facile":
+                self.game.draw_text2("Facile selectionné", 40, self.selectx, self.selecty)
+            if self.etat == "Inter":
+                self.game.draw_text2("Intermédiaire selectionné", 40, self.selectx, self.selecty)
+            if self.etat == "Difficile":
+                self.game.draw_text2("Difficile selectionné", 40, self.selectx, self.selecty)
             # self.game.draw_text("Play", 15, self.playx, self.playy)
             # self.draw_cursor()
             self.blit_screen()
@@ -254,19 +264,21 @@ class NewGame(Menu):
                 settings.START_STONE = 1
                 settings.START_GOLD = 1
                 self.game.CLICK = False
-                self.game.draw_text
-            if self.FacileButton.is_over(mouse_pos):
+                self.etat= "Facile"
+            if self.InterButton.is_over(mouse_pos):
                 settings.START_WOOD = 2
                 settings.START_FOOD = 2
                 settings.START_STONE = 2
                 settings.START_GOLD = 2
                 self.game.CLICK = False
+                self.etat ="Inter"
 
-            if self.FacileButton.is_over(mouse_pos):
+            if self.DifficileButton.is_over(mouse_pos):
                 settings.START_WOOD = 3
                 settings.START_FOOD = 3
                 settings.START_STONE = 3
                 settings.START_GOLD = 3
+                self.etat ="Difficile"
 
                 self.game.CLICK = False
 
