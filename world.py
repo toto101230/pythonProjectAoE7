@@ -10,7 +10,6 @@ from time import time
 from model.joueur import Joueur
 from os import walk
 from age import Feodal, Castle
-from utils import Node
 
 from model.animal import Gazelle, Animal
 
@@ -706,9 +705,7 @@ class World:
 
     def pass_feodal(self, joueur):
         if joueur.resource_manager.is_affordable("sombre"):
-            joueur.resource_manager.resources["food"] -= 500
-            joueur.resource_manager.resources["wood"] -= 500
-            joueur.resource_manager.resources["stone"] -= 500
+            joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
 
             for u in self.unites:
@@ -723,9 +720,7 @@ class World:
 
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):
-            joueur.resource_manager.resources["food"] -= 800
-            joueur.resource_manager.resources["wood"] -= 800
-            joueur.resource_manager.resources["stone"] -= 800
+            joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
             for u in self.unites:
                 if isinstance(u, Villageois):
@@ -783,7 +778,8 @@ class World:
         for x in range(-2, 3):
             for y in range(-2, 3):
                 if self.grid_length_x > pos_depart[0]+x >= 0 and self.grid_length_y > pos_depart[1]+y >= 0 and \
-                        self.world[pos_depart[0]+x][pos_depart[1]+y]["tile"] == "" and self.buildings[pos_depart[0]+x][pos_depart[1]+y] is None:
+                        self.world[pos_depart[0]+x][pos_depart[1]+y]["tile"] == "" and \
+                        self.buildings[pos_depart[0]+x][pos_depart[1]+y] is None:
                     pos.append((pos_depart[0]+x, pos_depart[1]+y))
         return pos
 
@@ -838,13 +834,25 @@ class World:
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)
 
     def create_pos_hdv(self):
-        poss = [[(10, 10), (90, 90)],
-                [(10, 50), (90, 90), (90, 10)],
-                [(10, 10), (10, 90), (90, 90), (90, 10)],
-                [(10, 25), (10, 75), (50, 90), (90, 50), (50, 10)],
-                [(10, 25), (10, 75), (50, 90), (90, 75), (90, 25), (50, 10)],
-                [(10, 50), (25, 90), (75, 90), (90, 75), (90, 25), (75, 10), (25, 10)],
-                [(10, 10), (10, 50), (10, 90), (50, 90), (90, 90), (90, 50), (90, 10), (50, 10)]]
+        poss = [[(10, 10), (self.grid_length_x-10, self.grid_length_y-10)],
+                [(10, self.grid_length_y//2), (self.grid_length_x-10, self.grid_length_y-10),
+                 (self.grid_length_x-10, 10)],
+                [(10, 10), (10, self.grid_length_y-10), (self.grid_length_x-10, self.grid_length_y-10),
+                 (self.grid_length_x-10, 10)],
+                [(10, self.grid_length_y//4), (10, self.grid_length_y//4*3),
+                 (self.grid_length_x//2, self.grid_length_y-10), (self.grid_length_x-10, 50),
+                 (self.grid_length_x//2, 10)],
+                [(10, self.grid_length_y//4), (10, self.grid_length_y//4*3),
+                 (self.grid_length_x//2, self.grid_length_y-10), (self.grid_length_x-10, self.grid_length_y//4*3),
+                 (self.grid_length_x-10, self.grid_length_y//4), (self.grid_length_x//2, 10)],
+                [(10, self.grid_length_y//2),
+                 (self.grid_length_x//4, self.grid_length_y-10), (self.grid_length_x//4*3, self.grid_length_y-10),
+                 (self.grid_length_x-10, self.grid_length_y//4*3), (self.grid_length_x-10, self.grid_length_y//4),
+                 (self.grid_length_x//4*3, 10), (self.grid_length_x//4, 10)],
+                [(10, 10), (10, self.grid_length_y//2), (10, self.grid_length_y-10),
+                 (self.grid_length_x//2, self.grid_length_y-10), (self.grid_length_x-10, self.grid_length_y-10),
+                 (self.grid_length_x-10, self.grid_length_y//2), (self.grid_length_x-10, 10),
+                 (self.grid_length_x//2, 10)]]
         return poss[len(self.joueurs) - 2]
 
     def load(self, seed, game):
