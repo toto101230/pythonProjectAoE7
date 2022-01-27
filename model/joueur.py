@@ -1,10 +1,5 @@
-import pygame
-
-import unite
 from resource_manager import ResourceManager
-from age import *
-from unite import *
-from world import *
+from age import Sombre
 
 
 class Joueur:

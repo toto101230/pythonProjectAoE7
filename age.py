@@ -6,8 +6,7 @@ class Age:
         self.resource_manager = self.joueur.resource_manager
 
     def can_pass_age(self):
-        self.resource_manager.is_affordable(self.name)
-        return True
+        return self.resource_manager.is_affordable(self.name)
 
 
 class Sombre(Age):

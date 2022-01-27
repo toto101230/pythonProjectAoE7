@@ -710,11 +710,11 @@ class World:
             joueur.numero_age = 2
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 5
                     u.spawn_health = 30
                     u.attack = 4
-                if isinstance(u, Clubman):
+                if isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 50
                     u.attack = 7
@@ -726,11 +726,11 @@ class World:
             joueur.numero_age = 3
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 3
                     u.spawn_health = 35
                     u.attack = 5
-                if isinstance(u, Clubman):
+                if isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 60
                     u.attack = 9

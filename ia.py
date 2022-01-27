@@ -327,9 +327,7 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
                     return
 
-            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
-                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and\
-                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"]:
+            if joueur.age.can_pass_age():
                 world.pass_feodal(joueur)
             elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"]:
                 self.gestion_ressource(world, joueur, "tree")
