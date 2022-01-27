@@ -120,14 +120,15 @@ class Hud:
         mouse_action = pg.mouse.get_pressed(3)
 
         if self.examined_tile is not None:
-            if self.villageois_bouton.is_over(
-                    mouse_pos) and self.villageois_bouton.can_press and not self.villageois_bouton.is_press:
+            if self.villageois_bouton.is_over(mouse_pos) and self.villageois_bouton.can_press and \
+                    not self.villageois_bouton.is_press:
                 if mouse_action[0]:
                     self.unite_recrut = self.villageois_bouton.text[:-7]
                     self.villageois_bouton.is_press = True
 
-            if self.clubman_bouton.is_over(
-                    mouse_pos) and self.clubman_bouton.can_press and not self.clubman_bouton.is_press:
+            if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.can_press and \
+                    not self.clubman_bouton.is_press:
+
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
                     self.clubman_bouton.is_press = True
@@ -181,9 +182,6 @@ class Hud:
                 if self.tp_villageois[i].is_press and not mouse_action[0]:
                     self.tp_villageois[i].is_press = False
 
-        # if self.unite_bouton.is_press and not mouse_action[0]:
-        #     self.unite_bouton.is_press = False
-
         if self.diplo_bouton.is_press and not mouse_action[0]:
             self.diplo_bouton.is_press = False
 
@@ -213,16 +211,16 @@ class Hud:
         screen.blit(self.hud_age_surface, (self.width - 290, 0))
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
         # a voir
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]-45))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]-45))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["gold"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]-45))
+        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]-45))
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["rien"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 550, self.hud_haut_rect.bottomleft[1]))
+        #           (self.hud_haut_rect.bottomleft[0] + 42 + 530, self.hud_haut_rect.bottomleft[1]-45))
 
         self.diplo_bouton.draw(screen)
 
@@ -276,12 +274,13 @@ class Hud:
                         self.age_feodal_bouton.draw(screen)
                     if self.examined_tile.joueur.age.name == "feodal":
                         self.age_castel_bouton.draw(screen)
-                if self.examined_tile is not None and self.examined_tile.name == "caserne" and self.examined_tile.joueur.name == "joueur 1":
+
+                if self.examined_tile is not None and self.examined_tile.name == "caserne" and \
+                        self.examined_tile.joueur.name == "joueur 1" and self.examined_tile.construit:
                     self.villageois_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.clubman_bouton.draw(screen)
                         self.clubman_bouton.can_press = True
-
 
             else:
                 img = self.images_terre[
@@ -331,11 +330,13 @@ class Hud:
         caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
         house = pg.image.load("assets/batiments/house.png").convert_alpha()
         grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
+        tower = pg.image.load("assets/batiments/tower.png").convert_alpha()
 
         images = {
             "caserne": caserne,
             "house": house,
-            "grenier": grenier
+            "grenier": grenier,
+            "tower": tower,
         }
 
         return images
@@ -346,6 +347,7 @@ class Hud:
         grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
         hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
         house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
+        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
         gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
@@ -356,6 +358,7 @@ class Hud:
             "grenier": grenier,
             "hdv": hdv,
             "house": house,
+            "tower": tower,
             "villageois": villageois,
             "gazelle": gazelle,
             "gazelle_mort": gazelle_mort,

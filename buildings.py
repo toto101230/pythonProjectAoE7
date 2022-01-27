@@ -1,8 +1,4 @@
-import pygame
-import pygame.image
-
-
-
+from time import time
 
 class Batiment:
 
@@ -18,6 +14,7 @@ class Batiment:
         self.pos = pos
         self.place_batiment = place_batiment
         self.construit = False
+        self.pos_spawn_u = ()
 
 
 class Hdv(Batiment):
@@ -27,12 +24,14 @@ class Hdv(Batiment):
         self.health = self.max_health
         self.construit = True
         self.resource_manager.update_population_max(self.place_unite)
+        self.pos_spawn_u = (self.pos[0]+1, self.pos[1]+1)
 
 
 class Caserne(Batiment):
 
     def __init__(self, pos, joueur):
         Batiment.__init__(self, pos, "caserne", 350, 0, joueur, 4)
+        self.pos_spawn_u = (self.pos[0]+1, self.pos[1]+1)
 
 
 class House(Batiment):
@@ -45,3 +44,49 @@ class Grenier(Batiment):
 
     def __init__(self, pos, joueur):
         Batiment.__init__(self, pos, "grenier", 350, 0, joueur, 4)
+
+
+class Tower(Batiment):
+
+    def __init__(self, pos, joueur):
+        Batiment.__init__(self, pos, "tower", 125, 0, joueur, 1)
+        self.attack = 3
+        self.cible = None
+        self.range = 5
+        self.tick_attaque = 0
+        self.attackB = False
+
+    def attaque(self, world):
+        if self.cible and abs(self.cible.pos[0]-self.pos[0]) < self.range and \
+                abs(self.cible.pos[1]-self.pos[1]) < self.range:
+            self.attaque_pos(self.cible.pos[0], self.cible.pos[1], None)
+        else:
+            for max_p in range(1, self.range+1):
+                i, j = -max_p, -max_p
+                while i < max_p:
+                    i += 1
+                    if self.attaque_pos(i, j, world):
+                        return
+                while j < max_p:
+                    j += 1
+                    if self.attaque_pos(i, j, world):
+                        return
+
+                while i > -max_p:
+                    i -= 1
+                    if self.attaque_pos(i, j, world):
+                        return
+                while j > -max_p:
+                    j -= 1
+                    if self.attaque_pos(i, j, world):
+                        return
+
+    def attaque_pos(self, i, j, world):
+        u = world.find_unite_pos(self.pos[0] - i, self.pos[1] - j) if world else self.cible
+        if u and u.joueur != self.joueur:
+            u.health -= self.attack
+            self.cible = u if u.health > 0 else None
+            self.tick_attaque = time()
+            self.attackB = True
+            return 1
+        return 0
