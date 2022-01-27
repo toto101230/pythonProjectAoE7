@@ -20,7 +20,8 @@ def main():
 
     menuP = menu.GameMenu(screen)
     while running:
-        game.create_game()
+        while menu.PlayMenu(menu).PartieChargee !=1:
+            game.create_game()
         while menuP.running:
             menuP.curr_menu.display_menu()
         while menuP.playing:
