@@ -638,128 +638,8 @@ class World:
             unite_a_degage = []
             pos_visitee = []
             building = self.buildings[pos_ini[0]][pos_ini[1]]
-            pos_spawn = building.pos_spawn_u
+            pos_spawn = (building.pos[0]+1, building.pos[1]+1)
             pos = pos_spawn
-
-            # path = []
-            #
-            # start_node = Node(None, pos_ini)
-            # start_node.g = start_node.h = start_node.f = 0
-            # end_node = Node(None, pos_spawn)
-            # end_node.g = end_node.h = end_node.f = 0
-            #
-            # open_list = []
-            # closed_list = []
-            # open_list.append(start_node)
-            #
-            # while len(open_list) > 0:
-            #     current_node = open_list[0]
-            #     current_index = 0
-            #     for index, item in enumerate(open_list):
-            #         if item.f < current_node.f:
-            #             current_node = item
-            #             current_index = index
-            #
-            #     open_list.pop(current_index)
-            #     closed_list.append(current_node)
-            #
-            #     if current_node == end_node:
-            #         current = current_node
-            #         while current is not None:
-            #             path.append(current.position)
-            #             current = current.parent
-            #         while path:
-            #             pos_current = path.pop(0)
-            #             x, y = pos_current
-            #             if len(world) > x > 0 and len(world[0]) > y > 0 and (world[x][y]["tile"] == "" or
-            #                                                                  world[x][y]["tile"] == "sable") and \
-            #                     buildings[x][y] is None and (self.find_unite_pos(x, y, unites) is None or
-            #                                                  self.find_unite_pos(x, y, unites) == self) and \
-            #                     self.find_animal_pos(x, y, animaux) is None:
-            #                 return pos_current
-            #             ns = []
-            #             x = -1 if self.pos[0] < pos_current[0] else (1 if self.pos[0] > pos_current[0] else 0)
-            #             y = -1 if self.pos[1] < pos_current[1] else (1 if self.pos[1] > pos_current[1] else 0)
-            #             if (x, y) == (0, 0):
-            #                 ns.append((0, 0))
-            #             else:
-            #                 index = neighbours.index((x, y))
-            #                 if (x, y) in [(1, -1), (0, -1), (-1, 1), (0, 1)]:
-            #                     if (x, y) == (1, -1):
-            #                         xy1 = neighbours[index - 2]
-            #                         xy2 = neighbours[index + 1]
-            #                     elif (x, y) == (-1, 1):
-            #                         xy1 = neighbours[index - 1]
-            #                         xy2 = neighbours[index + 2]
-            #                     elif (x, y) == (0, -1):
-            #                         xy1 = neighbours[index - 3]
-            #                         xy2 = neighbours[index + 2]
-            #                     else:  # elif (x, y) == (0, 1)
-            #                         xy1 = neighbours[index - 2]
-            #                         xy2 = neighbours[index + 3]
-            #                 else:
-            #                     xy1 = neighbours[index - 1]
-            #                     xy2 = neighbours[(index + 1) % len(neighbours)]
-            #
-            #                 ns.append((x, y))
-            #                 ns.append((xy1[0], xy1[1]))
-            #                 ns.append((xy2[0], xy2[1]))
-            #             for new_position in ns:
-            #                 x, y = pos_current[0] + new_position[0], pos_current[1] + new_position[1]
-            #                 if x > (len(world) - 1) or x < 0 or y > (len(world[0]) - 1) or y < 0:
-            #                     continue
-            #
-            #                 if world[x][y]["tile"] != "" and world[x][y]["tile"] != "sable":
-            #                     continue
-            #
-            #                 if buildings[x][y] is not None:
-            #                     continue
-            #
-            #                 if self.find_unite_pos(x, y, unites) and self.find_unite_pos(x, y, unites) != self:
-            #                     continue
-            #
-            #                 if self.find_animal_pos(x, y, animaux):
-            #                     continue
-            #                 return x, y
-            #         print("Quoi ?")
-            #         return ()
-            #
-            #     children = []
-            #     for new_position in neighbours:
-            #         x, y = current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]
-            #         if x > self.grid_length_x or x < 0 or y > self.grid_length_y or y < 0:
-            #             continue
-            #
-            #         if self.world[x][y]["tile"] != "" and self.world[x][y]["tile"] != "sable":
-            #             continue
-            #
-            #         if self.buildings[x][y] and self.buildings[x][y] != building:
-            #             continue
-            #
-            #         if self.find_unite_pos(x, y) and (self.find_unite_pos(x, y).joueur != joueur or
-            #                                           self.find_unite_pos(x, y).name != nom_unite):
-            #             continue
-            #
-            #         if self.find_animal_pos(x, y):
-            #             continue
-            #
-            #         new_node = Node(current_node, (x, y))
-            #         children.append(new_node)
-            #
-            #     for child in children:
-            #         for closed_child in closed_list:
-            #             if child == closed_child:
-            #                 continue
-            #
-            #         child.g = current_node.g + 1
-            #         child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
-            #                 (child.position[1] - end_node.position[1]) ** 2)
-            #         child.f = child.g + child.h
-            #
-            #         for open_node in open_list:
-            #             if child == open_node and child.g > open_node.g:
-            #                 continue
-            #         open_list.append(child)
 
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
@@ -794,15 +674,16 @@ class World:
                     des = find_closer_pos(last)
                     u = self.find_unite_pos(des[0], des[1])
                     if u is None:
-                        joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
+                        joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]["food"]
                         return
-                    u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, last)
+                    u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
+                                  self.animaux, last)
                     while des != pos_ini:
                         last = des
                         des = find_closer_pos(last)
                         u = self.find_unite_pos(des[0], des[1])
                         if u is None:
-                            joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]
+                            joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]["food"]
                             return
 
             if nom_unite == "villageois":
@@ -813,6 +694,8 @@ class World:
 
             if u:
                 self.unites.append(u)
+                u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
+                              self.animaux, building.pos_spawn_u)
 
             joueur.time_recrut = time()
             return u
