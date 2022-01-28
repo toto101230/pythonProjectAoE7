@@ -23,7 +23,9 @@ class Batiment:
 
 
 
+
 class Hdv(Batiment):
+
 
     def __init__(self, pos, joueur):
         Batiment.__init__(self, pos, "hdv", 500, 5, joueur, 4 )
@@ -35,16 +37,34 @@ class Hdv(Batiment):
 class Caserne(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "caserne", 350, 0, joueur, 4)
+        if joueur.age.name == "sombre":
+            self.spawn_health = 350
+        elif joueur.age.name == "feodal":
+            self.spawn_health = 500
+        elif joueur.age.name == "castle":
+            self.spawn_health = 600
+        Batiment.__init__(self, pos, "caserne", self.spawn_health, 0, joueur, 4)
 
 
 class House(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "house", 75, 5, joueur, 1)
+        if joueur.age.name == "sombre":
+            self.spawn_health = 75
+        elif joueur.age.name == "feodal":
+            self.spawn_health = 100
+        elif joueur.age.name == "castle":
+            self.spawn_health = 150
+        Batiment.__init__(self, pos, "house", self.spawn_health, 5, joueur, 1)
 
 
 class Grenier(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "grenier", 350, 0, joueur, 4)
+        if joueur.age.name == "sombre":
+            self.spawn_health = 350
+        elif joueur.age.name == "feodal":
+            self.spawn_health = 440
+        elif joueur.age.name == "castle":
+            self.spawn_health = 550
+        Batiment.__init__(self, pos, "grenier", self.spawn_health, 0, joueur, 4)

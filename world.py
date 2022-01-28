@@ -8,6 +8,7 @@ from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
 from unite import Unite, Villageois, Clubman, neighbours
 from time import time
+from camera import Camera
 from model.joueur import Joueur
 from os import walk
 from age import *
@@ -30,8 +31,7 @@ class World:
         self.joueurs = joueurs
         self.pos_hdv = self.create_pos_hdv()
 
-
-
+        self.camera = Camera(self.width, self.height)
 
 
         self.grass_tiles = pygame.Surface(
@@ -660,11 +660,20 @@ class World:
         return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
     def pass_feodal(self,joueur):
+
         if joueur.resource_manager.is_affordable("sombre"):
-            joueur.resource_manager.resources["food"] -= 500
-            joueur.resource_manager.resources["wood"] -= 500
-            joueur.resource_manager.resources["stone"] -= 500
+            joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
+
+            for x in range(0, self.grid_length_x):
+                for y in range(0, self.grid_length_y):
+                    building = self.buildings[x][y]
+                    if isinstance(building,Caserne) and building.joueur == joueur:
+                        building.health = 500
+                    if isinstance(building, House) and building.joueur == joueur:
+                        building.health = 100
+                    if isinstance(building,Grenier) and building.joueur == joueur:
+                        building.health = 440
 
             for u in self.unites:
                 if isinstance(u, Villageois):
@@ -676,12 +685,22 @@ class World:
 
 
 
+
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):
-            joueur.resource_manager.resources["food"] -= 800
-            joueur.resource_manager.resources["wood"] -= 800
-            joueur.resource_manager.resources["stone"] -= 800
+            joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
+
+            for x in range(0, self.grid_length_x):
+                for y in range(0, self.grid_length_y):
+                    building = self.buildings[x][y]
+                    if isinstance(building,Caserne) and building.joueur == joueur:
+                        building.health = 600
+                    if isinstance(building, House) and building.joueur == joueur:
+                        building.health = 150
+                    if isinstance(building,Grenier) and building.joueur == joueur:
+                        building.health = 550
+
             for u in self.unites:
                 if isinstance(u, Villageois):
                     u.health = 35
