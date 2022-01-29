@@ -17,6 +17,7 @@ class Ia:
         self.zone_residentielle = self.create_zone(seed)
         self.rodeurs = []
         self.plan_attaque = False
+        self.plan_continuite = False
 
     def create_zone(self, seed):
         case = []
@@ -320,15 +321,15 @@ class Ia:
                         world.deplace_unite((x, y), u)
 
         if self.plan_debut:
-            if joueur.resource_manager.resources["food"] < 200 and len(joueur.resource_manager.villageois["food"]) < 4:
+            if joueur.resource_manager.resources["food"] < 400 and len(joueur.resource_manager.villageois["food"]) < 4:
                 self.gestion_ressource(world, joueur, "buisson")
                 return
 
-            if joueur.resource_manager.resources["wood"] < 200 and len(joueur.resource_manager.villageois["wood"]) < 4:
+            if joueur.resource_manager.resources["wood"] < 400 and len(joueur.resource_manager.villageois["wood"]) < 4:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 20 and len(joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 300 and len(joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
@@ -345,8 +346,8 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
                     return
 
-            if joueur.resource_manager.resources["food"] > 200 and joueur.resource_manager.resources["wood"] > 200 \
-                    and joueur.resource_manager.resources["stone"] > 20 and caserne:
+            if joueur.resource_manager.resources["food"] > 400 and joueur.resource_manager.resources["wood"] > 400 \
+                    and joueur.resource_manager.resources["stone"] > 300 and caserne:
                 self.plan_debut = False
                 self.plan_petite_armee = True
 
@@ -356,15 +357,15 @@ class Ia:
             if self.nbr_clubman < 8:
                 self.gestion_achat_unite(world, joueur, "clubman")
 
-            if joueur.resource_manager.resources["food"] < 300 and len(joueur.resource_manager.villageois["food"]) < 4:
+            if joueur.resource_manager.resources["food"] < 600 and len(joueur.resource_manager.villageois["food"]) < 4:
                 self.gestion_ressource(world, joueur, "buisson")
                 return
 
-            if joueur.resource_manager.resources["wood"] < 300 and len(joueur.resource_manager.villageois["wood"]) < 4:
+            if joueur.resource_manager.resources["wood"] < 600 and len(joueur.resource_manager.villageois["wood"]) < 4:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 30 and len(joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 400 and len(joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
@@ -373,7 +374,6 @@ class Ia:
                     self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
                     return
 
-            print(joueur.numero_age)
             if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
                     joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and \
                     joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
@@ -392,8 +392,8 @@ class Ia:
                 self.gestion_ressource(world, joueur, "stone")
                 return
 
-            if joueur.resource_manager.resources["food"] > 300 and joueur.resource_manager.resources["wood"] > 300 \
-                    and joueur.resource_manager.resources["stone"] > 30 and self.nbr_clubman > 7 and joueur.numero_age == 2:
+            if joueur.resource_manager.resources["food"] > 600 and joueur.resource_manager.resources["wood"] > 600 \
+                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman > 7 and joueur.numero_age == 2:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
             return
@@ -431,10 +431,52 @@ class Ia:
                             x, y = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world,
                                                             pos_caserne, "clubman")
                             world.deplace_unite((x, y), u)
+                    self.plan_attaque = False
+                    self.plan_continuite = True
             return
 
-        # plan d'attaque
-        # trouver la condition pour le lancer
-        # trouver une batiment ennemi le plus proche
-        # prendre une partie de l'armée celon l'armée ennemi (50% - 100%) et attaquer le batiment ennemi
-        # lorsque une unité ennemi attaque une de nos unités alors butté cette unité
+        if self.plan_continuite:
+            if self.nbr_clubman < 12:
+                self.gestion_achat_unite(world, joueur, "clubman")
+
+            if joueur.resource_manager.resources["food"] < 1000 and len(joueur.resource_manager.villageois["food"]) < 4:
+                self.gestion_ressource(world, joueur, "buisson")
+                return
+
+            if joueur.resource_manager.resources["wood"] < 1000 and len(joueur.resource_manager.villageois["wood"]) < 4:
+                self.gestion_ressource(world, joueur, "tree")
+                return
+
+            if joueur.resource_manager.resources["stone"] < 800 and len(joueur.resource_manager.villageois["stone"]) < 4:
+                self.gestion_ressource(world, joueur, "rock")
+                return
+
+            for u in world.unites:
+                if u.joueur == joueur and u.path and len(u.path) > 10 and isinstance(u, Villageois):
+                    self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
+                    return
+
+            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
+                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and \
+                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
+                    joueur.numero_age < 3:
+                world.pass_castle(joueur)
+            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"] and \
+                    len(joueur.resource_manager.villageois["wood"]) < 4 and joueur.numero_age < 3:
+                self.gestion_ressource(world, joueur, "tree")
+                return
+            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["feodal"]["food"] and \
+                    len(joueur.resource_manager.villageois["food"]) < 4 and joueur.numero_age < 3:
+                self.gestion_ressource(world, joueur, "buisson")
+                return
+            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["feodal"]["stone"] and \
+                    len(joueur.resource_manager.villageois["stone"]) < 4 and joueur.numero_age < 3:
+                self.gestion_ressource(world, joueur, "stone")
+                return
+
+            if joueur.resource_manager.resources["food"] > 1000 and joueur.resource_manager.resources["wood"] > 1000 \
+                    and joueur.resource_manager.resources[
+                "stone"] > 800 and self.nbr_clubman > 12 and joueur.numero_age == 3:
+                self.plan_petite_armee = False
+                self.plan_attaque = True
+            return
