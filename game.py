@@ -51,7 +51,7 @@ class Game:
     def create_game(self):
         self.chargement(0)
         self.seed = 0
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
+        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 3, 0), Joueur(ResourceManager(), "joueur 2", 3, 1), Joueur(ResourceManager(), "joueur 3", 3, 2)]
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.chargement(15)

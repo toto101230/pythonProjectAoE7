@@ -46,7 +46,7 @@ class Ia:
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
 
-                if nom_batiment == "house" or nom_batiment == "clubman":
+                if nom_batiment == "house" or nom_batiment == "clubman" or nom_batiment == "tower":
                     if world.world[x][y]["tile"] == "" and world.buildings[x][y] is None and not \
                             self.pos_interdites(x, y, nom_batiment, world):
                         return x, y
@@ -108,7 +108,7 @@ class Ia:
         if (x, y) in pos_interdit:
             return True
 
-        if (nom_batiment != "house" or nom_batiment != "clubman") and ((x + 1, y) in pos_interdit
+        if (nom_batiment != "house" or nom_batiment != "clubman" or nom_batiment != "tower") and ((x + 1, y) in pos_interdit
                                                                        or (x, y + 1) in pos_interdit
                                                                        or (x + 1, y + 1) in pos_interdit):
             return True
@@ -166,7 +166,7 @@ class Ia:
         world.deplace_unite(pos, villageois)
         # world.deplace_unite(pos, villageois)
 
-    def gestion_construction_batiment(self, world, joueur, nom_batiment, pos_depart):
+    def gestion_construction_batiment_wood(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
             pos = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
             if world.place_building(pos, joueur, nom_batiment, True):
@@ -180,6 +180,20 @@ class Ia:
             elif len(joueur.resource_manager.villageois["food"]) > 0:
                 self.deplacement_villageois(world, joueur, "food", "tree", None)
 
+    def gestion_construction_batiment_stone(self, world, joueur, nom_batiment, pos_depart):
+        if joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs[nom_batiment]["stone"]:
+            pos = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_depart, nom_batiment)
+            if world.place_building(pos, joueur, nom_batiment, True):
+                self.batiments.append(world.buildings[pos[0]][pos[1]])
+                self.batiments_a_const.append(world.buildings[pos[0]][pos[1]])
+        elif len(joueur.resource_manager.villageois["stone"]) < 3:
+            if len(joueur.resource_manager.villageois["rien"]) > 0:
+                self.deplacement_villageois(world, joueur, "rien", "stone", None)
+            elif len(joueur.resource_manager.villageois["wood"]) > 0:
+                self.deplacement_villageois(world, joueur, "wood", "stone", None)
+            elif len(joueur.resource_manager.villageois["food"]) > 0:
+                self.deplacement_villageois(world, joueur, "food", "stone", None)
+
     def gestion_ressource(self, world, joueur, nom_tile_ressource):
         if len(joueur.resource_manager.villageois["rien"]) != 0:
             self.deplacement_villageois(world, joueur, "rien", nom_tile_ressource, None)
@@ -187,7 +201,7 @@ class Ia:
                 joueur.resource_manager.population["population_maximale"]:
             if self.house_in_construct():
                 return
-            self.gestion_construction_batiment(world, joueur, "house", self.zone_residentielle)
+            self.gestion_construction_batiment_wood(world, joueur, "house", self.zone_residentielle)
         else:
             world.achat_villageois(joueur, self.pos_hdv, "villageois")
 
@@ -212,7 +226,7 @@ class Ia:
                 joueur.resource_manager.population["population_maximale"]:
             if self.house_in_construct():
                 return
-            self.gestion_construction_batiment(world, joueur, "house", self.zone_residentielle)
+            self.gestion_construction_batiment_wood(world, joueur, "house", self.zone_residentielle)
             return
         else:
             pos_caserne = ()
@@ -223,7 +237,7 @@ class Ia:
                     pos_caserne = b.pos
             pos = self.pos_hdv if nom_unite == "villageois" else pos_caserne
             if not pos:
-                self.gestion_construction_batiment(world, joueur, "caserne", self.pos_hdv)
+                self.gestion_construction_batiment_wood(world, joueur, "caserne", self.pos_hdv)
                 return
             u = world.achat_villageois(joueur, pos, nom_unite)
             if u:
@@ -279,12 +293,19 @@ class Ia:
 
         if self.plan_defense:
             caserne = 0
+            tower = 0
             for b in self.batiments:
                 if b.name == "caserne":
                     caserne = 1
+                if b.name == "tower":
+                    tower += 1
 
             if not caserne:
-                self.gestion_construction_batiment(world, joueur, "caserne", self.pos_hdv)
+                self.gestion_construction_batiment_wood(world, joueur, "caserne", self.pos_hdv)
+                return
+
+            if tower < 2:
+                self.gestion_construction_batiment_stone(world, joueur, "tower", self.pos_hdv)
                 return
 
             attack = 0
@@ -338,12 +359,12 @@ class Ia:
                 if b.name == "caserne":
                     caserne = True
             if not caserne:
-                self.gestion_construction_batiment(world, joueur, "caserne", self.pos_hdv)
+                self.gestion_construction_batiment_wood(world, joueur, "caserne", self.pos_hdv)
                 return
 
             for u in world.unites:
                 if u.joueur == joueur and u.path and len(u.path) > 10 and isinstance(u, Villageois):
-                    self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
+                    self.gestion_construction_batiment_wood(world, joueur, "grenier", u.posWork)
                     return
 
             if joueur.resource_manager.resources["food"] > 400 and joueur.resource_manager.resources["wood"] > 400 \
@@ -371,7 +392,7 @@ class Ia:
 
             for u in world.unites:
                 if u.joueur == joueur and u.path and len(u.path) > 10 and isinstance(u, Villageois):
-                    self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
+                    self.gestion_construction_batiment_wood(world, joueur, "grenier", u.posWork)
                     return
 
             if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
@@ -453,23 +474,23 @@ class Ia:
 
             for u in world.unites:
                 if u.joueur == joueur and u.path and len(u.path) > 10 and isinstance(u, Villageois):
-                    self.gestion_construction_batiment(world, joueur, "grenier", u.posWork)
+                    self.gestion_construction_batiment_wood(world, joueur, "grenier", u.posWork)
                     return
 
-            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
-                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and \
-                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
+            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["castle"]["wood"] and \
+                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["castle"]["food"] and \
+                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["castle"]["stone"] and \
                     joueur.numero_age < 3:
                 world.pass_castle(joueur)
-            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"] and \
+            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["castle"]["wood"] and \
                     len(joueur.resource_manager.villageois["wood"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "tree")
                 return
-            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["feodal"]["food"] and \
+            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["castle"]["food"] and \
                     len(joueur.resource_manager.villageois["food"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "buisson")
                 return
-            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["feodal"]["stone"] and \
+            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["castle"]["stone"] and \
                     len(joueur.resource_manager.villageois["stone"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "stone")
                 return
@@ -477,6 +498,6 @@ class Ia:
             if joueur.resource_manager.resources["food"] > 1000 and joueur.resource_manager.resources["wood"] > 1000 \
                     and joueur.resource_manager.resources[
                 "stone"] > 800 and self.nbr_clubman > 12 and joueur.numero_age == 3:
-                self.plan_petite_armee = False
+                self.plan_continuite = False
                 self.plan_attaque = True
             return
