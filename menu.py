@@ -233,10 +233,12 @@ class NewGame(Menu):
         self.intermediairex, self.intermediairey = self.mid_w, self.mid_h + 50
         self.difficilex, self.difficiley = self.mid_w + 300, self.mid_h + 50
         # self.cursor_rect.midtop = (self.playx + self.offset, self.playy)
-        self.PlayButton = Button((0, 255, 0), self.playx, self.playy, "villageois_recrut")
-        self.FacileButton = Button((0, 255, 0), self.facilex, self.faciley, "villageois_recrut")
-        self.InterButton = Button((0, 255, 0), self.intermediairex, self.intermediairey, "villageois_recrut")
-        self.DifficileButton = Button((0, 255, 0), self.difficilex, self.difficiley, "villageois_recrut")
+        self.PlayButton = Button((0, 255, 0), self.playx, self.playy-10, "villageois_recrut")
+
+        self.FacileButton = Button2((0, 255, 0), self.facilex-70, self.faciley-30, "villageois_recrut")
+        self.InterButton = Button2((0, 255, 0), self.intermediairex-120, self.intermediairey-30, "villageois_recrut")
+        self.DifficileButton = Button2((0, 255, 0), self.difficilex-90, self.difficiley-30, "villageois_recrut")
+
         self.etat =""
 
 
@@ -253,14 +255,13 @@ class NewGame(Menu):
             self.game.draw_text("Facile", 40, self.facilex, self.faciley)
             self.game.draw_text("Intermédiaire", 40, self.intermediairex, self.intermediairey)
             self.game.draw_text("Difficile", 40, self.difficilex, self.difficiley)
-
             if self.etat == "Facile":
                 self.game.draw_text2("Facile selectionné", 15, self.selectx, self.selecty)
             if self.etat == "Inter":
                 self.game.draw_text2("Intermédiaire selectionné", 15, self.selectx, self.selecty)
             if self.etat == "Difficile":
                 self.game.draw_text2("Difficile selectionné", 15, self.selectx, self.selecty)
-            self.game.draw_text("Play", 15, self.playx, self.playy)
+            self.game.draw_text("Play", 25, self.playx, self.playy)
             self.blit_screen()
 
     def check_input(self):
@@ -318,8 +319,8 @@ class OptionsMenu(Menu):
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 20
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
         # self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-        self.VolumeButton = Button((0, 255, 0), self.volx, self.voly, "villageois_recrut")
-        self.ControlsButton = Button((0, 255, 0), self.controlsx, self.controlsy, "villageois_recrut")
+        self.VolumeButton = Button((0, 255, 0), self.volx-50, self.voly-30, "villageois_recrut")
+        self.ControlsButton = Button((0, 255, 0), self.controlsx-50, self.controlsy-30, "villageois_recrut")
         self.ResolutionButton = Button((0, 255, 0), self.resox, self.resoy, "villageois_recrut")
 
     def display_menu(self):
@@ -360,6 +361,7 @@ class OptionsMenu(Menu):
 class CreditsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.state = 'Credits'
 
     def display_menu(self):
         pygame.display.init()
@@ -378,7 +380,7 @@ class CreditsMenu(Menu):
         if self.game.BACK_KEY or self.game.ESCAPE_KEY:
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
-
+        pass
 
 
 class VolumeMenu(Menu):
@@ -425,9 +427,7 @@ class CommandsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
 
-
 #    def display_menu(self):
-
 
 class ResolutionMenu(Menu):
     def __init__(self, game):
