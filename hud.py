@@ -77,6 +77,7 @@ class Hud:
 
         self.diplo_actif = False
 
+
     def create_build_hud(self):
 
         render_pos = [self.hud_action_rect.x + 30, self.hud_action_rect.y + 40]

@@ -206,9 +206,9 @@ class World:
                             correctify = -15
                         elif isinstance(building, House):
                             correctify = -15
-                        screen.blit(self.tiles[building.name],
+                        screen.blit(self.tiles[building.name+building.joueur.age.numero],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                 render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify))
+                                 render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify))
 
                         if building.health <= 0 and building.construit:
                             if self.examine_tile is not None and x == self.examine_tile[0] and y == self.examine_tile[1]:
@@ -218,9 +218,9 @@ class World:
 
                         if self.examine_tile is not None:
                             if self.buildings[self.examine_tile[0]][self.examine_tile[1]] == building:
-                                mask = pygame.mask.from_surface(self.tiles[building.name]).outline()
+                                mask = pygame.mask.from_surface(self.tiles[building.name+building.joueur.age.numero]).outline()
                                 mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                         y + render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify)
+                                         y + render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify)
                                         for x, y in mask]
                                 pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
@@ -436,10 +436,12 @@ class World:
         # buisson0 = pygame.transform.scale(buisson0, (88, 62)).convert_alpha()
 
         # bâtiments
-        caserne = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        grenier = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
-        hdv = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
-        house = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
 
         # etoile des combats
         etoile = pygame.image.load("assets/etoile.png").convert_alpha()
@@ -453,10 +455,12 @@ class World:
             "eau": eau,
             "sable": sable,
 
-            "caserne": caserne,
-            "grenier": grenier,
-            "hdv": hdv,
-            "house": house,
+            "caserne1": caserne1,
+            "caserne2": caserne2,
+            "grenier1": grenier1,
+            "hdv1": hdv1,
+            "hdv2" : hdv2,
+            "house1": house1,
 
             "etoile": etoile,
 
@@ -541,7 +545,7 @@ class World:
             collision = collision or self.collision_pos(grid_pos[0], grid_pos[1])
 
             self.temp_tile = {
-                "image": self.tiles[name].copy(),
+                "image": self.tiles[name+self.joueurs[0].age.numero].copy(),
                 "render_pos": render_pos,
                 "iso_poly": iso_poly,
                 "collision": collision

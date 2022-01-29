@@ -1,6 +1,6 @@
-import pygame
+import pygame as pg
 import pygame.image
-
+from age import *
 
 
 
