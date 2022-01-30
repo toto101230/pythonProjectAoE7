@@ -459,7 +459,7 @@ class Villageois(Unite):
             if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
                 if self.work == "builder":
                     building = buildings[self.posWork[0]][self.posWork[1]]
-                    building.health += 10
+                    building.health += 5
                     if building.health >= building.max_health:
                         building.construit = True
                         building.resource_manager.update_population_max(building.place_unite)

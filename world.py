@@ -233,10 +233,10 @@ class World:
 
                             pygame.draw.rect(screen, (255, 0, 0),
                                              pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                         render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30, 200, 10))
+                                                         render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30, 200, 10))
                             pygame.draw.rect(screen, (0, 255, 0),
                                              pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                         render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30,
+                                                         render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30,
                                                          building.health * 100 / building.max_health * 200 / 100, 10))
                             if building.pos_spawn_u and building.joueur.name == "joueur 1":
                                 pos = self.world[building.pos_spawn_u[0]][building.pos_spawn_u[1]]["render_pos"]
@@ -477,7 +477,9 @@ class World:
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
-        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
+        tower1 = pygame.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pygame.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pygame.image.load("assets/batiments/tower3.png").convert_alpha()
 
         # etoile des combats
         etoile = pygame.image.load("assets/etoile.png").convert_alpha()
@@ -496,17 +498,19 @@ class World:
 
             "caserne1": caserne1,
             "caserne2": caserne2,
-            "caserne3" : caserne3,
+            "caserne3": caserne3,
             "grenier1": grenier1,
-            "grenier2" : grenier2,
-            "grenier3" : grenier3,
+            "grenier2": grenier2,
+            "grenier3": grenier3,
             "hdv1": hdv1,
-            "hdv2" : hdv2,
-            "hdv3" : hdv3,
+            "hdv2": hdv2,
+            "hdv3": hdv3,
             "house1": house1,
-            "house2" : house2,
-            "house3" : house3,
-            "tower": tower,
+            "house2": house2,
+            "house3": house3,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
 
             "etoile": etoile,
 
@@ -727,15 +731,18 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
-                    if isinstance(building, Caserne) and building.joueur == joueur:
+                    if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 150
                         building.max_health = 500
-                    if isinstance(building, House) and building.joueur == joueur:
+                    if isinstance(building, House) and building.joueur == joueur and building.construit:
                         building.health += 25
                         building.max_health = 100
-                    if isinstance(building, Grenier) and building.joueur == joueur:
+                    if isinstance(building, Grenier) and building.joueur == joueur and building.construit:
                         building.health += 90
                         building.max_health = 440
+                    if isinstance(building, Tower) and building.joueur == joueur and building.construit:
+                        building.health += 50
+                        building.max_health = 175
 
             for u in self.unites:
                 if isinstance(u, Villageois):
@@ -755,15 +762,18 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
-                    if isinstance(building, Caserne) and building.joueur == joueur:
+                    if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 100
                         building.max_health = 600
-                    if isinstance(building, House) and building.joueur == joueur:
+                    if isinstance(building, House) and building.joueur == joueur and building.construit:
                         building.health += 50
                         building.max_health = 150
-                    if isinstance(building, Grenier) and building.joueur == joueur:
+                    if isinstance(building, Grenier) and building.joueur == joueur and building.construit:
                         building.health += 110
                         building.max_health = 550
+                    if isinstance(building, Tower) and building.joueur == joueur and building.construit:
+                        building.health += 75
+                        building.max_health = 250
 
             for u in self.unites:
                 if isinstance(u, Villageois):

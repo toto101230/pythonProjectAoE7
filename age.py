@@ -4,7 +4,7 @@ class Age:
         self.name = name
         self.joueur = joueur
         self.resource_manager =  self.joueur.resource_manager
-        self.numero = numero
+        self.numero = str(numero)
 
     def can_pass_age(self):
         self.resource_manager.is_affordable(self.name)

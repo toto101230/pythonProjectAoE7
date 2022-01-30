@@ -1,5 +1,6 @@
 from time import time
 
+
 class Batiment:
 
     def __init__(self, pos, name, place_unite, joueur, place_batiment):
@@ -42,7 +43,6 @@ class Caserne(Batiment):
         self.pos_spawn_u = (self.pos[0]+1, self.pos[1]+1)
 
 
-
 class House(Batiment):
 
     def __init__(self, pos, joueur):
@@ -70,7 +70,7 @@ class Grenier(Batiment):
 class Tower(Batiment):
 
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "tower", 125, 0, joueur, 1)
+        Batiment.__init__(self, pos, "tower", 0, joueur, 1)
         if joueur.age.name == "sombre":
             self.max_health = 125
         elif joueur.age.name == "feodal":

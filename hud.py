@@ -339,7 +339,9 @@ class Hud:
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
-        tower = pg.image.load("assets/batiments/tower.png").convert_alpha()
+        tower1 = pg.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pg.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pg.image.load("assets/batiments/tower3.png").convert_alpha()
 
         images = {
             "caserne1": caserne1,
@@ -350,8 +352,10 @@ class Hud:
             "house3": house3,
             "grenier1": grenier1,
             "grenier2": grenier2,
-            "grenier3": grenier3
-            "tower": tower,
+            "grenier3": grenier3,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
         }
 
         return images
@@ -369,7 +373,9 @@ class Hud:
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
-        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
+        tower1 = pg.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pg.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pg.image.load("assets/batiments/tower3.png").convert_alpha()
 
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
         gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
@@ -389,7 +395,9 @@ class Hud:
             "house1": house1,
             "house2": house2,
             "house3": house3,
-            "tower": tower,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
 
             "villageois": villageois,
             "gazelle": gazelle,
