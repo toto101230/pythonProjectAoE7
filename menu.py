@@ -1,22 +1,15 @@
-import pygame
-import pygame_widgets
-from pygame_widgets.slider import Slider
-from pygame_widgets.textbox import TextBox
-from pygame_widgets.dropdown import Dropdown
-
-import game
-import settings
 from bouton2 import *
 from game import Game
 import settings
-import resource_manager
 from save import Save
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 GM = Game(screen, clock)
 
+####################################################################################################################
 
+####################################################################################################################
 class GameMenu:
     def __init__(self, screen):
         self.running, self.playing = True, False
@@ -28,7 +21,7 @@ class GameMenu:
         self.font_name2 = 'assets/Polices&Wallpaper/Trajan_Pro_Bold.ttf'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
-        self.play_menu = PlayMenu(self)
+        self.play_menu = PlayMenu(self, jeu)
         self.options = OptionsMenu(self)
         self.new_game = NewGame(self)
         self.credits = CreditsMenu(self)
@@ -115,7 +108,6 @@ class MainMenu(Menu):
         self.CreditsButton = Button((0, 255, 0), self.creditsx - 80, self.creditsy, "villageois_recrut")
         self.ExitButton = Button((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
 
-
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
@@ -155,18 +147,19 @@ class MainMenu(Menu):
             self.run_display = False
 
 
-class PlayMenu(Menu):
-    def __init__(self, game):
+class PlayMenu(Menu,):
+    def __init__(self, game, jeu):
         Menu.__init__(self, game)
         self.state = 'NewGame'
-        self.selectx, self.selecty=self.mid_w-300, self.mid_h + 100
+        self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 100
         self.newgamex, self.newgamey = self.mid_w, self.mid_h + 20
         self.loadgamex, self.loadgamey = self.mid_w, self.mid_h + 40
         # self.cursor_rect.midtop = (self.newgamex + self.offset, self.newgamey)
         self.NewGameButton = Button2((0, 255, 0), self.newgamex - 110, self.newgamey - 65, "villageois_recrut")
         self.LoadGameButton = Button((0, 255, 0), self.loadgamex - 110, self.loadgamey, "villageois_recrut")
         self.world = None
-        self.etat=""
+        self.etat = ""
+        self.jeu = jeu
 
     def display_menu(self):
         pygame.display.init()
@@ -181,7 +174,8 @@ class PlayMenu(Menu):
             self.game.draw_text("New Game", 40, self.newgamex, self.newgamey - 40)
             self.game.draw_text("Load Game", 40, self.loadgamex, self.loadgamey + 10)
             if self.etat == "Pas de Partie":
-                self.game.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx, self.selecty)
+                self.game.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx,
+                                     self.selecty)
             # self.draw_cursor()
             self.blit_screen()
 
@@ -198,24 +192,19 @@ class PlayMenu(Menu):
             if self.LoadGameButton.is_over(mouse_pos):
 
                 if self.save.hasload():
-
-                    gameM = Game(screen, clock)
-                    gameM.create_game()
-                    gameM.seed, gameM.world.world, gameM.world.buildings, gameM.world.unites, gameM.world.animaux, \
-                        gameM.joueurs = self.save.load()
-                    gameM.world.load(gameM.seed, gameM)
-                    gameM.resources_manager = gameM.joueurs[0].resource_manager
-                    gameM.world.examine_tile = None
-                    gameM.hud.examined_tile = None
-                    gameM.hud.selected_tile = None
-                    gameM.cheat_enabled = False
+                    self.jeu.create_game()
+                    self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, self.jeu.world.animaux, \
+                    self.jeu.joueurs = self.save.load()
+                    self.jeu.world.load(self.jeu.seed, self.jeu)
+                    self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
+                    self.jeu.cheat_enabled = False
                     self.PartieChargee = 1
                     self.game.playing = True
                     self.game.running = False
                     self.game.CLICK = False
 
                 if not self.save.hasload():
-                    self.etat= "Pas de Partie"
+                    self.etat = "Pas de Partie"
                     self.game.CLICK = False
 
             self.run_display = False
@@ -227,20 +216,43 @@ class NewGame(Menu):
         Menu.__init__(self, game)
         self.state = 'NewGame'
 
-        self.playx, self.playy = self.mid_w, self.mid_h + 100
-        self.selectx, self.selecty=self.mid_w-300, self.mid_h + 100
-        self.facilex, self.faciley = self.mid_w - 300, self.mid_h + 50
-        self.intermediairex, self.intermediairey = self.mid_w, self.mid_h + 50
-        self.difficilex, self.difficiley = self.mid_w + 300, self.mid_h + 50
+        self.playx, self.playy = self.mid_w, self.mid_h + 500
+
+        self.Difficultex, self.Difficultey = self.mid_w - 500, self.mid_h - 300
+        self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 200
+        self.facilex, self.faciley = self.mid_w - 200, self.mid_h - 300
+        self.intermediairex, self.intermediairey = self.mid_w, self.mid_h - 300
+        self.difficilex, self.difficiley = self.mid_w + 200, self.mid_h - 300
+
+        self.cheatsx, self.cheatsy = self.mid_w - 525, self.mid_h - 200
+        self.ouix, self.ouiy = self.mid_w - 125, self.mid_h - 200
+        self.nonx, self.nony = self.mid_w - 25, self.mid_h - 200
+        self.activex, self.activey = self.mid_w - 300, self.mid_h + 300
+
+        self.joueursx, self.joueursy = self.mid_w - 430, self.mid_h - 100
+        self.plusx, self.plusy = self.mid_w + 100, self.mid_h - 100
+        self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h - 100
+        self.nbjoueursx, self.nbjoueursy = self.mid_w, self.mid_h - 100
+
+        self.seedx, self.seedy = self.mid_w - 550, self.mid_h
+        self.seedboxx, self.seedboxy = self.mid_w - 300, self.mid_h
+
         # self.cursor_rect.midtop = (self.playx + self.offset, self.playy)
-        self.PlayButton = Button((0, 255, 0), self.playx, self.playy-10, "villageois_recrut")
+        self.PlayButton = Button((0, 255, 0), self.playx, self.playy - 10, "villageois_recrut")
 
-        self.FacileButton = Button2((0, 255, 0), self.facilex-70, self.faciley-30, "villageois_recrut")
-        self.InterButton = Button2((0, 255, 0), self.intermediairex-120, self.intermediairey-30, "villageois_recrut")
-        self.DifficileButton = Button2((0, 255, 0), self.difficilex-90, self.difficiley-30, "villageois_recrut")
+        self.FacileButton = Button2((0, 255, 0), self.facilex - 70, self.faciley - 30, "villageois_recrut")
+        self.InterButton = Button2((0, 255, 0), self.intermediairex - 120, self.intermediairey - 30,
+                                   "villageois_recrut")
+        self.DifficileButton = Button2((0, 255, 0), self.difficilex - 90, self.difficiley - 30, "villageois_recrut")
 
-        self.etat =""
+        self.OuiButton = Button2((0, 255, 0), self.ouix, self.ouiy, "villageois_recrut")
+        self.NonButton = Button2((0, 255, 0), self.nonx, self.nony, "villageois_recrut")
 
+        self.PlusButton = Button2((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
+        self.MoinsButton = Button2((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+
+        self.etatDifficulte = ""
+        self.etatCheat = ""
 
     def display_menu(self):
         pygame.display.init()
@@ -251,21 +263,45 @@ class NewGame(Menu):
             self.check_input()
             self.game.display.fill((0, 0, 0))
             self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('New Game', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Facile", 40, self.facilex, self.faciley)
-            self.game.draw_text("Intermédiaire", 40, self.intermediairex, self.intermediairey)
-            self.game.draw_text("Difficile", 40, self.difficilex, self.difficiley)
-            if self.etat == "Facile":
-                self.game.draw_text2("Facile selectionné", 15, self.selectx, self.selecty)
-            if self.etat == "Inter":
-                self.game.draw_text2("Intermédiaire selectionné", 15, self.selectx, self.selecty)
-            if self.etat == "Difficile":
-                self.game.draw_text2("Difficile selectionné", 15, self.selectx, self.selecty)
+            #self.seedbox.draw(self, screen)
+
+            self.game.draw_text2('Nouvelle Partie', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 400)
+
+            self.game.draw_text("Difficulte", 30, self.Difficultex, self.Difficultey)
+            self.game.draw_text("Facile", 20, self.facilex, self.faciley)
+            self.game.draw_text("Intermédiaire", 20, self.intermediairex, self.intermediairey)
+            self.game.draw_text("Difficile", 20, self.difficilex, self.difficiley)
+
+            if self.etatDifficulte == "Facile":
+                self.game.draw_text2("Facile selectionné", 10, self.selectx, self.selecty)
+            if self.etatDifficulte == "Inter":
+                self.game.draw_text2("Intermédiaire selectionné", 10, self.selectx, self.selecty)
+            if self.etatDifficulte == "Difficile":
+                self.game.draw_text2("Difficile selectionné", 10, self.selectx, self.selecty)
+
+            self.game.draw_text("Triches", 30, self.cheatsx, self.cheatsy)
+            self.game.draw_text("Oui", 20, self.ouix, self.ouiy)
+            self.game.draw_text("Non", 20, self.nonx + 120, self.nony)
+
+            if self.etatCheat == "On":
+                self.game.draw_text2("Triche activée", 15, self.activex, self.activey)
+
+            if self.etatCheat == "Off":
+                self.game.draw_text2("Triche désactivée", 15, self.activex, self.activey)
+
+            self.game.draw_text_from_var(settings.NbJoueurs, 20, self.nbjoueursx, self.nbjoueursy)
+            self.game.draw_text("+", 40, self.plusx, self.plusy)
+            self.game.draw_text("-", 40, self.moinsx, self.moinsy)
+
+            self.game.draw_text("Nombre de Joueurs:", 30, self.joueursx, self.joueursy)
+
+            self.game.draw_text("Seed:", 30, self.seedx, self.seedy)
+
             self.game.draw_text("Play", 25, self.playx, self.playy)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
+        if self.game.ESCAPE_KEY:
             self.game.curr_menu = self.game.play_menu
             self.run_display = False
         if self.game.CLICK:
@@ -276,33 +312,49 @@ class NewGame(Menu):
                 settings.START_STONE = 1
                 settings.START_GOLD = 1
                 self.game.CLICK = False
-                self.etat= "Facile"
+                self.etatDifficulte = "Facile"
             if self.InterButton.is_over(mouse_pos):
                 settings.START_WOOD = 2
                 settings.START_FOOD = 2
                 settings.START_STONE = 2
                 settings.START_GOLD = 2
                 self.game.CLICK = False
-                self.etat ="Inter"
-
+                self.etatDifficulte = "Inter"
             if self.DifficileButton.is_over(mouse_pos):
                 settings.START_WOOD = 3
                 settings.START_FOOD = 3
                 settings.START_STONE = 3
                 settings.START_GOLD = 3
-                self.etat ="Difficile"
+                self.etatDifficulte = "Difficile"
                 self.game.CLICK = False
+
+            if self.PlusButton.is_over(mouse_pos):
+                if settings.NbJoueurs <= 7:
+                    settings.NbJoueurs += 1
+                self.game.CLICK = False
+            if self.MoinsButton.is_over(mouse_pos):
+                if settings.NbJoueurs >= 2:
+                    settings.NbJoueurs -= 1
+                self.game.CLICK = False
+
+            if self.OuiButton.is_over(mouse_pos):
+                settings.CheatsActive = 1
+                self.etatCheat = "On"
+                self.game.CLICK = False
+            if self.NonButton.is_over(mouse_pos):
+                settings.CheatsActive = 0
+                self.etatCheat = "Off"
+                self.game.CLICK = False
+
             if self.PlayButton.is_over(mouse_pos):
-                gameM = Game(screen, clock)
-                a= resource_manager.ResourceManager()
-                a.resources = {
-            "wood": settings.START_WOOD,
-            "food": settings.START_FOOD,
-            "gold": settings.START_GOLD,
-            "stone": settings.START_STONE
-        }
-                gameM.create_game()
-                gameM.resources_manager= a
+                self.jeu.create_game(settings.NbJoueurs)
+                self.jeu.joueurs[0].resource_manager.resources = {
+                    "wood": settings.START_WOOD,
+                    "food": settings.START_FOOD,
+                    "gold": settings.START_GOLD,
+                    "stone": settings.START_STONE
+                }
+                self.jeu.cheat_enabled = True if settings.CheatsActive == 1 else False
                 self.game.playing = True
                 self.game.running = False
                 self.game.CLICK = False
@@ -319,8 +371,8 @@ class OptionsMenu(Menu):
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 20
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
         # self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-        self.VolumeButton = Button((0, 255, 0), self.volx-50, self.voly-30, "villageois_recrut")
-        self.ControlsButton = Button((0, 255, 0), self.controlsx-50, self.controlsy-30, "villageois_recrut")
+        self.VolumeButton = Button((0, 255, 0), self.volx - 50, self.voly - 30, "villageois_recrut")
+        self.ControlsButton = Button((0, 255, 0), self.controlsx - 50, self.controlsy - 30, "villageois_recrut")
         self.ResolutionButton = Button((0, 255, 0), self.resox, self.resoy, "villageois_recrut")
 
     def display_menu(self):
@@ -427,25 +479,29 @@ class CommandsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
 
+
 #    def display_menu(self):
 
-class ResolutionMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = 'Résolution'
-        self.plusx, self.plusy = self.mid_w + 100, self.mid_h
-        self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h
-        self.volumex, self.volumey = self.mid_w, self.mid_h
-        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
-        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+#class ResolutionMenu(Menu):
+#    def __init__(self, game):
+#        Menu.__init__(self, game)
+#        self.state = 'Résolution'
+#        self.plusx, self.plusy = self.mid_w + 100, self.mid_h
+#        self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h
+#        self.volumex, self.volumey = self.mid_w, self.mid_h
+#        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
+#        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+#
+#    def display_menu(self):
+#        pygame.display.init()
+#        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
+#        self.game.check_events()
+#        self.check_input()
+#        self.game.display.fill((0, 0, 0))
+#        self.game.display.blit(image, (0, 0))
+#        self.game.draw_text2('Résolution', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
+#        self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
+#                            self.game.DISPLAY_H / 2 - 20)
 
-    def display_menu(self):
-        pygame.display.init()
-        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
-        self.game.check_events()
-        self.check_input()
-        self.game.display.fill((0, 0, 0))
-        self.game.display.blit(image, (0, 0))
-        self.game.draw_text2('Résolution', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-        self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
-                            self.game.DISPLAY_H / 2 - 20)
+
+

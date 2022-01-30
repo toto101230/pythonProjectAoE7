@@ -31,3 +31,6 @@ START_FOOD = 0
 START_GOLD = 0
 START_STONE = 0
 Volume= 50
+CheatsActive= 0
+NbJoueurs= 2
+seed=""
