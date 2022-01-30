@@ -11,7 +11,7 @@ GM = Game(screen, clock)
 
 ####################################################################################################################
 class GameMenu:
-    def __init__(self, screen):
+    def __init__(self, screen, jeu):
         self.running, self.playing = True, False
         self.DISPLAY_W, self.DISPLAY_H = screen.get_size()
         self.CLICK, self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False, False
@@ -23,7 +23,7 @@ class GameMenu:
         self.main_menu = MainMenu(self)
         self.play_menu = PlayMenu(self, jeu)
         self.options = OptionsMenu(self)
-        self.new_game = NewGame(self)
+        self.new_game = NewGame(self, jeu)
         self.credits = CreditsMenu(self)
         self.Volume = VolumeMenu(self)
         self.Controls = CommandsMenu(self)
@@ -212,9 +212,10 @@ class PlayMenu(Menu,):
 
 
 class NewGame(Menu):
-    def __init__(self, game):
+    def __init__(self, game, jeu):
         Menu.__init__(self, game)
         self.state = 'NewGame'
+        self.jeu = jeu
 
         self.playx, self.playy = self.mid_w, self.mid_h + 500
 

@@ -18,10 +18,10 @@ def main():
 
     game = Game(screen, clock)
 
-    menuP = menu.GameMenu(screen)
+    menuP = menu.GameMenu(screen, game)
     while running:
         #while menu.PlayMenu(menu).PartieChargee != 1:
-        game.create_game()
+        # game.create_game()
         while menuP.running:
             menuP.curr_menu.display_menu()
         while menuP.playing:
