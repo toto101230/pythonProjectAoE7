@@ -77,7 +77,6 @@ class Hud:
 
         self.diplo_actif = False
 
-
     def create_build_hud(self):
 
         render_pos = [self.hud_action_rect.x + 30, self.hud_action_rect.y + 40]
@@ -280,7 +279,6 @@ class Hud:
                         self.clubman_bouton.draw(screen)
                         self.clubman_bouton.can_press = True
 
-
             else:
                 img = self.images_terre[self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
                 draw_text(screen, str(self.examined_tile["ressource"]), 30, (255,255,255), (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
@@ -322,9 +320,9 @@ class Hud:
     def load_images(self):
 
         caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        caserne2 = pygame.image.load("assets/batiments/barrack2.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
         caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
-        grenier1 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
         grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
         grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
@@ -333,29 +331,28 @@ class Hud:
 
         images = {
             "caserne1": caserne1,
-            "caserne2" : caserne2,
-            "caserne3" : caserne3,
+            "caserne2": caserne2,
+            "caserne3": caserne3,
             "house1": house1,
-            "house2" : house2,
-            "house3" : house3,
+            "house2": house2,
+            "house3": house3,
             "grenier1": grenier1,
-            "grenier2" : grenier2,
-            "grenier3" : grenier3
+            "grenier2": grenier2,
+            "grenier3": grenier3
         }
 
         return images
 
-
     def load_images_examined(self):
         caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        caserne2 = pygame.image.load("assets/batiments/barrack2.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
         caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
-        grenier1 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
         grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
         grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
         hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
-        hdv2 = pygame.image.load("assets/batiments/town_center2.png").convert_alpha()
-        hdv3 = pygame.image.load("assets/batiments/town_center3.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/hdv2.png").convert_alpha()
+        hdv3 = pygame.image.load("assets/batiments/hdv3.png").convert_alpha()
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
@@ -372,16 +369,16 @@ class Hud:
         images = {
             "caserne1": caserne1,
             "caserne2": caserne2,
-            "caserne3" : caserne3,
+            "caserne3": caserne3,
             "grenier1": grenier1,
-            "grenier2" : grenier2,
-            "grenier3" : grenier3,
+            "grenier2": grenier2,
+            "grenier3": grenier3,
             "hdv1": hdv1,
-            "hdv2" : hdv2,
-            "hdv3" : hdv3,
+            "hdv2": hdv2,
+            "hdv3": hdv3,
             "house1": house1,
-            "house2" : house2,
-            "house3" : house3,
+            "house2": house2,
+            "house3": house3,
             "villageois1": villageois1,
             "villageois2": villageois2,
             "villageois3": villageois3,

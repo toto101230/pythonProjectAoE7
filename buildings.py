@@ -1,15 +1,9 @@
-import pygame as pg
-import pygame.image
-from age import *
-
-
-
 class Batiment:
 
-    def __init__(self, pos, name, max_health, place_unite, joueur, place_batiment):
+    def __init__(self, pos, name, place_unite, joueur, place_batiment):
         self.name = name
         self.health = 0
-        self.max_health = max_health
+        self.max_health = 0
         self.counter = 0
         self.place_unite = place_unite
         self.joueur = joueur
@@ -20,51 +14,47 @@ class Batiment:
         self.construit = False
 
 
-
-
-
-
 class Hdv(Batiment):
 
-
     def __init__(self, pos, joueur):
-        Batiment.__init__(self, pos, "hdv", 500, 5, joueur, 4 )
+        Batiment.__init__(self, pos, "hdv", 5, joueur, 4)
         self.health = self.max_health
         self.construit = True
         self.resource_manager.update_population_max(self.place_unite)
+        self.max_health = 500
 
 
 class Caserne(Batiment):
 
     def __init__(self, pos, joueur):
+        Batiment.__init__(self, pos, "caserne", 0, joueur, 4)
         if joueur.age.name == "sombre":
-            self.spawn_health = 350
+            self.max_health = 350
         elif joueur.age.name == "feodal":
-            self.spawn_health = 500
+            self.max_health = 500
         elif joueur.age.name == "castle":
-            self.spawn_health = 600
-        Batiment.__init__(self, pos, "caserne", self.spawn_health, 0, joueur, 4)
+            self.max_health = 600
 
 
 class House(Batiment):
 
     def __init__(self, pos, joueur):
+        Batiment.__init__(self, pos, "house", 5, joueur, 1)
         if joueur.age.name == "sombre":
-            self.spawn_health = 75
+            self.max_health = 75
         elif joueur.age.name == "feodal":
-            self.spawn_health = 100
+            self.max_health = 100
         elif joueur.age.name == "castle":
-            self.spawn_health = 150
-        Batiment.__init__(self, pos, "house", self.spawn_health, 5, joueur, 1)
+            self.max_health = 150
 
 
 class Grenier(Batiment):
 
     def __init__(self, pos, joueur):
+        Batiment.__init__(self, pos, "grenier", 0, joueur, 4)
         if joueur.age.name == "sombre":
-            self.spawn_health = 350
+            self.max_health = 350
         elif joueur.age.name == "feodal":
-            self.spawn_health = 440
+            self.max_health = 440
         elif joueur.age.name == "castle":
-            self.spawn_health = 550
-        Batiment.__init__(self, pos, "grenier", self.spawn_health, 0, joueur, 4)
+            self.max_health = 550

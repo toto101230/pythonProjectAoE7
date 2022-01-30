@@ -2,13 +2,11 @@ import pygame
 import numpy as np
 import tcod
 
-import unite
 import events
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
 from unite import Unite, Villageois, Clubman, neighbours
 from time import time
-from camera import Camera
 from model.joueur import Joueur
 from os import walk
 from age import *
@@ -30,9 +28,6 @@ class World:
         print(self.seed)
         self.joueurs = joueurs
         self.pos_hdv = self.create_pos_hdv()
-
-        self.camera = Camera(self.width, self.height)
-
 
         self.grass_tiles = pygame.Surface(
             (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
@@ -437,14 +432,14 @@ class World:
 
         # bâtiments
         caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        caserne2 = pygame.image.load("assets/batiments/barrack2.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
         caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
-        grenier1 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
         grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
         grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
         hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
-        hdv2 = pygame.image.load("assets/batiments/town_center2.png").convert_alpha()
-        hdv3 = pygame.image.load("assets/batiments/town_center3.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/hdv2.png").convert_alpha()
+        hdv3 = pygame.image.load("assets/batiments/hdv3.png").convert_alpha()
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
