@@ -670,8 +670,7 @@ class World:
     def deplace_unite(self, pos, unite):
         return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
-    def pass_feodal(self,joueur):
-
+    def pass_feodal(self, joueur):
         if joueur.resource_manager.is_affordable("sombre"):
             joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
@@ -679,12 +678,15 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
-                    if isinstance(building,Caserne) and building.joueur == joueur:
-                        building.health = 500
+                    if isinstance(building, Caserne) and building.joueur == joueur:
+                        building.health += 150
+                        building.max_health = 500
                     if isinstance(building, House) and building.joueur == joueur:
-                        building.health = 100
-                    if isinstance(building,Grenier) and building.joueur == joueur:
-                        building.health = 440
+                        building.health += 25
+                        building.max_health = 100
+                    if isinstance(building, Grenier) and building.joueur == joueur:
+                        building.health += 90
+                        building.max_health = 440
 
             for u in self.unites:
                 if isinstance(u, Villageois):
@@ -694,9 +696,6 @@ class World:
                     u.health = 50
                     u.attack = 7
 
-
-
-
     def pass_castle(self, joueur):
         if joueur.resource_manager.is_affordable("feodal"):
             joueur.resource_manager.apply_cost_to_resource("feodal")
@@ -705,12 +704,15 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
-                    if isinstance(building,Caserne) and building.joueur == joueur:
-                        building.health = 600
+                    if isinstance(building, Caserne) and building.joueur == joueur:
+                        building.health += 100
+                        building.max_health = 600
                     if isinstance(building, House) and building.joueur == joueur:
-                        building.health = 150
-                    if isinstance(building,Grenier) and building.joueur == joueur:
-                        building.health = 550
+                        building.health += 50
+                        building.max_health = 150
+                    if isinstance(building, Grenier) and building.joueur == joueur:
+                        building.health += 110
+                        building.max_health = 550
 
             for u in self.unites:
                 if isinstance(u, Villageois):

@@ -125,7 +125,6 @@ class Hud:
                     self.unite_recrut = self.villageois_bouton.text[:-7]
                     self.villageois_bouton.is_press = True
 
-
             if self.clubman_bouton.is_over(mouse_pos) and self.clubman_bouton.can_press and not self.clubman_bouton.is_press:
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
@@ -170,8 +169,6 @@ class Hud:
             if tile["rect"].collidepoint(mouse_pos) and tile["affordable"]:
                 if mouse_action[0]:
                     self.selected_tile = tile
-
-
 
         if camera:
             for i in range(5):
@@ -253,8 +250,11 @@ class Hud:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
 
             # affichage de l'image du batiment avec son nom et son nombre de vie
-            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or isinstance(self.examined_tile, Animal):
-                img = self.images_examined[self.examined_tile.name+joueurs[0].age.numero].convert_alpha()
+            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or \
+                    isinstance(self.examined_tile, Animal):
+                name_image = self.examined_tile.name + joueurs[0].age.numero if isinstance(self.examined_tile, Batiment) \
+                    else self.examined_tile.name
+                img = self.images_examined[name_image].convert_alpha()
                 draw_text(screen, self.examined_tile.name, 50, "#ff0000",
                           (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
                 draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
@@ -356,15 +356,11 @@ class Hud:
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
         house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
         house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
-        villageois1 = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
-        villageois2 = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
-        villageois3 = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
-        gazelle1 = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
-        gazelle2 = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
-        gazelle3 = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
-        gazelle_mort1 = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
-        gazelle_mort2 = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
-        gazelle_mort3 = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
+
+        villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
+        gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
+        gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
+        clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
 
         images = {
             "caserne1": caserne1,
@@ -379,15 +375,11 @@ class Hud:
             "house1": house1,
             "house2": house2,
             "house3": house3,
-            "villageois1": villageois1,
-            "villageois2": villageois2,
-            "villageois3": villageois3,
-            "gazelle1": gazelle1,
-            "gazelle2": gazelle2,
-            "gazelle3": gazelle3,
-            "gazelle_mort1": gazelle_mort1,
-            "gazelle_mort2": gazelle_mort2,
-            "gazelle_mort3": gazelle_mort3,
+
+            "villageois": villageois,
+            "gazelle": gazelle,
+            "gazelle_mort": gazelle_mort,
+            "clubman": clubman,
         }
 
         w, h = self.hud_info_rect.width, self.hud_info_rect.height
