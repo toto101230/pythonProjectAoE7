@@ -28,7 +28,7 @@ class Feodal(Age):
 class Castle(Age):
 
     def __init__(self, joueur):
-        Age.__init__(self, 2, "castle", joueur)
+        Age.__init__(self, 3, "castle", joueur)
 
 
 

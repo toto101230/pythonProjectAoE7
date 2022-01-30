@@ -87,7 +87,7 @@ class World:
                         self.examined_unites_tile = []
 
         if self.hud.selected_tile is not None:
-            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
+            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"][:-1],
                                    mouse_action[0]) == 0:
                 self.hud.selected_tile = None
 
@@ -437,11 +437,17 @@ class World:
 
         # bâtiments
         caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        caserne2 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/barrack2.png").convert_alpha()
+        caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
         grenier1 = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
+        grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
+        grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
         hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
-        hdv2 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/town_center2.png").convert_alpha()
+        hdv3 = pygame.image.load("assets/batiments/town_center3.png").convert_alpha()
         house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
+        house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
 
         # etoile des combats
         etoile = pygame.image.load("assets/etoile.png").convert_alpha()
@@ -457,10 +463,16 @@ class World:
 
             "caserne1": caserne1,
             "caserne2": caserne2,
+            "caserne3" : caserne3,
             "grenier1": grenier1,
+            "grenier2" : grenier2,
+            "grenier3" : grenier3,
             "hdv1": hdv1,
             "hdv2" : hdv2,
+            "hdv3" : hdv3,
             "house1": house1,
+            "house2" : house2,
+            "house3" : house3,
 
             "etoile": etoile,
 
