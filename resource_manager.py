@@ -32,8 +32,9 @@ class ResourceManager:
             "caserne": {"wood": 125},
             "house": {"wood": 30},
             "grenier": {"wood": 130},
-            "sombre" : {"wood" : 500, "food" : 500, "stone" : 500},
-            "feodal" : {"wood" : 800, "food" : 800, "stone" : 800}
+            "sombre": {"wood": 500, "food": 500, "stone": 500},
+            "feodal": {"wood": 800, "food": 800, "stone": 800},
+            "tower": {"stone": 150},
         }
 
     def stay_place(self):
