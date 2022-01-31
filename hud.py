@@ -93,8 +93,9 @@ class Hud:
         self.hud_info_surface.blit(self.hud_info, (0, 0))
 
         tiles = []
-
+        i=0
         for image_name, image in self.images.items():
+            i+=1
             pos = render_pos.copy()
             image_tmp = image.copy()
             image_scale = self.scale_image(image_tmp, w=object_width)
@@ -110,7 +111,7 @@ class Hud:
                 }
             )
 
-            if i%3 == 0:
+            if i % 3 == 0:
                 render_pos[0] += image_scale.get_width() + 9 * 1280 / self.width
 
         return tiles
@@ -143,7 +144,7 @@ class Hud:
                 if mouse_action[0]:
                     self.action_age = "feodal"
                     self.age_feodal_bouton.is_press = True
-            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_pressand and\
+            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press and\
                     self.examined_tile.name == "hdv":
                 if mouse_action[0]:
                     self.action_age = "castle"
