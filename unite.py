@@ -3,21 +3,10 @@ from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
 from model.animal import Animal
+from utils import Node
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
-
-
-class Node:
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __eq__(self, other):
-        return self.position == other.position
 
 
 class Unite(metaclass=ABCMeta):
@@ -470,7 +459,7 @@ class Villageois(Unite):
             if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
                 if self.work == "builder":
                     building = buildings[self.posWork[0]][self.posWork[1]]
-                    building.health += 10
+                    building.health += 5
                     if building.health >= building.max_health:
                         building.construit = True
                         building.resource_manager.update_population_max(building.place_unite)
@@ -517,9 +506,9 @@ class Villageois(Unite):
                             self.action = "idle"
                             self.work = "default"
 
-
-                #ici pour modifier le nombre de ressource qu'il ramene
-                #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
+                # ici pour modifier le nombre de ressource qu'il ramene
+                # faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que
+                # cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
