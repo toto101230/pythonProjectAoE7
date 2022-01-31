@@ -7,9 +7,6 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 GM = Game(screen, clock)
 
-####################################################################################################################
-
-####################################################################################################################
 class GameMenu:
     def __init__(self, screen, jeu):
         self.running, self.playing = True, False
@@ -80,13 +77,10 @@ class Menu:
         self.game = game
         self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
         self.run_display = True
-        # self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.offset = - 100
         self.save = Save()
         self.PartieChargee = 0
 
-    # def draw_cursor(self):
-    #    self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
         self.game.window.blit(self.game.display, (0, 0))
@@ -114,7 +108,7 @@ class MainMenu(Menu):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
-            # self.game.PlayButton.draw(self,screen=self.game.window,outline=None)
+
             self.check_input()
             self.game.display.fill(self.game.BLACK)
             self.game.display.blit(image, (0, 0))
@@ -154,7 +148,6 @@ class PlayMenu(Menu,):
         self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 100
         self.newgamex, self.newgamey = self.mid_w, self.mid_h + 20
         self.loadgamex, self.loadgamey = self.mid_w, self.mid_h + 40
-        # self.cursor_rect.midtop = (self.newgamex + self.offset, self.newgamey)
         self.NewGameButton = Button2((0, 255, 0), self.newgamex - 110, self.newgamey - 65, "villageois_recrut")
         self.LoadGameButton = Button((0, 255, 0), self.loadgamex - 110, self.loadgamey, "villageois_recrut")
         self.world = None
@@ -176,7 +169,6 @@ class PlayMenu(Menu,):
             if self.etat == "Pas de Partie":
                 self.game.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx,
                                      self.selecty)
-            # self.draw_cursor()
             self.blit_screen()
 
     def check_input(self):
@@ -238,19 +230,19 @@ class NewGame(Menu):
         self.seedx, self.seedy = self.mid_w - 550, self.mid_h
         self.seedboxx, self.seedboxy = self.mid_w - 300, self.mid_h
 
-        # self.cursor_rect.midtop = (self.playx + self.offset, self.playy)
-        self.PlayButton = Button((0, 255, 0), self.playx, self.playy - 10, "villageois_recrut")
+
+        self.PlayButton = Button((0, 255, 0), self.playx-60, self.playy - 20, "villageois_recrut")
 
         self.FacileButton = Button2((0, 255, 0), self.facilex - 70, self.faciley - 30, "villageois_recrut")
         self.InterButton = Button2((0, 255, 0), self.intermediairex - 120, self.intermediairey - 30,
                                    "villageois_recrut")
         self.DifficileButton = Button2((0, 255, 0), self.difficilex - 90, self.difficiley - 30, "villageois_recrut")
 
-        self.OuiButton = Button2((0, 255, 0), self.ouix, self.ouiy, "villageois_recrut")
-        self.NonButton = Button2((0, 255, 0), self.nonx, self.nony, "villageois_recrut")
+        self.OuiButton = Button2((0, 255, 0), self.ouix-37, self.ouiy-10, "villageois_recrut")
+        self.NonButton = Button2((0, 255, 0), self.nonx-37, self.nony-10, "villageois_recrut")
 
-        self.PlusButton = Button2((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
-        self.MoinsButton = Button2((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+        self.PlusButton = Button2((0, 255, 0), self.plusx-160, self.plusy-10, "villageois_recrut")
+        self.MoinsButton = Button2((0, 255, 0), self.moinsx-80, self.moinsy-10, "villageois_recrut")
 
         self.etatDifficulte = ""
         self.etatCheat = ""
@@ -264,7 +256,6 @@ class NewGame(Menu):
             self.check_input()
             self.game.display.fill((0, 0, 0))
             self.game.display.blit(image, (0, 0))
-            #self.seedbox.draw(self, screen)
 
             self.game.draw_text2('Nouvelle Partie', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 400)
 
@@ -371,7 +362,6 @@ class OptionsMenu(Menu):
         self.volx, self.voly = self.mid_w, self.mid_h - 20
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 20
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
-        # self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
         self.VolumeButton = Button((0, 255, 0), self.volx - 50, self.voly - 30, "villageois_recrut")
         self.ControlsButton = Button((0, 255, 0), self.controlsx - 50, self.controlsy - 30, "villageois_recrut")
         self.ResolutionButton = Button((0, 255, 0), self.resox, self.resoy, "villageois_recrut")
@@ -389,7 +379,6 @@ class OptionsMenu(Menu):
             self.game.draw_text("Volume", 40, self.volx, self.voly)
             self.game.draw_text("Controls", 40, self.controlsx, self.controlsy)
             self.game.draw_text("Résolution", 40, self.resox, self.resoy)
-            # self.draw_cursor()
             self.blit_screen()
 
     def check_input(self):
