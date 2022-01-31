@@ -287,6 +287,7 @@ class Hud:
     def load_images_examined(self):
         caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()
         clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
+        bigdaddy = pygame.image.load("assets/hud/examined_title/bigdaddy.png").convert_alpha()
         grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
         hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
         house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
@@ -297,6 +298,7 @@ class Hud:
         images = {
             "caserne": caserne,
             "clubman": clubman,
+            "bigdaddy": bigdaddy,
             "grenier": grenier,
             "hdv": hdv,
             "house": house,

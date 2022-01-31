@@ -636,3 +636,9 @@ class Villageois(Unite):
 class Clubman(Unite):
     def __init__(self, pos, joueur):
         super().__init__("clubman", pos, 40, 1.2, 3, 1, 1.5, 1, joueur)
+
+
+class BigDaddy(Unite):
+    def __init__(self, pos, joueur):
+        super().__init__("bigdaddy", pos, 2000, 1.2, 30, 3, 3, 0, joueur)
+

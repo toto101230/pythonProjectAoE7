@@ -16,6 +16,8 @@ class Camera:
         self.dy = 0
         self.speed = 30
 
+        self.box = None
+
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False
 
         self.nb_villa_select = [0, 0, 0, 0, 0]
@@ -58,7 +60,7 @@ class Camera:
         #
 
     def events(self, event):
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN and not self.box.active:
             if event.key == pygame.K_s:
                 self.yBoolM = True
             if event.key == pygame.K_z:

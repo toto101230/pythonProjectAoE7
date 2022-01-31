@@ -5,7 +5,7 @@ import tcod
 import events
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment
-from unite import Unite, Villageois, Clubman, neighbours
+from unite import Unite, Villageois, Clubman, neighbours, BigDaddy
 from time import time
 from model.joueur import Joueur
 from os import walk
@@ -747,6 +747,10 @@ class World:
         self.unites.append(Clubman((65, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 65), self.joueurs[0]))
+
+    def create_bigdaddy(self):
+        spos = self.joueurs[0].hdv_pos
+        self.unites.append(BigDaddy((spos[0]+1, spos[1]+3), self.joueurs[0]))
 
     def collision_pos(self, x, y):
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)

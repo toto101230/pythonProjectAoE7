@@ -30,6 +30,7 @@ class InputBox:
         self.cheatlist = ["ninjalui", "bigdaddy", "steroids"]
         self.nrofcheat = len(self.cheatlist)  # unused atm
         self.window = state
+        self.world = None
 
     def handle_event(self, event):
         if self.window:
@@ -65,7 +66,7 @@ class InputBox:
                 self.player_rmanage.resources["food"] += 10000
                 self.player_rmanage.resources["gold"] += 10000
             elif strcmp(message, self.cheatlist[1]):    # bigdaddy
-                pass
+                self.world.create_bigdaddy()
             elif strcmp(message, self.cheatlist[2]):    # steroids
                 if not self.steroids:
                     self.steroids = True

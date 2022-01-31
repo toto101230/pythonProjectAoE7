@@ -54,6 +54,7 @@ class Game:
         self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.camera.box = self.cheat_box
         self.chargement(15)
 
         self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
@@ -61,6 +62,7 @@ class Game:
 
         # les deux premiers int sont longueur et largeur du monde
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
+        self.cheat_box.world = self.world
         self.chargement(70)
 
         self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
