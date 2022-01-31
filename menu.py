@@ -91,7 +91,6 @@ class Menu:
 class MainMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = "Start"
         self.startx, self.starty = self.mid_w, self.mid_h + 30
         self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
         self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
@@ -198,7 +197,6 @@ class PlayMenu(Menu,):
                 if not self.save.hasload():
                     self.etat = "Pas de Partie"
                     self.game.CLICK = False
-
             self.run_display = False
             pass
 
@@ -358,7 +356,6 @@ class NewGame(Menu):
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = 'Volume'
         self.volx, self.voly = self.mid_w, self.mid_h - 20
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 20
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
@@ -403,7 +400,7 @@ class OptionsMenu(Menu):
 class CreditsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = 'Credits'
+
 
     def display_menu(self):
         pygame.display.init()
@@ -411,7 +408,8 @@ class CreditsMenu(Menu):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
-            self.game.display.fill(self.game.BLACK)
+            self.check_input()
+            self.game.display.fill((0, 0, 0))
             self.game.display.blit(image, (0, 0))
             self.game.draw_text2('Credits', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
             self.game.draw_text('Fait avec amour par le Groupe 7', 30, self.game.DISPLAY_W / 2,
@@ -422,7 +420,6 @@ class CreditsMenu(Menu):
         if self.game.BACK_KEY or self.game.ESCAPE_KEY:
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
-        pass
 
 
 class VolumeMenu(Menu):
@@ -493,5 +490,60 @@ class CommandsMenu(Menu):
 #        self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
 #                            self.game.DISPLAY_H / 2 - 20)
 
+class PauseMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = "Pause"
+        self.savex, self.savey = self.mid_w, self.mid_h + 30
+        self.loadx, self.loady = self.mid_w, self.mid_h + 50
+        self.exitx, self.exity = self.mid_w, self.mid_h + 90
+        self.SaveButton = Button((0, 255, 0), self.savex - 45, self.savey - 60, "villageois_recrut")
+        self.LoadButton = Button((0, 255, 0), self.loadx - 80, self.loady - 40, "villageois_recrut")
+        self.ExitButton = Button((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
+        self.sauvegarde=""
 
+    def display_menu(self):
+        pygame.display.init()
+        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
 
+            self.check_input()
+            self.game.display.fill(self.game.BLACK)
+            self.game.display.blit(image, (0, 0))
+            self.game.draw_text2('Pause', 80, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
+            self.game.draw_text("Sauvegarder", 40, self.savex, self.savey - 40)
+            self.game.draw_text("Charger", 40, self.loadx, self.loady - 10)
+            self.game.draw_text("Exit", 40, self.exitx, self.exity + 50)
+            if self.sauvegarde== "oui":
+                self.game.draw_text("Partie Sauvegardée", 20, self.exitx-100, self.exity + 100)
+            self.blit_screen()
+
+    def check_input(self):
+        if self.game.CLICK:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.SaveButton.is_over(mouse_pos):
+                save.save()
+                self.game.CLICK = False
+            elif self.LoadButton.is_over(mouse_pos):
+                    if self.save.hasload():
+                        self.jeu.create_game()
+                        self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, self.jeu.world.animaux, \
+                        self.jeu.joueurs = self.save.load()
+                        self.jeu.world.load(self.jeu.seed, self.jeu)
+                        self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
+                        self.jeu.cheat_enabled = False
+                        self.PartieChargee = 1
+                        self.game.playing = True
+                        self.game.running = False
+                        self.game.CLICK = False
+
+                    if not self.save.hasload():
+                        self.etat = "Pas de Partie"
+                        self.game.CLICK = False
+
+            elif self.ExitButton.is_over(mouse_pos):
+                exit()
+
+            self.run_display = False
