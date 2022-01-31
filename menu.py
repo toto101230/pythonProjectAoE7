@@ -183,9 +183,10 @@ class PlayMenu(Menu,):
             if self.LoadGameButton.is_over(mouse_pos):
 
                 if self.save.hasload():
-                    self.jeu.create_game()
+                    seed, world, buildings, unites, animaux, joueurs = self.save.load()
+                    self.jeu.create_game(len(joueurs))
                     self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, self.jeu.world.animaux, \
-                    self.jeu.joueurs = self.save.load()
+                    self.jeu.joueurs = seed, world, buildings, unites, animaux, joueurs
                     self.jeu.world.load(self.jeu.seed, self.jeu)
                     self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
                     self.jeu.cheat_enabled = False
