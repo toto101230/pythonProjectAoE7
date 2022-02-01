@@ -263,11 +263,11 @@ class NewGame(Menu):
             self.game.draw_text("Difficile", 20, self.difficilex, self.difficiley)
 
             if self.etatDifficulte == "Facile":
-                self.game.draw_text2("Facile selectionné", 15, self.selectx, self.selecty)
+                self.game.draw_text2("Facile selectionné: IA: 50/ressource et délai: 2s , Joueur: 500/ressource ", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Inter":
-                self.game.draw_text2("Intermédiaire selectionné", 15, self.selectx, self.selecty)
+                self.game.draw_text2("Intermédiaire selectionné: IA: 250/ressource et délai: 1s , Joueur: 250/ressource", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Difficile":
-                self.game.draw_text2("Difficile selectionné", 15, self.selectx, self.selecty)
+                self.game.draw_text2("Difficile selectionné: IA: 500/ressource et délai: 0,5s , Joueur: 50/ressource", 15, self.selectx, self.selecty)
 
             self.game.draw_text("Triches", 30, self.cheatsx, self.cheatsy)
             self.game.draw_text("Oui", 20, self.ouix, self.ouiy)
