@@ -307,7 +307,7 @@ class NewGame(Menu):
                 settings.START_GOLD = 500
                 settings.START_STONE = 500
 
-                settings.delaiTour= 2
+                settings.delaiTour= 2000
 
                 self.game.CLICK = False
                 self.etatDifficulte = "Facile"
@@ -322,7 +322,7 @@ class NewGame(Menu):
                 settings.START_GOLD = 250
                 settings.START_STONE = 250
 
-                settings.delaiTour = 1
+                settings.delaiTour = 1000
 
                 self.game.CLICK = False
                 self.etatDifficulte = "Inter"
@@ -338,7 +338,7 @@ class NewGame(Menu):
                 settings.START_GOLD = 50
                 settings.START_STONE = 50
 
-                settings.delaiTour = 0,5
+                settings.delaiTour = 500
 
                 self.etatDifficulte = "Difficile"
                 self.game.CLICK = False

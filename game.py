@@ -4,6 +4,7 @@ import time
 import pygame
 
 import events
+import settings
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -89,7 +90,7 @@ class Game:
         for i in range(1, len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
             self.joueurs[i].ia = Ia(self.world.seed, pos)
-            pygame.time.set_timer(events.ia_events[i], 500)
+            pygame.time.set_timer(events.ia_events[i], settings.delaiTour)
 
             self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 

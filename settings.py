@@ -36,7 +36,7 @@ IASTART_FOOD = 1000
 IASTART_GOLD = 1000
 IASTART_STONE = 1000
 
-delaiTour= 1
+delaiTour= 1000
 
 Volume= 50
 
