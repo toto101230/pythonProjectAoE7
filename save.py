@@ -1,10 +1,18 @@
 import os
 import pickle
+import platform
 
 
 class Save:
     def __init__(self):
-        self.save_path = os.getenv('APPDATA') + "\\pythonProjetAOEg7"
+        nom = platform.system()
+        if nom == "Windows":
+            self.save_path = os.getenv('APPDATA') + "\\pythonProjetAOEg7"
+        elif nom == "Darwin":
+            self.save_path = "/Library/pythonProjetAOEg7"
+        elif nom == "Linux":
+            pass
+
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
