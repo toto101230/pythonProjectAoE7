@@ -6,7 +6,7 @@ import tcod
 from events import ia_events, victory, defeat
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment, Tower
-from unite import Unite, Villageois, Clubman, neighbours
+from unite import Unite, Villageois, Clubman, neighbours, BigDaddy
 from time import time
 from model.joueur import Joueur
 from os import walk
@@ -20,6 +20,7 @@ iso = lambda x, y: ((x - y), ((x + y) / 2))
 class World:
 
     def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed):
+        self.minimap = None
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -46,6 +47,8 @@ class World:
         self.temp_tile = None
         self.examine_tile = None
         self.examined_unites_tile = []
+
+
 
     def update(self, camera):
 
@@ -183,8 +186,7 @@ class World:
                 frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
-
-                if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
+                if tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],
@@ -560,7 +562,8 @@ class World:
         for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect == self.hud.hud_info_rect and self.hud.examined_tile is None:
                 continue
-            if rect.collidepoint(pygame.mouse.get_pos()):
+            if rect.collidepoint(pygame.mouse.get_pos()) or self.minimap.intermediate.get_rect(topleft=self.minimap.
+                    rect.topleft).collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
         return world_bounds and not mouse_on_panel
@@ -882,6 +885,10 @@ class World:
         self.unites.append(Clubman((65, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 65), self.joueurs[0]))
+
+    def create_bigdaddy(self):
+        spos = self.joueurs[0].hdv_pos
+        self.unites.append(BigDaddy((spos[0]+1, spos[1]+3), self.joueurs[0]))
 
     def collision_pos(self, x, y):
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)

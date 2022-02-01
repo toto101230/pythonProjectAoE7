@@ -376,11 +376,11 @@ class Hud:
         tower1 = pg.image.load("assets/batiments/tower1.png").convert_alpha()
         tower2 = pg.image.load("assets/batiments/tower2.png").convert_alpha()
         tower3 = pg.image.load("assets/batiments/tower3.png").convert_alpha()
-
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
         gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
         clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
+        bigdaddy = pygame.image.load("assets/hud/examined_title/bigdaddy.png").convert_alpha()
 
         images = {
             "caserne1": caserne1,
@@ -398,11 +398,11 @@ class Hud:
             "tower1": tower1,
             "tower2": tower2,
             "tower3": tower3,
-
             "villageois": villageois,
             "gazelle": gazelle,
             "gazelle_mort": gazelle_mort,
             "clubman": clubman,
+            "bigdaddy": bigdaddy,
         }
 
         w, h = self.hud_info_rect.width, self.hud_info_rect.height

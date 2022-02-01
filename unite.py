@@ -645,3 +645,7 @@ class Clubman(Unite):
             self.spawn_health = 60
             self.spawn_attack = 9
         super().__init__("clubman", pos, self.spawn_health, 1.2, self.spawn_attack, 1, 1.5, 1, joueur)
+
+class BigDaddy(Unite):
+    def __init__(self, pos, joueur):
+        super().__init__("bigdaddy", pos, 2000, 1.2, 30, 3, 3, 0, joueur)
