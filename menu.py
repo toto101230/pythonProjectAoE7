@@ -264,11 +264,11 @@ class NewGame(Menu):
             self.game.draw_text("Difficile", 20, self.difficilex, self.difficiley)
 
             if self.etatDifficulte == "Facile":
-                self.game.draw_text2("Facile selectionné", 10, self.selectx, self.selecty)
+                self.game.draw_text2("Facile selectionné", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Inter":
-                self.game.draw_text2("Intermédiaire selectionné", 10, self.selectx, self.selecty)
+                self.game.draw_text2("Intermédiaire selectionné", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Difficile":
-                self.game.draw_text2("Difficile selectionné", 10, self.selectx, self.selecty)
+                self.game.draw_text2("Difficile selectionné", 15, self.selectx, self.selecty)
 
             self.game.draw_text("Triches", 30, self.cheatsx, self.cheatsy)
             self.game.draw_text("Oui", 20, self.ouix, self.ouiy)
@@ -298,24 +298,24 @@ class NewGame(Menu):
         if self.game.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.FacileButton.is_over(mouse_pos):
-                settings.START_WOOD = 1
-                settings.START_FOOD = 1
-                settings.START_STONE = 1
-                settings.START_GOLD = 1
+                settings.START_WOOD = 400
+                settings.START_FOOD = 400
+                settings.START_STONE = 400
+                settings.START_GOLD = 400
                 self.game.CLICK = False
                 self.etatDifficulte = "Facile"
             if self.InterButton.is_over(mouse_pos):
-                settings.START_WOOD = 2
-                settings.START_FOOD = 2
-                settings.START_STONE = 2
-                settings.START_GOLD = 2
+                settings.START_WOOD = 800
+                settings.START_FOOD = 800
+                settings.START_STONE = 800
+                settings.START_GOLD = 800
                 self.game.CLICK = False
                 self.etatDifficulte = "Inter"
             if self.DifficileButton.is_over(mouse_pos):
-                settings.START_WOOD = 3
-                settings.START_FOOD = 3
-                settings.START_STONE = 3
-                settings.START_GOLD = 3
+                settings.START_WOOD = 2000
+                settings.START_FOOD = 2000
+                settings.START_STONE = 2000
+                settings.START_GOLD = 2000
                 self.etatDifficulte = "Difficile"
                 self.game.CLICK = False
 
@@ -339,12 +339,13 @@ class NewGame(Menu):
 
             if self.PlayButton.is_over(mouse_pos):
                 self.jeu.create_game(settings.NbJoueurs)
-                self.jeu.joueurs[0].resource_manager.resources = {
-                    "wood": settings.START_WOOD,
-                    "food": settings.START_FOOD,
-                    "gold": settings.START_GOLD,
-                    "stone": settings.START_STONE
-                }
+                for k in range (1,settings.NbJoueurs):
+                    self.jeu.joueurs[k].resource_manager.resources = {
+                        "wood": settings.START_WOOD,
+                        "food": settings.START_FOOD,
+                        "gold": settings.START_GOLD,
+                        "stone": settings.START_STONE
+                    }
                 self.jeu.cheat_enabled = True if settings.CheatsActive == 1 else False
                 self.game.playing = True
                 self.game.running = False
