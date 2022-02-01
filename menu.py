@@ -205,7 +205,6 @@ class PlayMenu(Menu,):
 class NewGame(Menu):
     def __init__(self, game, jeu):
         Menu.__init__(self, game)
-        self.state = 'NewGame'
         self.jeu = jeu
 
         self.playx, self.playy = self.mid_w, self.mid_h + 300
@@ -298,24 +297,49 @@ class NewGame(Menu):
         if self.game.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.FacileButton.is_over(mouse_pos):
-                settings.START_WOOD = 400
-                settings.START_FOOD = 400
-                settings.START_STONE = 400
-                settings.START_GOLD = 400
+                settings.IASTART_WOOD = 50
+                settings.IASTART_FOOD = 50
+                settings.IASTART_STONE = 50
+                settings.IASTART_GOLD = 50
+
+                settings.START_WOOD = 500
+                settings.START_FOOD = 500
+                settings.START_GOLD = 500
+                settings.START_STONE = 500
+
+                settings.delaiTour= 2
+
                 self.game.CLICK = False
                 self.etatDifficulte = "Facile"
             if self.InterButton.is_over(mouse_pos):
-                settings.START_WOOD = 800
-                settings.START_FOOD = 800
-                settings.START_STONE = 800
-                settings.START_GOLD = 800
+                settings.IASTART_WOOD = 250
+                settings.IASTART_FOOD = 250
+                settings.IASTART_STONE = 250
+                settings.IASTART_GOLD = 250
+
+                settings.START_WOOD = 250
+                settings.START_FOOD = 250
+                settings.START_GOLD = 250
+                settings.START_STONE = 250
+
+                settings.delaiTour = 1
+
                 self.game.CLICK = False
                 self.etatDifficulte = "Inter"
+
             if self.DifficileButton.is_over(mouse_pos):
-                settings.START_WOOD = 2000
-                settings.START_FOOD = 2000
-                settings.START_STONE = 2000
-                settings.START_GOLD = 2000
+                settings.IASTART_WOOD = 500
+                settings.IASTART_FOOD = 500
+                settings.IASTART_STONE = 500
+                settings.IASTART_GOLD = 500
+
+                settings.START_WOOD = 50
+                settings.START_FOOD = 50
+                settings.START_GOLD = 50
+                settings.START_STONE = 50
+
+                settings.delaiTour = 0,5
+
                 self.etatDifficulte = "Difficile"
                 self.game.CLICK = False
 
@@ -339,13 +363,21 @@ class NewGame(Menu):
 
             if self.PlayButton.is_over(mouse_pos):
                 self.jeu.create_game(settings.NbJoueurs)
+                self.jeu.joueurs[0].resource_manager.resources = {
+                    "wood": settings.START_WOOD,
+                    "food": settings.START_FOOD,
+                    "gold": settings.START_GOLD,
+                    "stone": settings.START_STONE
+                    }
+
                 for k in range (1,settings.NbJoueurs):
                     self.jeu.joueurs[k].resource_manager.resources = {
-                        "wood": settings.START_WOOD,
-                        "food": settings.START_FOOD,
-                        "gold": settings.START_GOLD,
-                        "stone": settings.START_STONE
+                        "wood": settings.IASTART_WOOD,
+                        "food": settings.IASTART_FOOD,
+                        "gold": settings.IASTART_GOLD,
+                        "stone": settings.IASTART_STONE
                     }
+
                 self.jeu.cheat_enabled = True if settings.CheatsActive == 1 else False
                 self.game.playing = True
                 self.game.running = False
@@ -353,6 +385,9 @@ class NewGame(Menu):
 
             self.run_display = False
             pass
+
+
+
 
 
 class OptionsMenu(Menu):
@@ -363,7 +398,6 @@ class OptionsMenu(Menu):
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
         self.VolumeButton = Button((0, 255, 0), self.volx - 50, self.voly - 30, "villageois_recrut")
         self.ControlsButton = Button((0, 255, 0), self.controlsx - 50, self.controlsy - 30, "villageois_recrut")
-        self.ResolutionButton = Button((0, 255, 0), self.resox, self.resoy, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
@@ -377,7 +411,6 @@ class OptionsMenu(Menu):
             self.game.draw_text2('Options', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
             self.game.draw_text("Volume", 40, self.volx, self.voly)
             self.game.draw_text("Controls", 40, self.controlsx, self.controlsy)
-            self.game.draw_text("Résolution", 40, self.resox, self.resoy)
             self.blit_screen()
 
     def check_input(self):
@@ -423,7 +456,6 @@ class CreditsMenu(Menu):
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
 
-
 class VolumeMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
@@ -463,10 +495,75 @@ class VolumeMenu(Menu):
                 settings.Volume -= 2
                 self.game.CLICK = False
 
-
 class CommandsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.input_map = {'move right': pygame.K_d, 'move left': pygame.K_q,'move up': pygame.K_z, 'move down': pygame.K_s,'cheat menu':pygame.K_DOLLAR}
+        self.upx, self.upy = self.mid_w-150, self.mid_h - 200
+        self.downx, self.downy = self.mid_w-150, self.mid_h - 140
+        self.leftx, self.lefty = self.mid_w-150, self.mid_h - 80
+        self.rightx, self.righty = self.mid_w-150, self.mid_h -20
+        self.cheatx,self.cheaty = self.mid_w-150, self.mid_h + 200
+        self.UpButton = Button((0, 255, 0), self.upx, self.upy, "villageois_recrut")
+        #self.DownButton = Button((0, 255, 0),self.downx, self.downy , "villageois_recrut")
+        #self.LeftButton = Button((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
+        #self.RightButton = Button((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
+        #self.CheatButton = Button((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
+
+    def display_menu(self):
+        pygame.display.init()
+        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.display.fill((0, 0, 0))
+            self.game.display.blit(image, (0, 0))
+            self.game.draw_text2('Déplacements de caméra', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 300)
+            self.game.draw_text("Haut", 20, self.upx, self.upy)
+            self.game.draw_text_from_var(pygame.key.name(self.input_map['move up']), 20, self.upx+200, self.upy)
+            self.game.draw_text("Bas", 20, self.downx, self.downy)
+            self.game.draw_text_from_var(pygame.key.name(self.input_map['move down']), 20, self.downx + 200, self.downy)
+            self.game.draw_text("Gauche", 20, self.leftx, self.lefty)
+            self.game.draw_text_from_var(pygame.key.name(self.input_map['move left']), 20, self.leftx + 200, self.lefty)
+            self.game.draw_text("Droite", 20, self.rightx, self.righty)
+            self.game.draw_text_from_var(pygame.key.name(self.input_map['move right']), 20, self.rightx + 200, self.righty)
+
+            self.game.draw_text2('Autre', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 100)
+            self.game.draw_text("Menu de Triches", 20, self.cheatx, self.cheaty)
+            self.game.draw_text_from_var(pygame.key.name(self.input_map['cheat menu']), 20, self.cheatx + 200, self.cheaty)
+
+            self.blit_screen()
+
+    def check_input(self):
+        pygame.event.clear()
+        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
+            self.game.curr_menu = self.game.options
+            self.run_display = False
+
+        if self.game.CLICK:
+            mouse_pos = pygame.mouse.get_pos()
+
+            if self.UpButton.is_over(mouse_pos):
+
+                self.game.CLICK = False
+
+#            if self.DownButton.is_over(mouse_pos):
+#
+ #               self.game.CLICK = False
+#
+ #           if self.LeftButton.is_over(mouse_pos):
+  #              self.game.CLICK = False
+#
+ #           if self.RightButton.is_over(mouse_pos):
+  #              self.game.CLICK = False
+
+ #           if self.CheatButton.is_over(mouse_pos):
+  #              self.game.CLICK = False
+
+            self.run_display = False
+            pass
+
 
 
 #    def display_menu(self):
