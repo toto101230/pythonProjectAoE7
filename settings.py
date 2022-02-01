@@ -38,6 +38,8 @@ IASTART_STONE = 1000
 
 delaiTour= 1000
 
+
+
 Volume= 50
 
 CheatsActive= 0

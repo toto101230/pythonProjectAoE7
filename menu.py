@@ -97,7 +97,7 @@ class MainMenu(Menu):
         self.exitx, self.exity = self.mid_w, self.mid_h + 90
         # self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
         self.PlayButton = Button((0, 255, 0), self.startx - 45, self.starty - 60, "villageois_recrut")
-        self.OptionsButton = Button((0, 255, 0), self.optionsx - 80, self.optionsy - 40, "villageois_recrut")
+        self.OptionsButton = Button((0, 255, 0), self.optionsx - 70, self.optionsy - 30, "villageois_recrut")
         self.CreditsButton = Button((0, 255, 0), self.creditsx - 80, self.creditsy, "villageois_recrut")
         self.ExitButton = Button((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
 
@@ -112,10 +112,10 @@ class MainMenu(Menu):
             self.game.display.fill(self.game.BLACK)
             self.game.display.blit(image, (0, 0))
             self.game.draw_text2('Age of (Cheap) Empires', 80, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Play", 40, self.startx, self.starty - 40)
+            self.game.draw_text("Jouer", 40, self.startx, self.starty - 40)
             self.game.draw_text("Options", 40, self.optionsx, self.optionsy - 10)
             self.game.draw_text("Credits", 40, self.creditsx, self.creditsy + 20)
-            self.game.draw_text("Exit", 40, self.exitx, self.exity + 50)
+            self.game.draw_text("Quitter", 40, self.exitx, self.exity + 50)
             # self.draw_cursor()
             self.blit_screen()
 
@@ -163,8 +163,8 @@ class PlayMenu(Menu,):
             self.game.display.fill((0, 0, 0))
             self.game.display.blit(image, (0, 0))
             self.game.draw_text2('Play', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("New Game", 40, self.newgamex, self.newgamey - 40)
-            self.game.draw_text("Load Game", 40, self.loadgamex, self.loadgamey + 10)
+            self.game.draw_text("Nouvelle Partie", 40, self.newgamex, self.newgamey - 40)
+            self.game.draw_text("Charger Partie", 40, self.loadgamex, self.loadgamey + 10)
             if self.etat == "Pas de Partie":
                 self.game.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx,
                                      self.selecty)
@@ -407,7 +407,7 @@ class OptionsMenu(Menu):
             self.game.display.blit(image, (0, 0))
             self.game.draw_text2('Options', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
             self.game.draw_text("Volume", 40, self.volx, self.voly)
-            self.game.draw_text("Controls", 40, self.controlsx, self.controlsy)
+            self.game.draw_text("Touches", 40, self.controlsx, self.controlsy)
             self.blit_screen()
 
     def check_input(self):
@@ -460,8 +460,8 @@ class VolumeMenu(Menu):
         self.plusx, self.plusy = self.mid_w + 100, self.mid_h
         self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h
         self.volumex, self.volumey = self.mid_w, self.mid_h
-        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
-        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
+        self.PlusButton = Button((0, 255, 0), self.plusx-30, self.plusy-15, "villageois_recrut")
+        self.MoinsButton = Button((0, 255, 0), self.moinsx-70, self.moinsy-15, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
@@ -538,12 +538,23 @@ class CommandsMenu(Menu):
             self.game.curr_menu = self.game.options
             self.run_display = False
 
-        if self.game.CLICK:
-            mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and self.UpButton.is_over(mouse_pos):
+                a=event.key
+                input_map['move up'] = event.key
+                print(a)
+            self.game.CLICK = False
 
-            if self.UpButton.is_over(mouse_pos):
 
-                self.game.CLICK = False
+
+
+
+#        if self.game.CLICK:
+#            mouse_pos = pygame.mouse.get_pos()
+
+#            if
+
+ #               self.game.CLICK = False
 
 #            if self.DownButton.is_over(mouse_pos):
 #
@@ -617,6 +628,6 @@ class PauseMenu(Menu):
                         self.game.CLICK = False
 
             elif self.ExitButton.is_over(mouse_pos):
-                exit()
-
+                self.game.curr_menu = self.game.main_menu
+                self.game.CLICK = False
             self.run_display = False
