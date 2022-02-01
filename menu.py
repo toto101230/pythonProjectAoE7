@@ -387,9 +387,6 @@ class NewGame(Menu):
             pass
 
 
-
-
-
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
@@ -565,29 +562,6 @@ class CommandsMenu(Menu):
             pass
 
 
-
-#    def display_menu(self):
-
-#class ResolutionMenu(Menu):
-#    def __init__(self, game):
-#        Menu.__init__(self, game)
-#        self.state = 'Résolution'
-#        self.plusx, self.plusy = self.mid_w + 100, self.mid_h
-#        self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h
-#        self.volumex, self.volumey = self.mid_w, self.mid_h
-#        self.PlusButton = Button((0, 255, 0), self.plusx, self.plusy, "villageois_recrut")
-#        self.MoinsButton = Button((0, 255, 0), self.moinsx, self.moinsy, "villageois_recrut")
-#
-#    def display_menu(self):
-#        pygame.display.init()
-#        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
-#        self.game.check_events()
-#        self.check_input()
-#        self.game.display.fill((0, 0, 0))
-#        self.game.display.blit(image, (0, 0))
-#        self.game.draw_text2('Résolution', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-#        self.game.draw_text('CHoisissez votre resolution:', 20, self.game.DISPLAY_W / 2 + 60,
-#                            self.game.DISPLAY_H / 2 - 20)
 
 class PauseMenu(Menu):
     def __init__(self, game):
