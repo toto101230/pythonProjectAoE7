@@ -208,7 +208,7 @@ class NewGame(Menu):
         self.state = 'NewGame'
         self.jeu = jeu
 
-        self.playx, self.playy = self.mid_w, self.mid_h + 500
+        self.playx, self.playy = self.mid_w, self.mid_h + 300
 
         self.Difficultex, self.Difficultey = self.mid_w - 500, self.mid_h - 300
         self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 200
