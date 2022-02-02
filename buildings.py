@@ -1,9 +1,3 @@
-import pygame
-import pygame.image
-
-
-
-
 class Batiment:
 
     def __init__(self, pos, name, max_health, place_unite, joueur, place_batiment):
@@ -18,9 +12,6 @@ class Batiment:
         self.pos = pos
         self.place_batiment = place_batiment
         self.construit = False
-
-
-
 
 
 class Hdv(Batiment):

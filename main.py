@@ -1,6 +1,6 @@
 import pygame
 from game import Game
-import menu
+from menu import GestionMenu
 
 
 def main():
@@ -8,23 +8,21 @@ def main():
     pygame.mixer.init()
 
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # a modifier dans le menu de res: menu dÃ©roulant
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Age of Cheap Empires")
-    icon = pygame.image.load("assets/castle.png")
+    icon = pygame.image.load("assets/logo.png")
     pygame.display.set_icon(icon)
 
     running = True
-    playing = True
 
     game = Game(screen, clock)
 
-    menuP = menu.GameMenu(screen, game)
+    menu_p = GestionMenu(screen, game)
     while running:
-        #while menu.PlayMenu(menu).PartieChargee != 1:
-        # game.create_game()
-        while menuP.running:
-            menuP.curr_menu.display_menu()
-        while menuP.playing:
+        while menu_p.running:
+            menu_p.curr_menu.display_menu()
+
+        while menu_p.playing:
             game.run()
 
 

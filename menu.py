@@ -1,26 +1,23 @@
 from bouton2 import *
-from game import Game
 import settings
 from save import Save
+from bouton import ButtonPetit, ButtonGrand
 
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-GM = Game(screen, clock)
 
-class GameMenu:
-    def __init__(self, screen, jeu):
+class GestionMenu:
+    def __init__(self, window, game):
         self.running, self.playing = True, False
-        self.DISPLAY_W, self.DISPLAY_H = screen.get_size()
+        self.DISPLAY_W, self.DISPLAY_H = window.get_size()
         self.CLICK, self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False, False
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = screen
+        self.window = window
         self.font_name = 'assets/Polices&Wallpaper/Trajan_Pro_.ttf'
         self.font_name2 = 'assets/Polices&Wallpaper/Trajan_Pro_Bold.ttf'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
-        self.play_menu = PlayMenu(self, jeu)
+        self.play_menu = PlayMenu(self, game)
         self.options = OptionsMenu(self)
-        self.new_game = NewGame(self, jeu)
+        self.new_game = NewGame(self, game)
         self.credits = CreditsMenu(self)
         self.Volume = VolumeMenu(self)
         self.Controls = CommandsMenu(self)
@@ -73,66 +70,63 @@ class GameMenu:
 
 
 class Menu:
-    def __init__(self, game):
-        self.game = game
-        self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
+    def __init__(self, gestion):
+        self.gestion = gestion
+        self.mid_w, self.mid_h = self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2
         self.run_display = True
         self.offset = - 100
         self.save = Save()
         self.PartieChargee = 0
 
-
     def blit_screen(self):
-        self.game.window.blit(self.game.display, (0, 0))
+        self.gestion.window.blit(self.gestion.display, (0, 0))
         pygame.display.update()
-        self.game.reset_keys()
+        self.gestion.reset_keys()
 
 
 class MainMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
         self.startx, self.starty = self.mid_w, self.mid_h + 30
         self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
         self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
         self.exitx, self.exity = self.mid_w, self.mid_h + 90
-        # self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-        self.PlayButton = Button((0, 255, 0), self.startx - 45, self.starty - 60, "villageois_recrut")
-        self.OptionsButton = Button((0, 255, 0), self.optionsx - 70, self.optionsy - 30, "villageois_recrut")
-        self.CreditsButton = Button((0, 255, 0), self.creditsx - 80, self.creditsy, "villageois_recrut")
-        self.ExitButton = Button((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
+        self.PlayButton = ButtonPetit((0, 255, 0), self.startx - 45, self.starty - 60, "villageois_recrut")
+        self.OptionsButton = ButtonPetit((0, 255, 0), self.optionsx - 70, self.optionsy - 30, "villageois_recrut")
+        self.CreditsButton = ButtonPetit((0, 255, 0), self.creditsx - 80, self.creditsy, "villageois_recrut")
+        self.ExitButton = ButtonPetit((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
 
             self.check_input()
-            self.game.display.fill(self.game.BLACK)
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Age of (Cheap) Empires', 80, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Jouer", 40, self.startx, self.starty - 40)
-            self.game.draw_text("Options", 40, self.optionsx, self.optionsy - 10)
-            self.game.draw_text("Credits", 40, self.creditsx, self.creditsy + 20)
-            self.game.draw_text("Quitter", 40, self.exitx, self.exity + 50)
-            # self.draw_cursor()
+            self.gestion.display.fill(self.gestion.BLACK)
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Age of (Cheap) Empires', 80, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text("Jouer", 40, self.startx, self.starty - 40)
+            self.gestion.draw_text("Options", 40, self.optionsx, self.optionsy - 10)
+            self.gestion.draw_text("Credits", 40, self.creditsx, self.creditsy + 20)
+            self.gestion.draw_text("Quitter", 40, self.exitx, self.exity + 50)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.CLICK:
+        if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.PlayButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.play_menu
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.play_menu
+                self.gestion.CLICK = False
 
             elif self.OptionsButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.options
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.options
+                self.gestion.CLICK = False
 
             elif self.CreditsButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.credits
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.credits
+                self.gestion.CLICK = False
 
             elif self.ExitButton.is_over(mouse_pos):
                 exit()
@@ -141,81 +135,81 @@ class MainMenu(Menu):
 
 
 class PlayMenu(Menu,):
-    def __init__(self, game, jeu):
-        Menu.__init__(self, game)
+    def __init__(self, gestion, game):
+        Menu.__init__(self, gestion)
         self.state = 'NewGame'
         self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 100
         self.newgamex, self.newgamey = self.mid_w, self.mid_h + 20
         self.loadgamex, self.loadgamey = self.mid_w, self.mid_h + 40
-        self.NewGameButton = Button2((0, 255, 0), self.newgamex - 110, self.newgamey - 65, "villageois_recrut")
-        self.LoadGameButton = Button((0, 255, 0), self.loadgamex - 110, self.loadgamey, "villageois_recrut")
+        self.NewGameButton = ButtonGrand((0, 255, 0), self.newgamex - 110, self.newgamey - 65, "villageois_recrut")
+        self.LoadGameButton = ButtonPetit((0, 255, 0), self.loadgamex - 110, self.loadgamey, "villageois_recrut")
         self.world = None
         self.etat = ""
-        self.jeu = jeu
+        self.game = game
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Play', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Nouvelle Partie", 40, self.newgamex, self.newgamey - 40)
-            self.game.draw_text("Charger Partie", 40, self.loadgamex, self.loadgamey + 10)
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Play', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text("Nouvelle Partie", 40, self.newgamex, self.newgamey - 40)
+            self.gestion.draw_text("Charger Partie", 40, self.loadgamex, self.loadgamey + 10)
             if self.etat == "Pas de Partie":
-                self.game.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx,
-                                     self.selecty)
+                self.gestion.draw_text2("Pas de Sauvegarde! Veuillez créer une partie avant.", 15, self.selectx,
+                                        self.selecty)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.main_menu
+        if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.main_menu
             self.run_display = False
-        elif self.game.CLICK:
+        elif self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.NewGameButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.new_game
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.new_game
+                self.gestion.CLICK = False
 
             if self.LoadGameButton.is_over(mouse_pos):
 
                 if self.save.hasload():
                     seed, world, buildings, unites, animaux, joueurs = self.save.load()
-                    self.jeu.create_game(len(joueurs))
-                    self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, self.jeu.world.animaux, \
-                    self.jeu.joueurs = seed, world, buildings, unites, animaux, joueurs
-                    self.jeu.world.load(self.jeu.seed, self.jeu)
-                    self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
-                    self.jeu.cheat_enabled = False
+                    self.game.create_game(len(joueurs))
+                    self.game.seed, self.game.world.world, self.game.world.buildings, self.game.world.unites, \
+                        self.game.world.animaux, self.game.joueurs = seed, world, buildings, unites, animaux, joueurs
+                    self.game.world.load(self.game.seed, self.game)
+                    self.game.resources_manager = self.game.joueurs[0].resource_manager
+                    self.game.cheat_enabled = False
                     self.PartieChargee = 1
-                    self.game.playing = True
-                    self.game.running = False
-                    self.game.CLICK = False
+                    self.gestion.playing = True
+                    self.gestion.running = False
+                    self.gestion.CLICK = False
 
                 if not self.save.hasload():
                     self.etat = "Pas de Partie"
-                    self.game.CLICK = False
+                    self.gestion.CLICK = False
             self.run_display = False
             pass
 
 
 class NewGame(Menu):
-    def __init__(self, game, jeu):
-        Menu.__init__(self, game)
-        self.jeu = jeu
+    def __init__(self, gestion, game):
+        Menu.__init__(self, gestion)
+        self.game = game
 
-        self.playx, self.playy = self.mid_w, self.mid_h + 300
+        self.playx, self.playy = self.mid_w, self.mid_h + 200
 
         self.Difficultex, self.Difficultey = self.mid_w - 500, self.mid_h - 300
-        self.selectx, self.selecty = self.mid_w - 300, self.mid_h + 200
+        self.selectx, self.selecty = self.mid_w - 450, self.mid_h + 200
         self.facilex, self.faciley = self.mid_w - 200, self.mid_h - 300
         self.intermediairex, self.intermediairey = self.mid_w, self.mid_h - 300
         self.difficilex, self.difficiley = self.mid_w + 200, self.mid_h - 300
 
-        self.cheatsx, self.cheatsy = self.mid_w - 525, self.mid_h - 200
+        self.cheatsx, self.cheatsy = self.mid_w - 500, self.mid_h - 200
         self.ouix, self.ouiy = self.mid_w - 125, self.mid_h - 200
         self.nonx, self.nony = self.mid_w - 25, self.mid_h - 200
         self.activex, self.activey = self.mid_w - 300, self.mid_h + 300
@@ -228,19 +222,18 @@ class NewGame(Menu):
         self.seedx, self.seedy = self.mid_w - 550, self.mid_h
         self.seedboxx, self.seedboxy = self.mid_w - 300, self.mid_h
 
+        self.PlayButton = ButtonPetit((0, 255, 0), self.playx-60, self.playy - 20, "villageois_recrut")
 
-        self.PlayButton = Button((0, 255, 0), self.playx-60, self.playy - 20, "villageois_recrut")
+        self.FacileButton = ButtonGrand((0, 255, 0), self.facilex - 70, self.faciley - 30, "villageois_recrut")
+        self.InterButton = ButtonGrand((0, 255, 0), self.intermediairex - 120, self.intermediairey - 30,
+                                       "villageois_recrut")
+        self.DifficileButton = ButtonGrand((0, 255, 0), self.difficilex - 90, self.difficiley - 30, "villageois_recrut")
 
-        self.FacileButton = Button2((0, 255, 0), self.facilex - 70, self.faciley - 30, "villageois_recrut")
-        self.InterButton = Button2((0, 255, 0), self.intermediairex - 120, self.intermediairey - 30,
-                                   "villageois_recrut")
-        self.DifficileButton = Button2((0, 255, 0), self.difficilex - 90, self.difficiley - 30, "villageois_recrut")
+        self.OuiButton = ButtonGrand((0, 255, 0), self.ouix-37, self.ouiy-10, "villageois_recrut")
+        self.NonButton = ButtonGrand((0, 255, 0), self.nonx-37, self.nony-10, "villageois_recrut")
 
-        self.OuiButton = Button2((0, 255, 0), self.ouix-37, self.ouiy-10, "villageois_recrut")
-        self.NonButton = Button2((0, 255, 0), self.nonx-37, self.nony-10, "villageois_recrut")
-
-        self.PlusButton = Button2((0, 255, 0), self.plusx-160, self.plusy-10, "villageois_recrut")
-        self.MoinsButton = Button2((0, 255, 0), self.moinsx-80, self.moinsy-10, "villageois_recrut")
+        self.PlusButton = ButtonGrand((0, 255, 0), self.plusx-160, self.plusy-10, "villageois_recrut")
+        self.MoinsButton = ButtonGrand((0, 255, 0), self.moinsx-80, self.moinsy-10, "villageois_recrut")
 
         self.etatDifficulte = ""
         self.etatCheat = ""
@@ -250,51 +243,51 @@ class NewGame(Menu):
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
 
-            self.game.draw_text2('Nouvelle Partie', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 400)
+            self.gestion.draw_text2('Nouvelle Partie', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 400)
 
-            self.game.draw_text("Difficulte", 30, self.Difficultex, self.Difficultey)
-            self.game.draw_text("Facile", 20, self.facilex, self.faciley)
-            self.game.draw_text("Intermédiaire", 20, self.intermediairex, self.intermediairey)
-            self.game.draw_text("Difficile", 20, self.difficilex, self.difficiley)
+            self.gestion.draw_text("Difficulte", 30, self.Difficultex, self.Difficultey)
+            self.gestion.draw_text("Facile", 20, self.facilex, self.faciley)
+            self.gestion.draw_text("Intermédiaire", 20, self.intermediairex, self.intermediairey)
+            self.gestion.draw_text("Difficile", 20, self.difficilex, self.difficiley)
 
             if self.etatDifficulte == "Facile":
-                self.game.draw_text2("Facile selectionné: IA: 50/ressource et délai: 2s , Joueur: 500/ressource ", 15, self.selectx, self.selecty)
+                self.gestion.draw_text2("Facile selectionné: IA: 50/ressource et délai: 2s , Joueur: 500/ressource ", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Inter":
-                self.game.draw_text2("Intermédiaire selectionné: IA: 250/ressource et délai: 1s , Joueur: 250/ressource", 15, self.selectx, self.selecty)
+                self.gestion.draw_text2("Intermédiaire selectionné: IA: 250/ressource et délai: 1s , Joueur: 250/ressource", 15, self.selectx, self.selecty)
             if self.etatDifficulte == "Difficile":
-                self.game.draw_text2("Difficile selectionné: IA: 500/ressource et délai: 0,5s , Joueur: 50/ressource", 15, self.selectx, self.selecty)
+                self.gestion.draw_text2("Difficile selectionné: IA: 500/ressource et délai: 0,5s , Joueur: 50/ressource", 15, self.selectx, self.selecty)
 
-            self.game.draw_text("Triches", 30, self.cheatsx, self.cheatsy)
-            self.game.draw_text("Oui", 20, self.ouix, self.ouiy)
-            self.game.draw_text("Non", 20, self.nonx + 120, self.nony)
+            self.gestion.draw_text("Triches", 30, self.cheatsx, self.cheatsy)
+            self.gestion.draw_text("Oui", 20, self.ouix, self.ouiy)
+            self.gestion.draw_text("Non", 20, self.nonx + 120, self.nony)
 
             if self.etatCheat == "On":
-                self.game.draw_text2("Triche activée", 15, self.activex, self.activey)
+                self.gestion.draw_text2("Triche activée", 15, self.activex, self.activey)
 
             if self.etatCheat == "Off":
-                self.game.draw_text2("Triche désactivée", 15, self.activex, self.activey)
+                self.gestion.draw_text2("Triche désactivée", 15, self.activex, self.activey)
 
-            self.game.draw_text_from_var(settings.NbJoueurs, 20, self.nbjoueursx, self.nbjoueursy)
-            self.game.draw_text("+", 40, self.plusx, self.plusy)
-            self.game.draw_text("-", 40, self.moinsx, self.moinsy)
+            self.gestion.draw_text_from_var(settings.NbJoueurs, 20, self.nbjoueursx, self.nbjoueursy)
+            self.gestion.draw_text("+", 40, self.plusx, self.plusy)
+            self.gestion.draw_text("-", 40, self.moinsx, self.moinsy)
 
-            self.game.draw_text("Nombre de Joueurs:", 30, self.joueursx, self.joueursy)
+            self.gestion.draw_text("Nombre de Joueurs:", 30, self.joueursx, self.joueursy)
 
-            self.game.draw_text("Seed:", 30, self.seedx, self.seedy)
+            self.gestion.draw_text("Seed:", 30, self.seedx, self.seedy)
 
-            self.game.draw_text("Play", 25, self.playx, self.playy)
+            self.gestion.draw_text("Play", 25, self.playx, self.playy)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.play_menu
+        if self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.play_menu
             self.run_display = False
-        if self.game.CLICK:
+        if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.FacileButton.is_over(mouse_pos):
                 settings.IASTART_WOOD = 50
@@ -309,7 +302,7 @@ class NewGame(Menu):
 
                 settings.delaiTour= 2000
 
-                self.game.CLICK = False
+                self.gestion.CLICK = False
                 self.etatDifficulte = "Facile"
             if self.InterButton.is_over(mouse_pos):
                 settings.IASTART_WOOD = 250
@@ -324,7 +317,7 @@ class NewGame(Menu):
 
                 settings.delaiTour = 1000
 
-                self.game.CLICK = False
+                self.gestion.CLICK = False
                 self.etatDifficulte = "Inter"
 
             if self.DifficileButton.is_over(mouse_pos):
@@ -341,249 +334,249 @@ class NewGame(Menu):
                 settings.delaiTour = 500
 
                 self.etatDifficulte = "Difficile"
-                self.game.CLICK = False
+                self.gestion.CLICK = False
 
             if self.PlusButton.is_over(mouse_pos):
                 if settings.NbJoueurs <= 7:
                     settings.NbJoueurs += 1
-                self.game.CLICK = False
+                self.gestion.CLICK = False
             if self.MoinsButton.is_over(mouse_pos):
                 if settings.NbJoueurs >= 2:
                     settings.NbJoueurs -= 1
-                self.game.CLICK = False
+                self.gestion.CLICK = False
 
             if self.OuiButton.is_over(mouse_pos):
                 settings.CheatsActive = 1
                 self.etatCheat = "On"
-                self.game.CLICK = False
+                self.gestion.CLICK = False
             if self.NonButton.is_over(mouse_pos):
                 settings.CheatsActive = 0
                 self.etatCheat = "Off"
-                self.game.CLICK = False
+                self.gestion.CLICK = False
 
             if self.PlayButton.is_over(mouse_pos):
-                self.jeu.create_game(settings.NbJoueurs)
-                self.jeu.joueurs[0].resource_manager.resources = {
+                self.game.create_game(settings.NbJoueurs)
+                self.game.joueurs[0].resource_manager.resources = {
                     "wood": settings.START_WOOD,
                     "food": settings.START_FOOD,
                     "gold": settings.START_GOLD,
                     "stone": settings.START_STONE
                     }
 
-                for k in range (1,settings.NbJoueurs):
-                    self.jeu.joueurs[k].resource_manager.resources = {
+                for k in range(1, settings.NbJoueurs):
+                    self.game.joueurs[k].resource_manager.resources = {
                         "wood": settings.IASTART_WOOD,
                         "food": settings.IASTART_FOOD,
                         "gold": settings.IASTART_GOLD,
                         "stone": settings.IASTART_STONE
                     }
 
-                self.jeu.cheat_enabled = True if settings.CheatsActive == 1 else False
-                self.game.playing = True
-                self.game.running = False
-                self.game.CLICK = False
+                self.game.cheat_enabled = True if settings.CheatsActive == 1 else False
+                self.gestion.playing = True
+                self.gestion.running = False
+                self.gestion.CLICK = False
 
             self.run_display = False
             pass
 
 
 class OptionsMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
         self.volx, self.voly = self.mid_w, self.mid_h - 20
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 20
         self.resox, self.resoy = self.mid_w, self.mid_h + 60
-        self.VolumeButton = Button((0, 255, 0), self.volx - 50, self.voly - 30, "villageois_recrut")
-        self.ControlsButton = Button((0, 255, 0), self.controlsx - 50, self.controlsy - 30, "villageois_recrut")
+        self.VolumeButton = ButtonPetit((0, 255, 0), self.volx - 50, self.voly - 30, "villageois_recrut")
+        self.ControlsButton = ButtonPetit((0, 255, 0), self.controlsx - 50, self.controlsy - 30, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Options', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Volume", 40, self.volx, self.voly)
-            self.game.draw_text("Touches", 40, self.controlsx, self.controlsy)
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Options', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text("Volume", 40, self.volx, self.voly)
+            self.gestion.draw_text("Touches", 40, self.controlsx, self.controlsy)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.main_menu
+        if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.main_menu
             self.run_display = False
 
-        if self.game.CLICK:
+        if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.VolumeButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.Volume
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.Volume
+                self.gestion.CLICK = False
 
             if self.ControlsButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.Controls
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.Controls
+                self.gestion.CLICK = False
 
             self.run_display = False
             pass
 
 
 class CreditsMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Credits', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text('Fait avec amour par le Groupe 7', 30, self.game.DISPLAY_W / 2,
-                                self.game.DISPLAY_H / 2 + 10)
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Credits', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text('Fait avec amour par le Groupe 7', 30, self.gestion.DISPLAY_W / 2,
+                                   self.gestion.DISPLAY_H / 2 + 10)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.main_menu
+        if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.main_menu
             self.run_display = False
 
+
 class VolumeMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
         self.state = 'Volume'
         self.plusx, self.plusy = self.mid_w + 100, self.mid_h
         self.moinsx, self.moinsy = self.mid_w - 100, self.mid_h
         self.volumex, self.volumey = self.mid_w, self.mid_h
-        self.PlusButton = Button((0, 255, 0), self.plusx-30, self.plusy-15, "villageois_recrut")
-        self.MoinsButton = Button((0, 255, 0), self.moinsx-70, self.moinsy-15, "villageois_recrut")
+        self.PlusButton = ButtonPetit((0, 255, 0), self.plusx-30, self.plusy-15, "villageois_recrut")
+        self.MoinsButton = ButtonPetit((0, 255, 0), self.moinsx-70, self.moinsy-15, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Volume', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("+", 40, self.plusx, self.plusy)
-            self.game.draw_text("-", 40, self.moinsx, self.moinsy)
-            self.game.draw_text_from_var(settings.Volume, 40, self.volumex, self.volumey)
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Volume', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text("+", 40, self.plusx, self.plusy)
+            self.gestion.draw_text("-", 40, self.moinsx, self.moinsy)
+            self.gestion.draw_text_from_var(settings.Volume, 40, self.volumex, self.volumey)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.options
+        if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.options
             self.run_display = False
             self.blit_screen()
-        if self.game.CLICK:
+        if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.PlusButton.is_over(mouse_pos):
                 settings.Volume += 2
-                self.game.CLICK = False
+                self.gestion.CLICK = False
             if self.MoinsButton.is_over(mouse_pos):
                 settings.Volume -= 2
-                self.game.CLICK = False
+                self.gestion.CLICK = False
+
 
 class CommandsMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
         self.input_map = {'move right': pygame.K_d, 'move left': pygame.K_q,'move up': pygame.K_z, 'move down': pygame.K_s,'cheat menu':pygame.K_DOLLAR}
         self.upx, self.upy = self.mid_w-150, self.mid_h - 200
         self.downx, self.downy = self.mid_w-150, self.mid_h - 140
         self.leftx, self.lefty = self.mid_w-150, self.mid_h - 80
         self.rightx, self.righty = self.mid_w-150, self.mid_h -20
         self.cheatx,self.cheaty = self.mid_w-150, self.mid_h + 200
-        self.UpButton = Button((0, 255, 0), self.upx, self.upy, "villageois_recrut")
-        #self.DownButton = Button((0, 255, 0),self.downx, self.downy , "villageois_recrut")
-        #self.LeftButton = Button((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
-        #self.RightButton = Button((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
-        #self.CheatButton = Button((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
+        self.UpButton = ButtonPetit((0, 255, 0), self.upx, self.upy, "villageois_recrut")
+        #self.DownButton = ButtonPetit((0, 255, 0),self.downx, self.downy , "villageois_recrut")
+        #self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
+        #self.RightButton = ButtonPetit((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
+        #self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Déplacements de caméra', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 300)
-            self.game.draw_text("Haut", 20, self.upx, self.upy)
-            self.game.draw_text_from_var(pygame.key.name(self.input_map['move up']), 20, self.upx+200, self.upy)
-            self.game.draw_text("Bas", 20, self.downx, self.downy)
-            self.game.draw_text_from_var(pygame.key.name(self.input_map['move down']), 20, self.downx + 200, self.downy)
-            self.game.draw_text("Gauche", 20, self.leftx, self.lefty)
-            self.game.draw_text_from_var(pygame.key.name(self.input_map['move left']), 20, self.leftx + 200, self.lefty)
-            self.game.draw_text("Droite", 20, self.rightx, self.righty)
-            self.game.draw_text_from_var(pygame.key.name(self.input_map['move right']), 20, self.rightx + 200, self.righty)
+            self.gestion.display.fill((0, 0, 0))
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Déplacements de caméra', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 300)
+            self.gestion.draw_text("Haut", 20, self.upx, self.upy)
+            self.gestion.draw_text_from_var(pygame.key.name(self.input_map['move up']), 20, self.upx + 200, self.upy)
+            self.gestion.draw_text("Bas", 20, self.downx, self.downy)
+            self.gestion.draw_text_from_var(pygame.key.name(self.input_map['move down']), 20, self.downx + 200, self.downy)
+            self.gestion.draw_text("Gauche", 20, self.leftx, self.lefty)
+            self.gestion.draw_text_from_var(pygame.key.name(self.input_map['move left']), 20, self.leftx + 200, self.lefty)
+            self.gestion.draw_text("Droite", 20, self.rightx, self.righty)
+            self.gestion.draw_text_from_var(pygame.key.name(self.input_map['move right']), 20, self.rightx + 200, self.righty)
 
-            self.game.draw_text2('Autre', 60, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 100)
-            self.game.draw_text("Menu de Triches", 20, self.cheatx, self.cheaty)
-            self.game.draw_text_from_var(pygame.key.name(self.input_map['cheat menu']), 20, self.cheatx + 200, self.cheaty)
+            self.gestion.draw_text2('Autre', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 + 100)
+            self.gestion.draw_text("Menu de Triches", 20, self.cheatx, self.cheaty)
+            self.gestion.draw_text_from_var(pygame.key.name(self.input_map['cheat menu']), 20, self.cheatx + 200, self.cheaty)
 
             self.blit_screen()
 
     def check_input(self):
         pygame.event.clear()
-        if self.game.BACK_KEY or self.game.ESCAPE_KEY:
-            self.game.curr_menu = self.game.options
+        if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
+            self.gestion.curr_menu = self.gestion.options
             self.run_display = False
 
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and self.UpButton.is_over(mouse_pos):
-                a=event.key
-                input_map['move up'] = event.key
-                print(a)
-            self.game.CLICK = False
+            # if event.type == pygame.MOUSEBUTTONDOWN and self.UpButton.is_over(mouse_pos):
+            #     a = event.key
+            #     # input_map['move up'] = event.key
+            #     print(a)
+            self.gestion.CLICK = False
 
 
 
 
 
-#        if self.game.CLICK:
+#        if self.gestion.CLICK:
 #            mouse_pos = pygame.mouse.get_pos()
 
 #            if
 
- #               self.game.CLICK = False
+ #               self.gestion.CLICK = False
 
 #            if self.DownButton.is_over(mouse_pos):
 #
- #               self.game.CLICK = False
+ #               self.gestion.CLICK = False
 #
  #           if self.LeftButton.is_over(mouse_pos):
-  #              self.game.CLICK = False
+  #              self.gestion.CLICK = False
 #
  #           if self.RightButton.is_over(mouse_pos):
-  #              self.game.CLICK = False
+  #              self.gestion.CLICK = False
 
  #           if self.CheatButton.is_over(mouse_pos):
-  #              self.game.CLICK = False
+  #              self.gestion.CLICK = False
 
             self.run_display = False
             pass
 
 
-
 class PauseMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
+    def __init__(self, gestion):
+        Menu.__init__(self, gestion)
         self.state = "Pause"
         self.savex, self.savey = self.mid_w, self.mid_h + 30
         self.loadx, self.loady = self.mid_w, self.mid_h + 50
         self.exitx, self.exity = self.mid_w, self.mid_h + 90
-        self.SaveButton = Button((0, 255, 0), self.savex - 45, self.savey - 60, "villageois_recrut")
-        self.LoadButton = Button((0, 255, 0), self.loadx - 80, self.loady - 40, "villageois_recrut")
-        self.ExitButton = Button((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
+        self.SaveButton = ButtonPetit((0, 255, 0), self.savex - 45, self.savey - 60, "villageois_recrut")
+        self.LoadButton = ButtonPetit((0, 255, 0), self.loadx - 80, self.loady - 40, "villageois_recrut")
+        self.ExitButton = ButtonPetit((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
         self.sauvegarde=""
 
     def display_menu(self):
@@ -591,25 +584,25 @@ class PauseMenu(Menu):
         image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
         self.run_display = True
         while self.run_display:
-            self.game.check_events()
+            self.gestion.check_events()
 
             self.check_input()
-            self.game.display.fill(self.game.BLACK)
-            self.game.display.blit(image, (0, 0))
-            self.game.draw_text2('Pause', 80, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text("Sauvegarder", 40, self.savex, self.savey - 40)
-            self.game.draw_text("Charger", 40, self.loadx, self.loady - 10)
-            self.game.draw_text("Exit", 40, self.exitx, self.exity + 50)
+            self.gestion.display.fill(self.gestion.BLACK)
+            self.gestion.display.blit(image, (0, 0))
+            self.gestion.draw_text2('Pause', 80, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text("Sauvegarder", 40, self.savex, self.savey - 40)
+            self.gestion.draw_text("Charger", 40, self.loadx, self.loady - 10)
+            self.gestion.draw_text("Exit", 40, self.exitx, self.exity + 50)
             if self.sauvegarde== "oui":
-                self.game.draw_text("Partie Sauvegardée", 20, self.exitx-100, self.exity + 100)
+                self.gestion.draw_text("Partie Sauvegardée", 20, self.exitx - 100, self.exity + 100)
             self.blit_screen()
 
     def check_input(self):
-        if self.game.CLICK:
+        if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.SaveButton.is_over(mouse_pos):
-                save.save()
-                self.game.CLICK = False
+                self.jeu.save()
+                self.gestion.CLICK = False
             elif self.LoadButton.is_over(mouse_pos):
                     if self.save.hasload():
                         self.jeu.create_game()
@@ -619,15 +612,15 @@ class PauseMenu(Menu):
                         self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
                         self.jeu.cheat_enabled = False
                         self.PartieChargee = 1
-                        self.game.playing = True
-                        self.game.running = False
-                        self.game.CLICK = False
+                        self.gestion.playing = True
+                        self.gestion.running = False
+                        self.gestion.CLICK = False
 
                     if not self.save.hasload():
                         self.etat = "Pas de Partie"
-                        self.game.CLICK = False
+                        self.gestion.CLICK = False
 
             elif self.ExitButton.is_over(mouse_pos):
-                self.game.curr_menu = self.game.main_menu
-                self.game.CLICK = False
+                self.gestion.curr_menu = self.gestion.main_menu
+                self.gestion.CLICK = False
             self.run_display = False

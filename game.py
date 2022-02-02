@@ -3,8 +3,6 @@ import time
 
 import pygame
 
-import events
-import settings
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -17,6 +15,8 @@ from selection import Selection
 from save import Save
 from model.joueur import Joueur
 from ia import Ia
+from settings import delaiTour
+from events import ia_events, victory, defeat
 
 
 class Game:
@@ -53,8 +53,8 @@ class Game:
         self.chargement(0)
         self.seed = 0
         self.joueurs = []
-        for i in range(nb_joueurs):
-            self.joueurs.append(Joueur(ResourceManager(), "joueur "+ str(i), nb_joueurs, i))
+        for i in range(1, nb_joueurs+1):
+            self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i))
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.chargement(15)
@@ -90,7 +90,7 @@ class Game:
         for i in range(1, len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
             self.joueurs[i].ia = Ia(self.world.seed, pos)
-            pygame.time.set_timer(events.ia_events[i], settings.delaiTour)
+            pygame.time.set_timer(ia_events[i], delaiTour)
 
             self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 
@@ -122,10 +122,10 @@ class Game:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == events.victory:
+            if event.type == victory:
                 self.end = 1
                 self.playing = False
-            if event.type == events.defeat:
+            if event.type == defeat:
                 self.end = 2
                 self.playing = False
 
@@ -149,7 +149,7 @@ class Game:
                         self.hud.selected_tile = None
                         self.cheat_enabled = False
 
-            if event.type in events.ia_events:
+            if event.type in ia_events:
                 joueur = self.joueurs[event.type - pygame.USEREVENT]
                 joueur.ia.play(self.world, joueur)
 

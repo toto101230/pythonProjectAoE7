@@ -12,7 +12,7 @@ class Button:
         self.text = text
         self.image_origine = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
         self.image = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50,50))
+        self.image = pygame.transform.scale(self.image, (50, 50))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
@@ -34,3 +34,19 @@ class Button:
     def is_over(self, pos):
         # Pos is the mouse position or a tuple of (x,y) coordinates
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
+
+
+class ButtonPetit(Button):
+    def __init__(self, color, x, y, text):
+        super().__init__(color, x, y, text)
+        self.can_press = True
+        self.width = 125
+        self.height = 30
+
+
+class ButtonGrand(Button):
+    def __init__(self, color, x, y, text):
+        super().__init__(color, x, y, text)
+        self.can_press = True
+        self.width = 240
+        self.height = 40
