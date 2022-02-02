@@ -54,7 +54,7 @@ class Game:
         self.seed = 0
         self.joueurs = []
         for i in range(1, nb_joueurs+1):
-            self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i))
+            self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.chargement(15)

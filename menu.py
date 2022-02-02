@@ -300,7 +300,7 @@ class NewGame(Menu):
                 settings.START_GOLD = 500
                 settings.START_STONE = 500
 
-                settings.delaiTour= 2000
+                settings.delaiTour = 2000
 
                 self.gestion.CLICK = False
                 self.etatDifficulte = "Facile"
@@ -341,7 +341,7 @@ class NewGame(Menu):
                     settings.NbJoueurs += 1
                 self.gestion.CLICK = False
             if self.MoinsButton.is_over(mouse_pos):
-                if settings.NbJoueurs >= 2:
+                if settings.NbJoueurs > 2:
                     settings.NbJoueurs -= 1
                 self.gestion.CLICK = False
 
@@ -496,10 +496,10 @@ class CommandsMenu(Menu):
         self.rightx, self.righty = self.mid_w-150, self.mid_h -20
         self.cheatx,self.cheaty = self.mid_w-150, self.mid_h + 200
         self.UpButton = ButtonPetit((0, 255, 0), self.upx, self.upy, "villageois_recrut")
-        #self.DownButton = ButtonPetit((0, 255, 0),self.downx, self.downy , "villageois_recrut")
-        #self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
-        #self.RightButton = ButtonPetit((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
-        #self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
+        # self.DownButton = ButtonPetit((0, 255, 0),self.downx, self.downy , "villageois_recrut")
+        # self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
+        # self.RightButton = ButtonPetit((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
+        # self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
 
     def display_menu(self):
         pygame.display.init()
@@ -577,7 +577,7 @@ class PauseMenu(Menu):
         self.SaveButton = ButtonPetit((0, 255, 0), self.savex - 45, self.savey - 60, "villageois_recrut")
         self.LoadButton = ButtonPetit((0, 255, 0), self.loadx - 80, self.loady - 40, "villageois_recrut")
         self.ExitButton = ButtonPetit((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
-        self.sauvegarde=""
+        self.sauvegarde = ""
 
     def display_menu(self):
         pygame.display.init()
@@ -593,7 +593,7 @@ class PauseMenu(Menu):
             self.gestion.draw_text("Sauvegarder", 40, self.savex, self.savey - 40)
             self.gestion.draw_text("Charger", 40, self.loadx, self.loady - 10)
             self.gestion.draw_text("Exit", 40, self.exitx, self.exity + 50)
-            if self.sauvegarde== "oui":
+            if self.sauvegarde == "oui":
                 self.gestion.draw_text("Partie Sauvegardée", 20, self.exitx - 100, self.exity + 100)
             self.blit_screen()
 
@@ -604,21 +604,21 @@ class PauseMenu(Menu):
                 self.jeu.save()
                 self.gestion.CLICK = False
             elif self.LoadButton.is_over(mouse_pos):
-                    if self.save.hasload():
-                        self.jeu.create_game()
-                        self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, self.jeu.world.animaux, \
-                        self.jeu.joueurs = self.save.load()
-                        self.jeu.world.load(self.jeu.seed, self.jeu)
-                        self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
-                        self.jeu.cheat_enabled = False
-                        self.PartieChargee = 1
-                        self.gestion.playing = True
-                        self.gestion.running = False
-                        self.gestion.CLICK = False
+                if self.save.hasload():
+                    self.jeu.create_game()
+                    self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, \
+                        self.jeu.world.animaux, self.jeu.joueurs = self.save.load()
+                    self.jeu.world.load(self.jeu.seed, self.jeu)
+                    self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
+                    self.jeu.cheat_enabled = False
+                    self.PartieChargee = 1
+                    self.gestion.playing = True
+                    self.gestion.running = False
+                    self.gestion.CLICK = False
 
-                    if not self.save.hasload():
-                        self.etat = "Pas de Partie"
-                        self.gestion.CLICK = False
+                if not self.save.hasload():
+                    self.etat = "Pas de Partie"
+                    self.gestion.CLICK = False
 
             elif self.ExitButton.is_over(mouse_pos):
                 self.gestion.curr_menu = self.gestion.main_menu
