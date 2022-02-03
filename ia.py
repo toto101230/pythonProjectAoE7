@@ -400,21 +400,21 @@ class Ia:
                     self.gestion_construction_batiment_wood(world, joueur, "grenier", u.posWork)
                     return
 
-            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
-                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and \
-                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
+            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["sombre"]["wood"] and \
+                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["sombre"]["food"] and \
+                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["sombre"]["stone"] and \
                     joueur.numero_age < 2:
                 world.pass_feodal(joueur)
                 return
-            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"] and \
+            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["sombre"]["wood"] and \
                     len(joueur.resource_manager.villageois["wood"]) < 4 and joueur.numero_age < 2:
                 self.gestion_ressource(world, joueur, "tree")
                 return
-            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["feodal"]["food"] and \
+            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["sombre"]["food"] and \
                     len(joueur.resource_manager.villageois["food"]) < 4 and joueur.numero_age < 2:
                 self.gestion_ressource(world, joueur, "buisson")
                 return
-            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["feodal"]["stone"] and \
+            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["sombre"]["stone"] and \
                     len(joueur.resource_manager.villageois["stone"]) < 4 and joueur.numero_age < 2:
                 self.gestion_ressource(world, joueur, "stone")
                 return
@@ -484,20 +484,20 @@ class Ia:
                     self.gestion_construction_batiment_wood(world, joueur, "grenier", u.posWork)
                     return
 
-            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["castle"]["wood"] and \
-                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["castle"]["food"] and \
-                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["castle"]["stone"] and \
+            if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs["feodal"]["wood"] and \
+                    joueur.resource_manager.resources["food"] > joueur.resource_manager.costs["feodal"]["food"] and \
+                    joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
                     joueur.numero_age < 3:
                 world.pass_castle(joueur)
-            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["castle"]["wood"] and \
+            elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"] and \
                     len(joueur.resource_manager.villageois["wood"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "tree")
                 return
-            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["castle"]["food"] and \
+            elif joueur.resource_manager.resources["food"] < joueur.resource_manager.costs["feodal"]["food"] and \
                     len(joueur.resource_manager.villageois["food"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "buisson")
                 return
-            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["castle"]["stone"] and \
+            elif joueur.resource_manager.resources["stone"] < joueur.resource_manager.costs["feodal"]["stone"] and \
                     len(joueur.resource_manager.villageois["stone"]) < 4 and joueur.numero_age < 3:
                 self.gestion_ressource(world, joueur, "stone")
                 return
