@@ -8,7 +8,9 @@ class GestionMenu:
     def __init__(self, window, game):
         self.running, self.playing = True, False
         self.DISPLAY_W, self.DISPLAY_H = window.get_size()
-        self.CLICK, self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False, False
+        self.CLICK, self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, \
+                                                                                                 False, False, False
+        self.key = 0
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = window
         self.font_name = 'assets/Polices&Wallpaper/Trajan_Pro_.ttf'
@@ -31,14 +33,16 @@ class GestionMenu:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.START_KEY = True
-                if event.key == pygame.K_BACKSPACE:
+                elif event.key == pygame.K_BACKSPACE:
                     self.BACK_KEY = True
-                if event.key == pygame.K_ESCAPE:
+                elif event.key == pygame.K_ESCAPE:
                     self.ESCAPE_KEY = True
-                if event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN:
                     self.DOWN_KEY = True
-                if event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP:
                     self.UP_KEY = True
+                else:
+                    self.key = event.key
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.CLICK = True
             if event.type == pygame.MOUSEBUTTONUP:
@@ -489,17 +493,19 @@ class VolumeMenu(Menu):
 class CommandsMenu(Menu):
     def __init__(self, gestion):
         Menu.__init__(self, gestion)
-        self.input_map = {'move right': pygame.K_d, 'move left': pygame.K_q,'move up': pygame.K_z, 'move down': pygame.K_s,'cheat menu':pygame.K_DOLLAR}
+        self.input_map = {'move right': pygame.K_d, 'move left': pygame.K_q, 'move up': pygame.K_z,
+                          'move down': pygame.K_s, 'cheat menu': pygame.K_DOLLAR}
         self.upx, self.upy = self.mid_w-150, self.mid_h - 200
         self.downx, self.downy = self.mid_w-150, self.mid_h - 140
         self.leftx, self.lefty = self.mid_w-150, self.mid_h - 80
-        self.rightx, self.righty = self.mid_w-150, self.mid_h -20
-        self.cheatx,self.cheaty = self.mid_w-150, self.mid_h + 200
+        self.rightx, self.righty = self.mid_w-150, self.mid_h - 20
+        self.cheatx, self.cheaty = self.mid_w-150, self.mid_h + 200
         self.UpButton = ButtonPetit((0, 255, 0), self.upx, self.upy, "villageois_recrut")
-        # self.DownButton = ButtonPetit((0, 255, 0),self.downx, self.downy , "villageois_recrut")
-        # self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
-        # self.RightButton = ButtonPetit((0, 255, 0),self.rightx, self.righty, "villageois_recrut")
-        # self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx,self.cheaty, "villageois_recrut")
+        self.DownButton = ButtonPetit((0, 255, 0), self.downx, self.downy, "villageois_recrut")
+        self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
+        self.RightButton = ButtonPetit((0, 255, 0), self.rightx, self.righty, "villageois_recrut")
+        self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx, self.cheaty, "villageois_recrut")
+        self.up, self.down, self.left, self.right, self.cheat = False, False, False, False, False
 
     def display_menu(self):
         pygame.display.init()
@@ -507,6 +513,7 @@ class CommandsMenu(Menu):
         self.run_display = True
         while self.run_display:
             self.gestion.check_events()
+            self.check_events()
             self.check_input()
             self.gestion.display.fill((0, 0, 0))
             self.gestion.display.blit(image, (0, 0))
@@ -527,44 +534,50 @@ class CommandsMenu(Menu):
             self.blit_screen()
 
     def check_input(self):
-        pygame.event.clear()
         if self.gestion.BACK_KEY or self.gestion.ESCAPE_KEY:
             self.gestion.curr_menu = self.gestion.options
             self.run_display = False
+            self.blit_screen()
+        if self.gestion.CLICK:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.UpButton.is_over(mouse_pos):
+                self.up = True
+                self.down, self.left, self.right, self.cheat = False, False, False, False
+                self.gestion.key = 0
+            if self.DownButton.is_over(mouse_pos):
+                self.down = True
+                self.up, self.left, self.right, self.cheat = False, False, False, False
+                self.gestion.key = 0
+            if self.RightButton.is_over(mouse_pos):
+                self.right = True
+                self.up, self.down, self.left, self.cheat = False, False, False, False
+                self.gestion.key = 0
+            if self.LeftButton.is_over(mouse_pos):
+                self.left = True
+                self.up, self.down, self.right, self.cheat = False, False, False, False
+                self.gestion.key = 0
+            if self.CheatButton.is_over(mouse_pos):
+                self.cheat = True
+                self.up, self.down, self.left, self.right, = False, False, False, False
+                self.gestion.key = 0
 
-        for event in pygame.event.get():
-            # if event.type == pygame.MOUSEBUTTONDOWN and self.UpButton.is_over(mouse_pos):
-            #     a = event.key
-            #     # input_map['move up'] = event.key
-            #     print(a)
-            self.gestion.CLICK = False
-
-
-
-
-
-#        if self.gestion.CLICK:
-#            mouse_pos = pygame.mouse.get_pos()
-
-#            if
-
- #               self.gestion.CLICK = False
-
-#            if self.DownButton.is_over(mouse_pos):
-#
- #               self.gestion.CLICK = False
-#
- #           if self.LeftButton.is_over(mouse_pos):
-  #              self.gestion.CLICK = False
-#
- #           if self.RightButton.is_over(mouse_pos):
-  #              self.gestion.CLICK = False
-
- #           if self.CheatButton.is_over(mouse_pos):
-  #              self.gestion.CLICK = False
-
-            self.run_display = False
-            pass
+    def check_events(self):
+        if self.gestion.key != 0:
+            if self.up:
+                self.input_map['move up'] = self.gestion.key
+                self.up = False
+            if self.down:
+                self.input_map['move down'] = self.gestion.key
+                self.down = False
+            if self.right:
+                self.input_map['move right'] = self.gestion.key
+                self.right = False
+            if self.left:
+                self.input_map['move left'] = self.gestion.key
+                self.left = False
+            if self.cheat:
+                self.input_map['move cheat'] = self.gestion.key
+                self.cheat = False
 
 
 class PauseMenu(Menu):
