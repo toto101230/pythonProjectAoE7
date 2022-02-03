@@ -64,6 +64,13 @@ class World:
                 else:
                     pygame.time.set_timer(defeat, 10, loops=1)
 
+        if self.hud.examined_tile and not isinstance(self.hud.examined_tile, Batiment) and \
+                not isinstance(self.hud.examined_tile, Unite) and not isinstance(self.hud.examined_tile, Animal) and \
+                not self.hud.examined_tile["tile"]:
+            self.examine_tile = None
+            self.examined_unites_tile = []
+            self.hud.examined_tile = None
+
         self.temp_tile = None
         mouse_pos = pygame.mouse.get_pos()
         mouse_action = pygame.mouse.get_pressed(3)
@@ -82,7 +89,6 @@ class World:
                         self.examine_tile = None
                         self.hud.examined_tile = None
                         self.examined_unites_tile = []
-
 
         if self.hud.selected_tile:
             if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"][:-1], mouse_action[0]):
@@ -367,7 +373,7 @@ class World:
 
         if world_tree[grid_x][grid_y] <= 15:
             tile = "tree"
-            ressource = 150
+            ressource = 10
             frame = world_frame[grid_x * self.grid_length_x+grid_y]
         else:
             r = world_random[grid_x][grid_y]

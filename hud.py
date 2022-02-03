@@ -303,14 +303,17 @@ class Hud:
                         self.clubman_bouton.can_press = True
 
             else:
-                img = self.images_terre[
-                    self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
-                draw_text(screen, str(self.examined_tile["ressource"]), 30, (255, 255, 255),
-                          (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
-                draw_text(screen, str(self.examined_tile["tile"]), 50, (0, 255, 255),
-                          (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1] - 90))
-
-            screen.blit(img, (self.width - 1150, self.height - 205 + 40))
+                if self.examined_tile["tile"]:
+                    img = self.images_terre[
+                        self.examined_tile["tile"] + "_" + str(self.examined_tile["frame"]) + ".png"].convert_alpha()
+                    draw_text(screen, str(self.examined_tile["ressource"]), 30, (255, 255, 255),
+                              (self.hud_info_rect.center[0], self.hud_info_rect.center[1]))
+                    draw_text(screen, str(self.examined_tile["tile"]), 50, (0, 255, 255),
+                              (self.hud_info_rect.center[0] - 50, self.hud_info_rect.center[1] - 90))
+                else:
+                    img = None
+            if img:
+                screen.blit(img, (self.width - 1150, self.height - 205 + 40))
 
             if isinstance(self.examined_tile, Villageois):
                 draw_text(screen, str(round(self.examined_tile.stockage)), 30, (255, 255, 255),
