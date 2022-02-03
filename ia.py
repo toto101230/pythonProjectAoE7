@@ -257,10 +257,10 @@ class Ia:
                 u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
                               world.buildings, world.animaux, self.rodeurs[numero_rodeurs][count // 2])
                 count += 1
-            if count >= len(self.rodeurs[numero_rodeurs]) * 2:
+            if count >= len(self.rodeurs[numero_rodeurs]) * 2 or self.nbr_clubman >= 20:
                 return
             elif count <= len(self.rodeurs[numero_rodeurs]) * 2 and len(self.soldats) < len(
-                    self.rodeurs[numero_rodeurs]) * 2:
+                    self.rodeurs[numero_rodeurs]) * 2 and self.nbr_clubman < 20:
                 self.gestion_achat_unite(world, joueur, "clubman")
                 return
 
@@ -292,6 +292,7 @@ class Ia:
             return
 
         if self.plan_defense:
+            print(len(self.rodeurs[0]))
             caserne = 0
             tower = 0
             for b in self.batiments:
@@ -319,12 +320,14 @@ class Ia:
             if self.rodeurs[0] and 3 <= len(self.rodeurs[0]) < 5:
                 self.defense(world, joueur, 0)
 
-            if self.rodeurs[0] and len(self.rodeurs[0]) > 5:
+            if self.rodeurs[0] and len(self.rodeurs[0]) >= 5:
                 attack = 1
                 self.defense(world, joueur, 0)
 
+            print(attack)
+
             if attack and (self.nbr_clubman < len(self.rodeurs[0]) * 2 + 10 or self.nbr_clubman < len(
-                    self.rodeurs[1]) * 2 + 10):
+                    self.rodeurs[1]) * 2 + 10) and self.nbr_clubman <= 20:
                 self.gestion_achat_unite(world, joueur, "clubman")
                 return
             else:
@@ -340,6 +343,7 @@ class Ia:
                         x, y = self.calcul_pos_batiment(world.grid_length_x, world.grid_length_y, world, pos_caserne,
                                                         "clubman")
                         world.deplace_unite((x, y), u)
+            return
 
         if self.plan_debut:
             if joueur.resource_manager.resources["food"] < 400 and len(joueur.resource_manager.villageois["food"]) < 4:
@@ -415,7 +419,7 @@ class Ia:
                 return
 
             if joueur.resource_manager.resources["food"] > 600 and joueur.resource_manager.resources["wood"] > 600 \
-                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman > 7 and joueur.numero_age == 2:
+                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman > 8 and joueur.numero_age == 2:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
             return
@@ -426,7 +430,7 @@ class Ia:
             pos = self.cherche_ennemi(world.grid_length_x, world.grid_length_y, world, joueur, self.pos_hdv)
             if pos:
                 pos_ennemi = self.trouve_ennemi_attaque(world, joueur, pos)
-                if self.nbr_clubman >= len(pos_ennemi) * 2:
+                if self.nbr_clubman >= len(pos_ennemi) * 2 or self.nbr_clubman >= 20:
                     count = 0
                     for u in self.soldats:
                         if u.cible and u.cible == world.find_unite_pos(pos_ennemi[count // 2][0],
@@ -439,7 +443,7 @@ class Ia:
                         if count >= len(pos_ennemi) * 2:
                             return
 
-                elif self.nbr_clubman < len(pos_ennemi) * 2:
+                elif self.nbr_clubman < len(pos_ennemi) * 2 or self.nbr_clubman < 20:
                     self.gestion_achat_unite(world, joueur, "clubman")
                     return
 
