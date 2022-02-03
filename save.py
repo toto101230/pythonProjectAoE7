@@ -27,7 +27,7 @@ class Save:
         fin = open(self.save_path + "\\save", 'rb')
         donnee = pickle.load(fin)
         fin.close()
-        return donnee[0], donnee[1], donnee[2], donnee[3], donnee[4], donnee[5]
+        return donnee
 
     def hasload(self):
         return os.path.exists(self.save_path + "\\save")

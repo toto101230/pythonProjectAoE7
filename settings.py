@@ -1,3 +1,4 @@
+import pygame
 TILE_SIZE = 64
 
 # Colours     R    G    B  ALPHA
@@ -26,6 +27,30 @@ OCEANBLUE = (60,  173, 201)
 GRASSTEST = (77, 135, 0)
 COLOURKEY = (  1,   2,   3)
 
+
 FRUITORANGE = (255, 169, 99)
 TEAMPINK = (213, 130, 255)
 ALLYGREEN = (148, 255, 162)
+
+
+START_WOOD = 1000
+START_FOOD = 1000
+START_GOLD = 1000
+START_STONE = 1000
+
+IASTART_WOOD = 1000
+IASTART_FOOD = 1000
+IASTART_GOLD = 1000
+IASTART_STONE = 1000
+
+delaiTour = 1000
+
+commands = {'move right': pygame.K_d, 'move left': pygame.K_q, 'move up': pygame.K_z, 'move down': pygame.K_s,
+            'cheat menu': pygame.K_DOLLAR}
+Volume = 50
+
+CheatsActive = 0
+
+NbJoueurs = 2
+
+seed = ""

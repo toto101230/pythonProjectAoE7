@@ -200,8 +200,9 @@ class World:
                 # draw buildings
                 building = self.buildings[x][y]
                 if building:
-                    if building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or \
-                            building == self.buildings[x][y + 1]:
+                    if x + 1 < self.grid_length_x and y + 1 < self.grid_length_y and \
+                            (building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or
+                             building == self.buildings[x][y + 1]):
                         continue
                     else:
                         correctifx, correctify = 0, 0
@@ -667,8 +668,9 @@ class World:
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
-                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is \
-                            None and (x, y) not in pos_visitee:
+                    if (self.world[x][y]["tile"] == "" or self.world[x][y]["tile"] == "sable") and \
+                            self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and \
+                            (x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
                         unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
                                           self.buildings, self.animaux, (x, y))
@@ -728,13 +730,17 @@ class World:
         return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
     def pass_feodal(self, joueur):
-        if joueur.resource_manager.is_affordable("sombre"):
+        if joueur.age.can_pass_age():
             joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
+            joueur.numero_age = 2
 
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
+                    if isinstance(building, Hdv) and building.joueur == joueur and building.construit:
+                        building.health += 50
+                        building.max_health = 700
                     if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 150
                         building.max_health = 500
@@ -749,23 +755,27 @@ class World:
                         building.max_health = 175
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 5
                     u.spawn_health = 30
                     u.attack = 4
-                if isinstance(u, Clubman):
+                elif isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 50
                     u.attack = 7
 
     def pass_castle(self, joueur):
-        if joueur.resource_manager.is_affordable("feodal"):
+        if joueur.age.can_pass_age():
             joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
+            joueur.numero_age = 3
 
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
+                    if isinstance(building, Hdv) and building.joueur == joueur and building.construit:
+                        building.health += 100
+                        building.max_health = 1100
                     if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 100
                         building.max_health = 600
@@ -780,11 +790,11 @@ class World:
                         building.max_health = 250
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 3
                     u.spawn_health = 35
                     u.attack = 5
-                if isinstance(u, Clubman):
+                if isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 60
                     u.attack = 9
@@ -915,18 +925,3 @@ class World:
                  (self.grid_length_x-10, self.grid_length_y//2), (self.grid_length_x-10, 10),
                  (self.grid_length_x//2, 10)]]
         return poss[len(self.joueurs) - 2]
-
-    def load(self, seed, game):
-        self.seed = seed
-        self.joueurs = game.joueurs
-        self.pos_hdv = self.create_pos_hdv()
-
-        self.grass_tiles = pygame.Surface(
-            (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
-        for grid_x in range(self.grid_length_x):
-            for grid_y in range(self.grid_length_y):
-                render_pos = self.world[grid_x][grid_y]["render_pos"]
-                tile = self.tiles["grass"] if self.world[grid_x][grid_y]["tile"] != "eau" and self.world[grid_x][grid_y]["tile"] != "sable" else self.tiles[self.world[grid_x][grid_y]["tile"]]
-                self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
-            if grid_x % 10 == 0:
-                game.chargement(grid_x)

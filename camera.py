@@ -1,5 +1,5 @@
 import pygame
-
+import settings
 from model.joueur import Joueur
 from settings import TILE_SIZE
 
@@ -60,24 +60,25 @@ class Camera:
         #
 
     def events(self, event):
+
         if event.type == pygame.KEYDOWN and not self.box.active:
-            if event.key == pygame.K_s:
+            if event.key == settings.commands['move down']:
                 self.yBoolM = True
-            if event.key == pygame.K_z:
+            if event.key == settings.commands['move up']:
                 self.yBoolP = True
-            if event.key == pygame.K_d:
+            if event.key == settings.commands['move right']:
                 self.xBoolM = True
-            if event.key == pygame.K_q:
+            if event.key == settings.commands['move left']:
                 self.xBoolP = True
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_s:
+            if event.key == settings.commands['move down']:
                 self.yBoolM = False
-            if event.key == pygame.K_z:
+            if event.key == settings.commands['move up']:
                 self.yBoolP = False
-            if event.key == pygame.K_d:
+            if event.key == settings.commands['move right']:
                 self.xBoolM = False
-            if event.key == pygame.K_q:
+            if event.key == settings.commands['move left']:
                 self.xBoolP = False
 
         if self.yBoolM:

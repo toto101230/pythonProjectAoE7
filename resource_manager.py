@@ -4,16 +4,16 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 3000,
-            "food": 3000,
-            "gold": 1000,
-            "stone": 3000
+            "wood": 4000,
+            "food": 5000,
+            "gold": 3000,
+            "stone": 4000
         }
 
         # population
         self.population = {
             "population_actuelle": 0,
-            "population_maximale": 100
+            "population_maximale": 0
         }
 
         self.villageois = {

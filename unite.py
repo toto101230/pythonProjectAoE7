@@ -37,6 +37,9 @@ class Unite(metaclass=ABCMeta):
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
 
+        if not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
+            return
+
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
         if u and u is not self:
             if u.joueur != self.joueur and self.joueur.diplomatie[u.joueur.numero] != "allié":
