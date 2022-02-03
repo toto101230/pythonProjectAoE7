@@ -4,7 +4,7 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 1000,
+            "wood": 3000,
             "food": 3000,
             "gold": 1000,
             "stone": 3000
@@ -28,6 +28,7 @@ class ResourceManager:
         self.costs = {
             "villageois": {"food": 50},
             "clubman": {"food": 50},
+            "bigdaddy": {"food": 0},
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
             "house": {"wood": 30},
