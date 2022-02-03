@@ -17,7 +17,7 @@ def strcmp(stringa, stringb):
 
 
 class InputBox:
-    def __init__(self, x, y, w, h, state, rmanage, text=''):
+    def __init__(self, x, y, w, h, state, rmanage, joueurs, text=''):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
         self.text = text
@@ -27,10 +27,12 @@ class InputBox:
         self.player_rmanage = rmanage
         self.steroids = False
 
-        self.cheatlist = ["ninjalui", "bigdaddy", "steroids"]
+        self.cheatlist = ["ninjalui", "bigdaddy", "steroids", "forceattack", "checkstate"]
         self.nrofcheat = len(self.cheatlist)  # unused atm
         self.window = state
         self.world = None
+        self.players = joueurs
+        self.feedback = None
 
     def handle_event(self, event):
         if self.window:
@@ -65,8 +67,10 @@ class InputBox:
                 self.player_rmanage.resources["stone"] += 10000
                 self.player_rmanage.resources["food"] += 10000
                 self.player_rmanage.resources["gold"] += 10000
+
             elif strcmp(message, self.cheatlist[1]):    # bigdaddy
                 self.world.create_bigdaddy()
+
             elif strcmp(message, self.cheatlist[2]):    # steroids
                 self.steroids = not self.steroids
                 if self.steroids:
@@ -76,6 +80,26 @@ class InputBox:
                     Villageois.set_speed_build(5)
                     Villageois.set_time_limit_gathering(0.1)
 
+            elif strcmp(message, self.cheatlist[3]):    # forceattack
+                for i in range(1, len(self.players)):
+                    self.players[i].ia.plan_debut = False
+                    self.players[i].ia.plan_petite_armee = False
+                    self.players[i].ia.plan_attaque = True
+
+            elif strcmp(message, self.cheatlist[4]):    # checkstate
+                for i in range(1, len(self.players)):
+                    if self.players[i].ia.plan_debut:
+                        self.feedback = "AI[" + str(i) + "] : " + "plan debut"
+                        print(self.feedback)
+                    elif self.players[i].ia.plan_petite_armee:
+                        self.feedback = "AI[" + str(i) + "] : " + "plan petite armée"
+                        print(self.feedback)
+                    elif self.players[i].ia.plan_attaque:
+                        self.feedback = "AI[" + str(i) + "] : " + "plan attaque"
+                        print(self.feedback)
+                    elif self.players[i].ia.plan_defense:
+                        self.feedback = "AI[" + str(i) + "] : " + "plan defense"
+                        print(self.feedback)
 
             return message
 

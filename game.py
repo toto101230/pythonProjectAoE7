@@ -53,7 +53,7 @@ class Game:
         self.seed = 0
         self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
         self.resources_manager = self.joueurs[0].resource_manager
-        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager, self.joueurs)
         self.camera.box = self.cheat_box
         self.chargement(15)
 
@@ -136,9 +136,9 @@ class Game:
                 elif event.key == pygame.K_DOLLAR:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
-                elif event.key == pygame.K_k:
+                elif event.key == pygame.K_k and not self.cheat_box.active:
                     self.save.save(self)
-                elif event.key == pygame.K_l:
+                elif event.key == pygame.K_l and not self.cheat_box.active:
                     if self.save.hasload():
                         self.seed, self.world.world, self.world.buildings, self.world.unites, self.world.animaux, \
                             self.joueurs = self.save.load()
