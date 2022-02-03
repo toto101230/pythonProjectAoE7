@@ -929,18 +929,3 @@ class World:
                  (self.grid_length_x-10, self.grid_length_y//2), (self.grid_length_x-10, 10),
                  (self.grid_length_x//2, 10)]]
         return poss[len(self.joueurs) - 2]
-
-    def load(self, seed, game):
-        self.seed = seed
-        self.joueurs = game.joueurs
-        self.pos_hdv = self.create_pos_hdv()
-
-        self.grass_tiles = pygame.Surface(
-            (self.grid_length_x * TILE_SIZE * 2, self.grid_length_y * TILE_SIZE + 2 * TILE_SIZE)).convert_alpha()
-        for grid_x in range(self.grid_length_x):
-            for grid_y in range(self.grid_length_y):
-                render_pos = self.world[grid_x][grid_y]["render_pos"]
-                tile = self.tiles["grass"] if self.world[grid_x][grid_y]["tile"] != "eau" and self.world[grid_x][grid_y]["tile"] != "sable" else self.tiles[self.world[grid_x][grid_y]["tile"]]
-                self.grass_tiles.blit(tile, (render_pos[0] + self.grass_tiles.get_width() / 2, render_pos[1]))
-            if grid_x % 10 == 0:
-                game.chargement(grid_x)

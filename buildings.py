@@ -18,6 +18,7 @@ class Batiment:
         self.pos_spawn_u = ()
 
 
+
 class Hdv(Batiment):
 
     def __init__(self, pos, joueur):

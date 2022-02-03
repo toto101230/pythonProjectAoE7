@@ -2,8 +2,7 @@ import sys
 import time
 
 import pygame
-
-import events
+import settings
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -16,6 +15,8 @@ from selection import Selection
 from save import Save
 from model.joueur import Joueur
 from ia import Ia
+from settings import delaiTour
+from events import ia_events, victory, defeat
 
 
 class Game:
@@ -48,10 +49,13 @@ class Game:
 
         self.save = Save()
 
-    def create_game(self):
+    def create_game(self, nb_joueurs, seed, world, buildings, unites, animaux, joueurs):
         self.chargement(0)
-        self.seed = 0
-        self.joueurs = [Joueur(ResourceManager(), "joueur 1", 2, 0), Joueur(ResourceManager(), "joueur 2", 2, 1)]
+        self.seed = seed
+        self.joueurs = joueurs if joueurs else []
+        if not joueurs:
+            for i in range(1, nb_joueurs+1):
+                self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.camera.box = self.cheat_box
@@ -62,6 +66,14 @@ class Game:
 
         # les deux premiers int sont longueur et largeur du monde
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
+        if world:
+            self.world.world = world
+        if buildings:
+            self.world.buildings = buildings
+        if unites:
+            self.world.unites = unites
+        if animaux:
+            self.world.animaux = animaux
         self.cheat_box.world = self.world
         self.chargement(70)
 
@@ -70,8 +82,10 @@ class Game:
         self.chargement(80)
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
-        self.lancement_ia()
-        self.world.create_unites()
+        if not joueurs:
+            self.lancement_ia()
+        if not unites:
+            self.world.create_unites()
         self.chargement(100)
 
     def chargement(self, pourcentage):
@@ -90,7 +104,7 @@ class Game:
         for i in range(1, len(self.joueurs)):
             pos = self.joueurs[i].hdv_pos
             self.joueurs[i].ia = Ia(self.world.seed, pos)
-            pygame.time.set_timer(events.ia_events[i], 500)
+            pygame.time.set_timer(ia_events[i], delaiTour)
 
             self.joueurs[i].ia.batiments.append(self.world.buildings[pos[0]][pos[1]])
 
@@ -122,10 +136,10 @@ class Game:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == events.victory:
+            if event.type == victory:
                 self.end = 1
                 self.playing = False
-            if event.type == events.defeat:
+            if event.type == defeat:
                 self.end = 2
                 self.playing = False
 
@@ -133,23 +147,18 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_DOLLAR:
+                elif event.key == settings.commands['cheat menu']:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
                 elif event.key == pygame.K_k:
                     self.save.save(self)
                 elif event.key == pygame.K_l:
                     if self.save.hasload():
-                        self.seed, self.world.world, self.world.buildings, self.world.unites, self.world.animaux, \
-                            self.joueurs = self.save.load()
-                        self.world.load(self.seed, self)
-                        self.resources_manager = self.joueurs[0].resource_manager
-                        self.world.examine_tile = None
-                        self.hud.examined_tile = None
-                        self.hud.selected_tile = None
-                        self.cheat_enabled = False
+                        donnee = self.save.load()
+                        self.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
+                                         donnee[5])
 
-            if event.type in events.ia_events:
+            if event.type in ia_events:
                 joueur = self.joueurs[event.type - pygame.USEREVENT]
                 joueur.ia.play(self.world, joueur)
 
