@@ -14,7 +14,8 @@ class Minimap:
     ### STATIC ATTRIBUTES
     tab = []
 
-    def __init__(self, world, screen, camera, width, height):
+    def __init__(self, world, screen, camera, width, height, nrplayer):
+        self.idplayer = nrplayer
         ### SPECS WORLD / CAMERA / SCREEN
         self.world = world
         self.camera = camera
@@ -33,7 +34,7 @@ class Minimap:
         self.newSurf = pygame.Surface(self.rect.size).convert()
         ### UPDATE DE LA MINIMAP
         self.row = 0
-        self.updateMapsurf(self.world)  # update de base à la créa de l'objet minimap
+        self.updateMapsurf()  # update de base à la créa de l'objet minimap
 
         ### add
         self.red_crop = (0, 20, self.world.grid_length_x, self.world.grid_length_y)
@@ -67,21 +68,20 @@ class Minimap:
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
         screen.blit(self.intermediate, self.rect)
 
-    def update(self, world):
-        self.updateMapsurf(world)
+    def update(self):
+        self.updateMapsurf()
         self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3 * GAP + 1 / 5 * SIZE - 1, -2 * GAP - 4 + 1 / 4 * SIZE))
         self.updateCameraRect()
 
-    def updateMapsurf(self, world):
-        self.world = world
-        gridy = self.world.grid_length_y
-        for i in range(gridy):
+    def updateMapsurf(self):
+        for i in range(30):
             self.updateRowOfSurf()
 
     def updateRowOfSurf(self):
         gridy = self.world.grid_length_y
         for y in range(gridy):
+            building = self.world.buildings[self.row][y]
             case = self.world.world[self.row][y]["tile"]
             if case == "":
                 colour = GRASSTEST
@@ -92,13 +92,36 @@ class Minimap:
             elif case == "tree":
                 colour = GREEN
             elif case == "buisson":
-                colour = CREAM
+                colour = FRUITORANGE
             elif case == "sable":
                 colour = SANDYELLOW
             elif case == "eau":
                 colour = OCEANBLUE
             else:
-                colour = WHITE
+                colour = BROWNBLACK
+            if building is not None:
+                if building.joueur.diplomatie[self.idplayer] == "neutre" and building.joueur.numero != self.idplayer:
+                    colour = WHITE
+                elif building.joueur.numero == self.idplayer:
+                    colour = DARKBLUE
+                elif building.joueur.diplomatie[self.idplayer] == "allié":
+                    colour = TEAMPINK
+                elif building.joueur.diplomatie[self.idplayer] == "ennemi":
+                    colour = BRIGHTRED
+            for animal in self.world.animaux:
+                if animal.pos[0] == self.row and animal.pos[1] == y:
+                    colour = GREYBROWN
+            for unit in self.world.unites:
+                if unit.pos[0] == self.row and unit.pos[1] == y:
+                    if unit.joueur.diplomatie[self.idplayer] == "neutre" and unit.joueur.numero != self.idplayer:
+                        colour = WHITE
+                    elif unit.joueur.numero == self.idplayer:
+                        colour = DARKBLUE
+                    elif unit.joueur.diplomatie[self.idplayer] == "neutre":
+                        colour = TEAMPINK
+                    elif unit.joueur.diplomatie[self.idplayer] == "ennemi":
+                        colour = BRIGHTRED
+
             self.newSurf.fill(colour, (self.row, y, 1, 1))
         self.row += 1
         if self.row > self.world.grid_length_x - 1:

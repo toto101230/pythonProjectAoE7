@@ -57,7 +57,7 @@ class Game:
             for i in range(1, nb_joueurs+1):
                 self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
-        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager, self.joueurs)
         self.camera.box = self.cheat_box
         self.chargement(15)
 
@@ -77,7 +77,7 @@ class Game:
         self.cheat_box.world = self.world
         self.chargement(70)
 
-        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
+        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height, 0)
         self.world.minimap = self.minimap
         self.chargement(80)
 
@@ -150,9 +150,9 @@ class Game:
                 elif event.key == settings.commands['cheat menu']:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
-                elif event.key == pygame.K_k:
+                elif event.key == pygame.K_k and not self.cheat_box.active:
                     self.save.save(self)
-                elif event.key == pygame.K_l:
+                elif event.key == pygame.K_l and not self.cheat_box.active:
                     if self.save.hasload():
                         donnee = self.save.load()
                         self.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
@@ -175,7 +175,7 @@ class Game:
         self.camera.update()
         self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
-        self.minimap.update(self.world)
+        self.minimap.update()
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)
 

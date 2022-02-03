@@ -502,6 +502,9 @@ class Villageois(Unite):
                         self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource -= 1
                     else:
                         world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
+                        if world[self.posWork[0]][self.posWork[1]]["ressource"] <= 0:
+                            world[self.posWork[0]][self.posWork[1]]["tile"] = ""
+                            world[self.posWork[0]][self.posWork[1]]["collision"] = False
                     self.action = "gather"
                     self.time_recup_ressource = time()
                 else:

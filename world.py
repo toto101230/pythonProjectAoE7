@@ -48,8 +48,6 @@ class World:
         self.examine_tile = None
         self.examined_unites_tile = []
 
-
-
     def update(self, camera):
 
         for j in self.joueurs:
@@ -186,8 +184,6 @@ class World:
                 frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
-                if tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
-                    tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
