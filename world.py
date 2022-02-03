@@ -204,8 +204,9 @@ class World:
                 # draw buildings
                 building = self.buildings[x][y]
                 if building:
-                    if building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or \
-                            building == self.buildings[x][y + 1]:
+                    if x + 1 < self.grid_length_x and y + 1 < self.grid_length_y and \
+                            (building == self.buildings[x + 1][y + 1] or building == self.buildings[x + 1][y] or
+                             building == self.buildings[x][y + 1]):
                         continue
                     else:
                         correctifx, correctify = 0, 0
@@ -732,9 +733,10 @@ class World:
         return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
 
     def pass_feodal(self, joueur):
-        if joueur.resource_manager.is_affordable("sombre"):
+        if joueur.age.can_pass_age():
             joueur.resource_manager.apply_cost_to_resource("sombre")
             joueur.age = Feodal(joueur)
+            joueur.numero_age = 2
 
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
@@ -753,19 +755,20 @@ class World:
                         building.max_health = 175
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 5
                     u.spawn_health = 30
                     u.attack = 4
-                if isinstance(u, Clubman):
+                elif isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 50
                     u.attack = 7
 
     def pass_castle(self, joueur):
-        if joueur.resource_manager.is_affordable("feodal"):
+        if joueur.age.can_pass_age():
             joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
+            joueur.numero_age = 3
 
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
@@ -784,11 +787,11 @@ class World:
                         building.max_health = 250
 
             for u in self.unites:
-                if isinstance(u, Villageois):
+                if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 3
                     u.spawn_health = 35
                     u.attack = 5
-                if isinstance(u, Clubman):
+                if isinstance(u, Clubman) and u.joueur == joueur:
                     u.health += 10
                     u.spawn_health = 60
                     u.attack = 9
