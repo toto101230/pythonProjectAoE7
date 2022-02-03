@@ -1,5 +1,5 @@
 import pygame
-
+from unite import Villageois
 
 pygame.font.init()
 COLOR_INACTIVE = (138, 138, 138)
@@ -68,8 +68,14 @@ class InputBox:
             elif strcmp(message, self.cheatlist[1]):    # bigdaddy
                 self.world.create_bigdaddy()
             elif strcmp(message, self.cheatlist[2]):    # steroids
-                if not self.steroids:
-                    self.steroids = True
+                self.steroids = not self.steroids
+                if self.steroids:
+                    Villageois.set_speed_build(1000)
+                    Villageois.set_time_limit_gathering(0)
+                else:
+                    Villageois.set_speed_build(5)
+                    Villageois.set_time_limit_gathering(0.1)
+
 
             return message
 
