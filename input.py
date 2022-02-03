@@ -1,9 +1,10 @@
 import pygame
 from unite import Villageois
+from settings import *
 
 pygame.font.init()
 COLOR_INACTIVE = (138, 138, 138)
-COLOR_ACTIVE = (92, 100, 240)
+COLOR_ACTIVE = ORANGE
 font = pygame.font.Font(None, 30)
 
 
@@ -32,7 +33,6 @@ class InputBox:
         self.window = state
         self.world = None
         self.players = joueurs
-        self.feedback = None
 
     def handle_event(self, event):
         if self.window:
@@ -52,14 +52,16 @@ class InputBox:
                 if self.active:
                     if event.key == pygame.K_RETURN:
                         message = self.text
-                        self.text = ''
+                        self.text = ""
                     elif event.key == pygame.K_BACKSPACE:
                         self.text = self.text[:-1]
+                    elif event.key == pygame.K_LCTRL:
+                        while self.text != "":
+                            self.text = self.text[:-1]
                     elif event.key == pygame.K_DOLLAR:  # prevent l'apparition d'un $ dans le chat lors de reactiv cheat
                         pass
                     else:
                         self.text += event.unicode
-
                     self.text_surface = font.render(self.text, True, self.color)
 
             if strcmp(message, self.cheatlist[0]):  # ninjalui
@@ -89,17 +91,13 @@ class InputBox:
             elif strcmp(message, self.cheatlist[4]):    # checkstate
                 for i in range(1, len(self.players)):
                     if self.players[i].ia.plan_debut:
-                        self.feedback = "AI[" + str(i) + "] : " + "plan debut"
-                        print(self.feedback)
+                        self.text = "AI[" + str(i) + "] : " + "plan debut"
                     elif self.players[i].ia.plan_petite_armee:
-                        self.feedback = "AI[" + str(i) + "] : " + "plan petite armée"
-                        print(self.feedback)
+                        self.text = "AI[" + str(i) + "] : " + "plan petite armée"
                     elif self.players[i].ia.plan_attaque:
-                        self.feedback = "AI[" + str(i) + "] : " + "plan attaque"
-                        print(self.feedback)
+                        self.text = "AI[" + str(i) + "] : " + "plan attaque"
                     elif self.players[i].ia.plan_defense:
-                        self.feedback = "AI[" + str(i) + "] : " + "plan defense"
-                        print(self.feedback)
+                        self.text = "AI[" + str(i) + "] : " + "plan defense"
 
             return message
 

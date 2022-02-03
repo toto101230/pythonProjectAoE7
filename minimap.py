@@ -14,7 +14,8 @@ class Minimap:
     ### STATIC ATTRIBUTES
     tab = []
 
-    def __init__(self, world, screen, camera, width, height):
+    def __init__(self, world, screen, camera, width, height, nrplayer):
+        self.idplayer = nrplayer
         ### SPECS WORLD / CAMERA / SCREEN
         self.world = world
         self.camera = camera
@@ -82,6 +83,7 @@ class Minimap:
     def updateRowOfSurf(self):
         gridy = self.world.grid_length_y
         for y in range(gridy):
+            building = self.world.buildings[self.row][y]
             case = self.world.world[self.row][y]["tile"]
             if case == "":
                 colour = GRASSTEST
@@ -98,7 +100,27 @@ class Minimap:
             elif case == "eau":
                 colour = OCEANBLUE
             else:
-                colour = WHITE
+                colour = BROWNBLACK
+            if building is not None:
+                if building.joueur.diplomatie[self.idplayer] == "neutre" and building.joueur.numero != self.idplayer:
+                    colour = WHITE
+                elif building.joueur.numero == self.idplayer:
+                    colour = DARKBLUE
+                elif building.joueur.diplomatie[self.idplayer] == "allié":
+                    colour = TEAMPINK
+                elif building.joueur.diplomatie[self.idplayer] == "ennemi":
+                    colour = BRIGHTRED
+            for unit in self.world.unites:
+                if unit.pos[0] == self.row and unit.pos[1] == y:
+                    if unit.joueur.diplomatie[self.idplayer] == "neutre" and unit.joueur.numero != self.idplayer:
+                        colour = WHITE
+                    elif unit.joueur.numero == self.idplayer:
+                        colour = DARKBLUE
+                    elif unit.joueur.diplomatie[self.idplayer] == "neutre":
+                        colour = TEAMPINK
+                    elif unit.joueur.diplomatie[self.idplayer] == "ennemi":
+                        colour = BRIGHTRED
+
             self.newSurf.fill(colour, (self.row, y, 1, 1))
         self.row += 1
         if self.row > self.world.grid_length_x - 1:

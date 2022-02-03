@@ -48,8 +48,6 @@ class World:
         self.examine_tile = None
         self.examined_unites_tile = []
 
-
-
     def update(self, camera):
 
         for j in self.joueurs:

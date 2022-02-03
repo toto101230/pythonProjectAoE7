@@ -65,7 +65,7 @@ class Game:
         self.cheat_box.world = self.world
         self.chargement(70)
 
-        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
+        self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height, 0)
         self.world.minimap = self.minimap
         self.chargement(80)
 
