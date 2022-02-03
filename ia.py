@@ -108,9 +108,10 @@ class Ia:
         if (x, y) in pos_interdit:
             return True
 
-        if (nom_batiment != "house" or nom_batiment != "clubman" or nom_batiment != "tower") and ((x + 1, y) in pos_interdit
-                                                                       or (x, y + 1) in pos_interdit
-                                                                       or (x + 1, y + 1) in pos_interdit):
+        if (nom_batiment != "house" or nom_batiment != "clubman" or nom_batiment != "tower") and (
+                (x + 1, y) in pos_interdit
+                or (x, y + 1) in pos_interdit
+                or (x + 1, y + 1) in pos_interdit):
             return True
 
         if nom_batiment == "caserne" and (world.world[x + 1][y + 1]["tile"] != "" or world.buildings[x + 1][y + 1]):
@@ -351,7 +352,8 @@ class Ia:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 300 and len(joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 300 and len(
+                    joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
@@ -388,7 +390,8 @@ class Ia:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 400 and len(joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 400 and len(
+                    joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
@@ -402,6 +405,7 @@ class Ia:
                     joueur.resource_manager.resources["stone"] > joueur.resource_manager.costs["feodal"]["stone"] and \
                     joueur.numero_age < 2:
                 world.pass_feodal(joueur)
+                return
             elif joueur.resource_manager.resources["wood"] < joueur.resource_manager.costs["feodal"]["wood"] and \
                     len(joueur.resource_manager.villageois["wood"]) < 4 and joueur.numero_age < 2:
                 self.gestion_ressource(world, joueur, "tree")
@@ -416,7 +420,7 @@ class Ia:
                 return
 
             if joueur.resource_manager.resources["food"] > 600 and joueur.resource_manager.resources["wood"] > 600 \
-                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman > 8 and joueur.numero_age == 2:
+                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman >= 8 and joueur.numero_age == 2:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
             return
@@ -470,7 +474,8 @@ class Ia:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 800 and len(joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 800 and len(
+                    joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
