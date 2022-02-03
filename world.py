@@ -184,8 +184,6 @@ class World:
                 frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
-                if tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
-                    tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x,
@@ -368,7 +366,7 @@ class World:
 
         if world_tree[grid_x][grid_y] <= 15:
             tile = "tree"
-            ressource = 150
+            ressource = 5
             frame = world_frame[grid_x * self.grid_length_x+grid_y]
         else:
             r = world_random[grid_x][grid_y]
