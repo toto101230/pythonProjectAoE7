@@ -38,7 +38,7 @@ class Hud:
         # self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
         self.hud_age2 = pg.image.load("assets/hud/hud_age2.png")
-        self.hud_age3 = pg.image.load("assets/hud/hud_age3.jpg")
+        self.hud_age3 = pg.image.load("assets/hud/hud_age3.png")
 
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
         self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(self.width - 413, self.height - 205))
