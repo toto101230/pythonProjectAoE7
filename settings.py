@@ -40,7 +40,7 @@ delaiTour= 1000
 
 
 
-Volume= 50
+Volume= 10
 
 CheatsActive= 0
 
