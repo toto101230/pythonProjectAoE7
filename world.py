@@ -42,7 +42,7 @@ class World:
 
         self.unites = []
 
-        self.animaux = []  # self.create_animaux()
+        self.animaux = self.create_animaux()
 
         self.temp_tile = None
         self.examine_tile = None
@@ -492,6 +492,11 @@ class World:
         # animaux
         gazelle = pygame.image.load("assets/animaux/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/animaux/gazelle_mort.png").convert_alpha()
+
+        rect = gazelle.get_rect(topleft=(0, 0))
+        gazelle = self.scale_image(gazelle, h=rect.height * 1.8, w=rect.width * 1.8)
+        rect = gazelle_mort.get_rect(topleft=(0, 0))
+        gazelle_mort = self.scale_image(gazelle_mort, h=rect.height * 1.8, w=rect.width * 1.8)
 
         images = {
             "grass": grass,
