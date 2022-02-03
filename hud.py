@@ -30,9 +30,15 @@ class Hud:
         self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
 
         self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
+        self.hud_age2_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
+        self.hud_age3_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
         self.hud_age_rect = self.hud_age_surface.get_rect(topleft=(self.width - 290, 0))
+        self.hud_age2_rect = self.hud_age2_surface.get_rect(topleft=(self.width - 290, 0))
+        self.hud_age3_rect = self.hud_age3_surface.get_rect(topleft=(self.width - 290, 0))
         # self.hud_age_surface.fill(self.hud_colour)
         self.hud_age = pg.image.load("assets/hud/hud_age.png")
+        self.hud_age2 = pg.image.load("assets/hud/hud_age2.png")
+        self.hud_age3 = pg.image.load("assets/hud/hud_age3.png")
 
         self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
         self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(self.width - 413, self.height - 205))
@@ -87,8 +93,11 @@ class Hud:
         # (867 * 1.035 / self.hud_action_rect.x)
         # (515 * 1.08 / self.hud_action_rect.y)
         object_width = self.hud_action_surface.get_width() // 15
+
         self.hud_haut_surface.blit(self.hud_haut, (0, 0))
         self.hud_age_surface.blit(self.hud_age, (0, 0))
+        self.hud_age2_surface.blit(self.hud_age2, (0, 0))
+        self.hud_age3_surface.blit(self.hud_age3, (0, 0))
         self.hud_action_surface.blit(self.hud_action, (0, 0))
         self.hud_info_surface.blit(self.hud_info, (0, 0))
 
@@ -211,7 +220,13 @@ class Hud:
         mouse_pos = pg.mouse.get_pos()
 
         screen.blit(self.hud_haut_surface, (0, 0))
-        screen.blit(self.hud_age_surface, (self.width - 290, 0))
+        if joueurs[0].age.numero == "1":
+            screen.blit(self.hud_age_surface, (self.width - 290, 0))
+        elif joueurs[0].age.numero == "2":
+            screen.blit(self.hud_age2_surface, (self.width - 290, 0))
+        else :
+            screen.blit(self.hud_age3_surface, (self.width - 290, 0))
+
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
         # a voir
         # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",

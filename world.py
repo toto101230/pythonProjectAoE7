@@ -741,6 +741,9 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
+                    if isinstance(building, Hdv) and building.joueur == joueur and building.construit:
+                        building.health += 50
+                        building.max_health = 700
                     if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 150
                         building.max_health = 500
@@ -773,6 +776,9 @@ class World:
             for x in range(0, self.grid_length_x):
                 for y in range(0, self.grid_length_y):
                     building = self.buildings[x][y]
+                    if isinstance(building, Hdv) and building.joueur == joueur and building.construit:
+                        building.health += 100
+                        building.max_health = 1100
                     if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
                         building.health += 100
                         building.max_health = 600
