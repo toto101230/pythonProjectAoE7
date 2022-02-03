@@ -335,7 +335,8 @@ class Unite(metaclass=ABCMeta):
 
 
 class Villageois(Unite):
-
+    speed_build = 5
+    time_limit_gathering = 0.1
     def __init__(self, pos, joueur):
         if joueur.age.name == "sombre":
             self.spawn_health = 25
@@ -352,6 +353,14 @@ class Villageois(Unite):
         self.stockage = 0
         self.posWork = ()
         self.resource_manager.villageois["rien"].append(self)
+
+    @staticmethod
+    def set_speed_build(value):
+        Villageois.speed_build = value
+
+    @staticmethod
+    def set_time_limit_gathering(value):
+        Villageois.time_limit_gathering = value
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
@@ -456,10 +465,10 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
+            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > Villageois.time_limit_gathering:
                 if self.work == "builder":
                     building = buildings[self.posWork[0]][self.posWork[1]]
-                    building.health += 10
+                    building.health += Villageois.speed_build
                     if building.health >= building.max_health:
                         building.construit = True
                         building.resource_manager.update_population_max(building.place_unite)
@@ -645,3 +654,7 @@ class Clubman(Unite):
             self.spawn_health = 60
             self.spawn_attack = 9
         super().__init__("clubman", pos, self.spawn_health, 1.2, self.spawn_attack, 1, 1.5, 1, joueur)
+
+class BigDaddy(Unite):
+    def __init__(self, pos, joueur):
+        super().__init__("bigdaddy", pos, 2000, 1.2, 30, 3, 3, 0, joueur)

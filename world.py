@@ -2,10 +2,11 @@ import pygame
 import numpy as np
 import tcod
 
+
 from events import ia_events, victory, defeat
 from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment, Tower
-from unite import Unite, Villageois, Clubman, neighbours
+from unite import Unite, Villageois, Clubman, neighbours, BigDaddy
 from time import time
 from model.joueur import Joueur
 from os import walk
@@ -19,6 +20,7 @@ iso = lambda x, y: ((x - y), ((x + y) / 2))
 class World:
 
     def __init__(self, hud, grid_length_x, grid_length_y, width, height, joueurs: list[Joueur], seed):
+        self.minimap = None
         self.hud = hud
         self.grid_length_x = grid_length_x
         self.grid_length_y = grid_length_y
@@ -40,11 +42,13 @@ class World:
 
         self.unites = []
 
-        self.animaux = []  # self.create_animaux()
+        self.animaux = self.create_animaux()
 
         self.temp_tile = None
         self.examine_tile = None
         self.examined_unites_tile = []
+
+
 
     def update(self, camera):
 
@@ -81,11 +85,10 @@ class World:
                         self.hud.examined_tile = None
                         self.examined_unites_tile = []
 
-        if self.hud.selected_tile:
-            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"],
-                                   mouse_action[0]):
-                self.hud.selected_tile = None
 
+        if self.hud.selected_tile:
+            if self.place_building(grid_pos, self.joueurs[0], self.hud.selected_tile["name"][:-1], mouse_action[0]):
+                self.hud.selected_tile = None
         elif self.can_place_tile(grid_pos):
             tile = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
@@ -183,8 +186,7 @@ class World:
                 frame = str(self.world[x][y]["frame"])
                 # draw dammier
                 tile = self.world[x][y]["tile"]
-
-                if tile != "" and tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
+                if tile != "eau" and tile != "sable" and self.world[x][y]["ressource"] <= 0:
                     tile = ""
                 if tile != "" and tile != "eau" and tile != "sable":
                     screen.blit(self.tiles[tile + "_" + frame + ".png"],
@@ -215,9 +217,9 @@ class World:
                             correctify = -15
                         elif isinstance(building, House):
                             correctify = -15
-                        screen.blit(self.tiles[building.name],
+                        screen.blit(self.tiles[building.name+building.joueur.age.numero],
                                 (render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                 render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify))
+                                 render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify))
 
                         if building.health <= 0 and building.construit:
                             if self.examine_tile and x == self.examine_tile[0] and y == self.examine_tile[1]:
@@ -226,18 +228,18 @@ class World:
                             self.buildings[x][y] = None
 
                         if self.examine_tile and self.buildings[self.examine_tile[0]][self.examine_tile[1]] == building:
-                            mask = pygame.mask.from_surface(self.tiles[building.name]).outline()
+                            mask = pygame.mask.from_surface(self.tiles[building.name+building.joueur.age.numero]).outline()
                             mask = [(x + render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                     y + render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify)
+                                     y + render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify)
                                     for x, y in mask]
                             pygame.draw.polygon(screen, (255, 255, 255), mask, 3)
 
                             pygame.draw.rect(screen, (255, 0, 0),
                                              pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                         render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30, 200, 10))
+                                                         render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30, 200, 10))
                             pygame.draw.rect(screen, (0, 255, 0),
                                              pygame.Rect(render_pos[0] + self.grass_tiles.get_width() / 2 + camera.scroll.x + correctifx,
-                                                         render_pos[1] - (self.tiles[building.name].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30,
+                                                         render_pos[1] - (self.tiles[building.name+building.joueur.age.numero].get_height() - TILE_SIZE) + camera.scroll.y + correctify - 30,
                                                          building.health * 100 / building.max_health * 200 / 100, 10))
                             if building.pos_spawn_u and building.joueur.name == "joueur 1":
                                 pos = self.world[building.pos_spawn_u[0]][building.pos_spawn_u[1]]["render_pos"]
@@ -466,11 +468,21 @@ class World:
         # buisson0 = pygame.transform.scale(buisson0, (88, 62)).convert_alpha()
 
         # bâtiments
-        caserne = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
-        grenier = pygame.image.load("assets/batiments/grenier.png").convert_alpha()
-        hdv = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
-        house = pygame.image.load("assets/batiments/house.png").convert_alpha()
-        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
+        caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
+        caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
+        grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
+        grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
+        hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/hdv2.png").convert_alpha()
+        hdv3 = pygame.image.load("assets/batiments/hdv3.png").convert_alpha()
+        house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
+        house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
+        tower1 = pygame.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pygame.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pygame.image.load("assets/batiments/tower3.png").convert_alpha()
 
         # etoile des combats
         etoile = pygame.image.load("assets/etoile.png").convert_alpha()
@@ -482,16 +494,31 @@ class World:
         gazelle = pygame.image.load("assets/animaux/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/animaux/gazelle_mort.png").convert_alpha()
 
+        rect = gazelle.get_rect(topleft=(0, 0))
+        gazelle = self.scale_image(gazelle, h=rect.height * 1.8, w=rect.width * 1.8)
+        rect = gazelle_mort.get_rect(topleft=(0, 0))
+        gazelle_mort = self.scale_image(gazelle_mort, h=rect.height * 1.8, w=rect.width * 1.8)
+
         images = {
             "grass": grass,
             "eau": eau,
             "sable": sable,
 
-            "caserne": caserne,
-            "grenier": grenier,
-            "hdv": hdv,
-            "house": house,
-            "tower": tower,
+            "caserne1": caserne1,
+            "caserne2": caserne2,
+            "caserne3": caserne3,
+            "grenier1": grenier1,
+            "grenier2": grenier2,
+            "grenier3": grenier3,
+            "hdv1": hdv1,
+            "hdv2": hdv2,
+            "hdv3": hdv3,
+            "house1": house1,
+            "house2": house2,
+            "house3": house3,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
 
             "etoile": etoile,
 
@@ -541,7 +568,8 @@ class World:
         for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect == self.hud.hud_info_rect and self.hud.examined_tile is None:
                 continue
-            if rect.collidepoint(pygame.mouse.get_pos()):
+            if rect.collidepoint(pygame.mouse.get_pos()) or self.minimap.intermediate.get_rect(topleft=self.minimap.
+                    rect.topleft).collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
         return world_bounds and not mouse_on_panel
@@ -578,7 +606,7 @@ class World:
             collision = collision or self.collision_pos(grid_pos[0], grid_pos[1])
 
             self.temp_tile = {
-                "image": self.tiles[name].copy(),
+                "image": self.tiles[name+self.joueurs[0].age.numero].copy(),
                 "render_pos": render_pos,
                 "iso_poly": iso_poly,
                 "collision": collision
@@ -710,6 +738,22 @@ class World:
             joueur.age = Feodal(joueur)
             joueur.numero_age = 2
 
+            for x in range(0, self.grid_length_x):
+                for y in range(0, self.grid_length_y):
+                    building = self.buildings[x][y]
+                    if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
+                        building.health += 150
+                        building.max_health = 500
+                    if isinstance(building, House) and building.joueur == joueur and building.construit:
+                        building.health += 25
+                        building.max_health = 100
+                    if isinstance(building, Grenier) and building.joueur == joueur and building.construit:
+                        building.health += 90
+                        building.max_health = 440
+                    if isinstance(building, Tower) and building.joueur == joueur and building.construit:
+                        building.health += 50
+                        building.max_health = 175
+
             for u in self.unites:
                 if isinstance(u, Villageois) and u.joueur == joueur:
                     u.health += 5
@@ -725,6 +769,22 @@ class World:
             joueur.resource_manager.apply_cost_to_resource("feodal")
             joueur.age = Castle(joueur)
             joueur.numero_age = 3
+
+            for x in range(0, self.grid_length_x):
+                for y in range(0, self.grid_length_y):
+                    building = self.buildings[x][y]
+                    if isinstance(building, Caserne) and building.joueur == joueur and building.construit:
+                        building.health += 100
+                        building.max_health = 600
+                    if isinstance(building, House) and building.joueur == joueur and building.construit:
+                        building.health += 50
+                        building.max_health = 150
+                    if isinstance(building, Grenier) and building.joueur == joueur and building.construit:
+                        building.health += 110
+                        building.max_health = 550
+                    if isinstance(building, Tower) and building.joueur == joueur and building.construit:
+                        building.health += 75
+                        building.max_health = 250
 
             for u in self.unites:
                 if isinstance(u, Villageois) and u.joueur == joueur:
@@ -833,6 +893,10 @@ class World:
         self.unites.append(Clubman((65, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 66), self.joueurs[0]))
         self.unites.append(Clubman((66, 65), self.joueurs[0]))
+
+    def create_bigdaddy(self):
+        spos = self.joueurs[0].hdv_pos
+        self.unites.append(BigDaddy((spos[0]+1, spos[1]+3), self.joueurs[0]))
 
     def collision_pos(self, x, y):
         return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)

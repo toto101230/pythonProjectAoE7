@@ -93,8 +93,9 @@ class Hud:
         self.hud_info_surface.blit(self.hud_info, (0, 0))
 
         tiles = []
-
+        i=0
         for image_name, image in self.images.items():
+            i+=1
             pos = render_pos.copy()
             image_tmp = image.copy()
             image_scale = self.scale_image(image_tmp, w=object_width)
@@ -110,7 +111,8 @@ class Hud:
                 }
             )
 
-            render_pos[0] += image_scale.get_width() + 9 * 1280 / self.width
+            if i % 3 == 0:
+                render_pos[0] += image_scale.get_width() + 9 * 1280 / self.width
 
         return tiles
 
@@ -132,17 +134,18 @@ class Hud:
                 if mouse_action[0]:
                     self.unite_recrut = self.clubman_bouton.text[:-7]
                     self.clubman_bouton.is_press = True
-
             if self.villageois_bouton.is_press and not mouse_action[0]:
                 self.villageois_bouton.is_press = False
             if self.clubman_bouton.is_press and not mouse_action[0]:
                 self.clubman_bouton.is_press = False
 
-            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press:
+            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press and\
+                    self.examined_tile.name == "hdv":
                 if mouse_action[0]:
                     self.action_age = "feodal"
                     self.age_feodal_bouton.is_press = True
-            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press:
+            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press and\
+                    self.examined_tile.name == "hdv":
                 if mouse_action[0]:
                     self.action_age = "castle"
                     self.age_castel_bouton.is_press = True
@@ -165,7 +168,7 @@ class Hud:
             self.selected_tile = None
 
         for tile in self.tiles:
-            if self.resource_manager.is_affordable(tile["name"]):
+            if self.resource_manager.is_affordable(tile["name"][:-1]):
                 tile["affordable"] = True
             else:
                 tile["affordable"] = False
@@ -253,9 +256,11 @@ class Hud:
             screen.blit(self.hud_info_surface, (self.width - 1180, self.height - 205))
 
             # affichage de l'image du batiment avec son nom et son nombre de vie
-            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or isinstance(
-                    self.examined_tile, Animal):
-                img = self.images_examined[self.examined_tile.name].convert_alpha()
+            if isinstance(self.examined_tile, Batiment) or isinstance(self.examined_tile, Unite) or \
+                    isinstance(self.examined_tile, Animal):
+                name_image = self.examined_tile.name + joueurs[0].age.numero if isinstance(self.examined_tile, Batiment) \
+                    else self.examined_tile.name
+                img = self.images_examined[name_image].convert_alpha()
                 draw_text(screen, self.examined_tile.name, 50, "#ff0000",
                           (self.hud_info_rect.midtop[0], self.hud_info_rect.midtop[1] + 40))
                 draw_text(screen, str(self.examined_tile.health), 30, (255, 255, 255),
@@ -297,24 +302,23 @@ class Hud:
                           (self.hud_info_rect.center[0], self.hud_info_rect.center[1] - 20))
 
         for tile in self.tiles:
-            icon = tile["icon"].copy()
-            if not tile["affordable"]:
-                icon.set_alpha(100)
-            screen.blit(icon, tile["rect"].topleft)
+            if tile["name"][-1:] == joueurs[0].age.numero:
+                icon = tile["icon"].copy()
+                if not tile["affordable"]:
+                    icon.set_alpha(100)
+                screen.blit(icon, tile["rect"].topleft)
 
-            if tile["rect"].collidepoint(mouse_pos):
-                ressource = self.resource_manager.get_cost(tile["name"])
-                pygame.draw.rect(screen, (255, 255, 255),
-                                 pygame.Rect(mouse_pos[0], mouse_pos[1] - len(ressource) * 40, 150,
-                                             len(ressource) * 40))
-                pos = (mouse_pos[0] + 10, mouse_pos[1] - len(ressource) * 40 + 10)
-                for cle, valeur in ressource.items():
-                    if self.resource_manager.resources[cle] >= valeur:
-                        color = (0, 255, 0)
-                    else:
-                        color = (255, 0, 0)
-                    draw_text(screen, '{} : {}'.format(cle, valeur), 30, color, pos)
-                    pos = (pos[0], pos[1] + 40)
+                if tile["rect"].collidepoint(mouse_pos):
+                    ressource = self.resource_manager.get_cost(tile["name"][:-1])
+                    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(mouse_pos[0], mouse_pos[1] - len(ressource) * 40, 150, len(ressource)*40 ))
+                    pos = (mouse_pos[0]+10, mouse_pos[1] - len(ressource) * 40 + 10)
+                    for cle, valeur in ressource.items():
+                        if self.resource_manager.resources[cle] >= valeur:
+                            color = (0, 255, 0)
+                        else:
+                            color = (255, 0, 0)
+                        draw_text(screen, '{} : {}'.format(cle, valeur), 30, color, pos)
+                        pos = (pos[0], pos[1] + 40)
 
         pos = 75
         for resource, resource_value in self.resource_manager.resources.items():
@@ -326,42 +330,79 @@ class Hud:
         draw_text(screen, txt_units, 30, (255, 255, 255), (pos, 20))
 
     def load_images(self):
-
-        caserne = pg.image.load("assets/batiments/caserne.png").convert_alpha()
-        house = pg.image.load("assets/batiments/house.png").convert_alpha()
-        grenier = pg.image.load("assets/batiments/grenier.png").convert_alpha()
-        tower = pg.image.load("assets/batiments/tower.png").convert_alpha()
+        caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
+        caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
+        grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
+        grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
+        house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
+        house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
+        tower1 = pg.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pg.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pg.image.load("assets/batiments/tower3.png").convert_alpha()
 
         images = {
-            "caserne": caserne,
-            "house": house,
-            "grenier": grenier,
-            "tower": tower,
+            "caserne1": caserne1,
+            "caserne2": caserne2,
+            "caserne3": caserne3,
+            "house1": house1,
+            "house2": house2,
+            "house3": house3,
+            "grenier1": grenier1,
+            "grenier2": grenier2,
+            "grenier3": grenier3,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
         }
 
         return images
 
     def load_images_examined(self):
-        caserne = pygame.image.load("assets/hud/examined_title/caserne.png").convert_alpha()
-        clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
-        grenier = pygame.image.load("assets/hud/examined_title/grenier.png").convert_alpha()
-        hdv = pygame.image.load("assets/hud/examined_title/hdv.png").convert_alpha()
-        house = pygame.image.load("assets/hud/examined_title/house.png").convert_alpha()
-        tower = pygame.image.load("assets/batiments/tower.png").convert_alpha()
+        caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
+        caserne2 = pygame.image.load("assets/batiments/caserne2.png").convert_alpha()
+        caserne3 = pygame.image.load("assets/batiments/caserne3.png").convert_alpha()
+        grenier1 = pygame.image.load("assets/batiments/strorage.png").convert_alpha()
+        grenier2 = pygame.image.load("assets/batiments/storage2.png").convert_alpha()
+        grenier3 = pygame.image.load("assets/batiments/storage3.png").convert_alpha()
+        hdv1 = pygame.image.load("assets/batiments/hdv.png").convert_alpha()
+        hdv2 = pygame.image.load("assets/batiments/hdv2.png").convert_alpha()
+        hdv3 = pygame.image.load("assets/batiments/hdv3.png").convert_alpha()
+        house1 = pygame.image.load("assets/batiments/house.png").convert_alpha()
+        house2 = pygame.image.load("assets/batiments/house2.png").convert_alpha()
+        house3 = pygame.image.load("assets/batiments/house3.png").convert_alpha()
+        tower1 = pg.image.load("assets/batiments/tower1.png").convert_alpha()
+        tower2 = pg.image.load("assets/batiments/tower2.png").convert_alpha()
+        tower3 = pg.image.load("assets/batiments/tower3.png").convert_alpha()
         villageois = pygame.image.load("assets/hud/examined_title/villageois.png").convert_alpha()
         gazelle = pygame.image.load("assets/hud/examined_title/gazelle.png").convert_alpha()
         gazelle_mort = pygame.image.load("assets/hud/examined_title/gazelle_mort.png").convert_alpha()
+        clubman = pygame.image.load("assets/hud/examined_title/clubman.png").convert_alpha()
+        bigdaddy = pygame.image.load("assets/hud/examined_title/bigdaddy.png").convert_alpha()
 
         images = {
-            "caserne": caserne,
-            "clubman": clubman,
-            "grenier": grenier,
-            "hdv": hdv,
-            "house": house,
-            "tower": tower,
+            "caserne1": caserne1,
+            "caserne2": caserne2,
+            "caserne3": caserne3,
+            "grenier1": grenier1,
+            "grenier2": grenier2,
+            "grenier3": grenier3,
+            "hdv1": hdv1,
+            "hdv2": hdv2,
+            "hdv3": hdv3,
+            "house1": house1,
+            "house2": house2,
+            "house3": house3,
+            "tower1": tower1,
+            "tower2": tower2,
+            "tower3": tower3,
             "villageois": villageois,
             "gazelle": gazelle,
             "gazelle_mort": gazelle_mort,
+            "clubman": clubman,
+            "bigdaddy": bigdaddy,
         }
 
         w, h = self.hud_info_rect.width, self.hud_info_rect.height
