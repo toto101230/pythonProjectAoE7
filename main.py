@@ -4,8 +4,6 @@ from menu import GestionMenu
 from pygame import mixer
 import settings
 
-mixer.init()
-
 
 def main():
     pygame.init()
@@ -24,7 +22,7 @@ def main():
     menu_p = GestionMenu(screen, game)
     while running:
         mixer.music.load('assets/Polices&Wallpaper/01 Age of Empires II Main Theme.mp3')
-        mixer.music.set_volume(settings.Volume)
+        mixer.music.set_volume(settings.Volume/100)
         mixer.music.play(-1)
         while menu_p.running:
             menu_p.curr_menu.display_menu()

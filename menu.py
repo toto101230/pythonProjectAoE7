@@ -479,11 +479,11 @@ class VolumeMenu(Menu):
         if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.PlusButton.is_over(mouse_pos):
-                if settings.Volume<=100:
+                if settings.Volume < 100:
                     settings.Volume += 2
                 self.gestion.CLICK = False
             if self.MoinsButton.is_over(mouse_pos):
-                if settings.Volume >1:
+                if settings.Volume > 1:
                     settings.Volume -= 2
                 self.gestion.CLICK = False
 
