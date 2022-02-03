@@ -377,6 +377,7 @@ class Ia:
         if self.plan_petite_armee:
             if self.nbr_clubman < 8:
                 self.gestion_achat_unite(world, joueur, "clubman")
+                return
 
             if joueur.resource_manager.resources["food"] < 600 and len(joueur.resource_manager.villageois["food"]) < 4:
                 self.gestion_ressource(world, joueur, "buisson")
