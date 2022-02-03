@@ -672,8 +672,9 @@ class World:
             def degage_unite(pos_a_degage):
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
-                    if self.world[x][y]["tile"] == "" and self.buildings[x][y] is None and self.find_unite_pos(x, y) is \
-                            None and (x, y) not in pos_visitee:
+                    if (self.world[x][y]["tile"] == "" or self.world[x][y]["tile"] == "sable") and \
+                            self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and \
+                            (x, y) not in pos_visitee:
                         unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
                         unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
                                           self.buildings, self.animaux, (x, y))
