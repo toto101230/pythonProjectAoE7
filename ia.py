@@ -292,7 +292,6 @@ class Ia:
             return
 
         if self.plan_defense:
-            print(len(self.rodeurs[0]))
             caserne = 0
             tower = 0
             for b in self.batiments:
@@ -323,8 +322,6 @@ class Ia:
             if self.rodeurs[0] and len(self.rodeurs[0]) >= 5:
                 attack = 1
                 self.defense(world, joueur, 0)
-
-            print(attack)
 
             if attack and (self.nbr_clubman < len(self.rodeurs[0]) * 2 + 10 or self.nbr_clubman < len(
                     self.rodeurs[1]) * 2 + 10) and self.nbr_clubman <= 20:
