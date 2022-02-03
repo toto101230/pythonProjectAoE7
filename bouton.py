@@ -12,7 +12,6 @@ class Button:
         self.text = text
         self.image_origine = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
         self.image = pygame.image.load("assets/hud/" + text + ".png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 

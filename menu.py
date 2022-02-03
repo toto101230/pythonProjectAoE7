@@ -181,13 +181,9 @@ class PlayMenu(Menu,):
             if self.LoadGameButton.is_over(mouse_pos):
 
                 if self.save.hasload():
-                    seed, world, buildings, unites, animaux, joueurs = self.save.load()
-                    self.game.create_game(len(joueurs))
-                    self.game.seed, self.game.world.world, self.game.world.buildings, self.game.world.unites, \
-                        self.game.world.animaux, self.game.joueurs = seed, world, buildings, unites, animaux, joueurs
-                    self.game.world.load(self.game.seed, self.game)
-                    self.game.resources_manager = self.game.joueurs[0].resource_manager
-                    self.game.cheat_enabled = False
+                    donnee = self.save.load()
+                    self.game.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
+                                          donnee[5])
                     self.PartieChargee = 1
                     self.gestion.playing = True
                     self.gestion.running = False
@@ -359,7 +355,7 @@ class NewGame(Menu):
                 self.gestion.CLICK = False
 
             if self.PlayButton.is_over(mouse_pos):
-                self.game.create_game(settings.NbJoueurs)
+                self.game.create_game(settings.NbJoueurs, 0, None, None, None, None, None)
                 self.game.joueurs[0].resource_manager.resources = {
                     "wood": settings.START_WOOD,
                     "food": settings.START_FOOD,
@@ -616,16 +612,14 @@ class PauseMenu(Menu):
         if self.gestion.CLICK:
             mouse_pos = pygame.mouse.get_pos()
             if self.SaveButton.is_over(mouse_pos):
-                self.jeu.save()
+                self.game.save()
                 self.gestion.CLICK = False
             elif self.LoadButton.is_over(mouse_pos):
                 if self.save.hasload():
-                    self.jeu.create_game()
-                    self.jeu.seed, self.jeu.world.world, self.jeu.world.buildings, self.jeu.world.unites, \
-                        self.jeu.world.animaux, self.jeu.joueurs = self.save.load()
-                    self.jeu.world.load(self.jeu.seed, self.jeu)
-                    self.jeu.resources_manager = self.jeu.joueurs[0].resource_manager
-                    self.jeu.cheat_enabled = False
+                    donnee = self.save.load()
+                    self.game.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
+                                          donnee[5])
+
                     self.PartieChargee = 1
                     self.gestion.playing = True
                     self.gestion.running = False

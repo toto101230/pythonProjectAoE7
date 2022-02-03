@@ -47,9 +47,9 @@ class Hud:
         # diplomatie
         self.diplo_surface = pg.Surface((450, 100 * nb_joueur + 50), pg.SRCALPHA)
         self.diplo_surface.fill((255, 255, 255))
-        self.option_diplo_bouton = [[Button(None, self.width / 2 - 225 + 300 + 10,
+        self.option_diplo_bouton = [[Button(None, self.width / 2 - 225 + 300,
                                             self.height / 2 - self.diplo_surface.get_height() / 2 - 50 + 25 + 25 + 100 * i, 'Allié'),
-                                    Button(None, self.width / 2 - 225 + 300 + 2,
+                                    Button(None, self.width / 2 - 225 + 300,
                                            self.height / 2 - self.diplo_surface.get_height() / 2 - 50 + 25 + 50 + 100 * i, 'Neutre'),
                                     Button(None, self.width / 2 - 225 + 300,
                                            self.height / 2 - self.diplo_surface.get_height() / 2 - 50 + 25 + 75 + 100 * i, 'Ennemi')] for i in range(nb_joueur)]

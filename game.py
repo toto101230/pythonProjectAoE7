@@ -49,12 +49,13 @@ class Game:
 
         self.save = Save()
 
-    def create_game(self, nb_joueurs):
+    def create_game(self, nb_joueurs, seed, world, buildings, unites, animaux, joueurs):
         self.chargement(0)
-        self.seed = 0
-        self.joueurs = []
-        for i in range(1, nb_joueurs+1):
-            self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
+        self.seed = seed
+        self.joueurs = joueurs if joueurs else []
+        if not joueurs:
+            for i in range(1, nb_joueurs+1):
+                self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
         self.chargement(15)
@@ -64,14 +65,24 @@ class Game:
 
         # les deux premiers int sont longueur et largeur du monde
         self.world = World(self.hud, 100, 100, self.width, self.height, self.joueurs, self.seed)
+        if world:
+            self.world.world = world
+        if buildings:
+            self.world.buildings = buildings
+        if unites:
+            self.world.unites = unites
+        if animaux:
+            self.world.animaux = animaux
         self.chargement(70)
 
         self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
         self.chargement(80)
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
-        self.lancement_ia()
-        self.world.create_unites()
+        if not joueurs:
+            self.lancement_ia()
+        if not unites:
+            self.world.create_unites()
         self.chargement(100)
 
     def chargement(self, pourcentage):
@@ -140,14 +151,9 @@ class Game:
                     self.save.save(self)
                 elif event.key == pygame.K_l:
                     if self.save.hasload():
-                        self.seed, self.world.world, self.world.buildings, self.world.unites, self.world.animaux, \
-                            self.joueurs = self.save.load()
-                        self.world.load(self.seed, self)
-                        self.resources_manager = self.joueurs[0].resource_manager
-                        self.world.examine_tile = None
-                        self.hud.examined_tile = None
-                        self.hud.selected_tile = None
-                        self.cheat_enabled = False
+                        donnee = self.save.load()
+                        self.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
+                                         donnee[5])
 
             if event.type in ia_events:
                 joueur = self.joueurs[event.type - pygame.USEREVENT]
