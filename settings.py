@@ -1,3 +1,6 @@
+import menu
+import pygame
+from menu import CommandsMenu
 TILE_SIZE = 64
 
 # Colours     R    G    B  ALPHA
@@ -38,8 +41,8 @@ IASTART_STONE = 1000
 
 delaiTour= 1000
 
-
-
+commands =  {'move right': pygame.K_d, 'move left': pygame.K_q, 'move up': pygame.K_z,
+                          'move down': pygame.K_s, 'cheat menu': pygame.K_DOLLAR}
 Volume= 10
 
 CheatsActive= 0

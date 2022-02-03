@@ -2,7 +2,7 @@ import sys
 import time
 
 import pygame
-
+import settings
 from world import World
 from utils import draw_text
 from camera import Camera
@@ -133,7 +133,7 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_DOLLAR:
+                elif event.key == settings.commands['cheat menu']:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
                 elif event.key == pygame.K_k:

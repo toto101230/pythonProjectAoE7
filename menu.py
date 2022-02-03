@@ -15,7 +15,7 @@ class GestionMenu:
         self.window = window
         self.font_name = 'assets/Polices&Wallpaper/Trajan_Pro_.ttf'
         self.font_name2 = 'assets/Polices&Wallpaper/Trajan_Pro_Bold.ttf'
-        self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
+        self.BLACK, self.WHITE, self.RED = (0, 0, 0), (255, 255, 255), (255,  70,  70)
         self.main_menu = MainMenu(self)
         self.play_menu = PlayMenu(self, game)
         self.options = OptionsMenu(self)
@@ -53,7 +53,7 @@ class GestionMenu:
 
     def draw_text(self, text, size, x, y):
         font = pygame.font.Font(self.font_name, size)
-        text_surface = font.render(text, True, self.WHITE)
+        text_surface = font.render(text, True, self.RED)
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
@@ -67,7 +67,7 @@ class GestionMenu:
 
     def draw_text_from_var(self, var, size, x, y):
         font = pygame.font.Font(self.font_name2, size)
-        text_surface = font.render(str(var), True, self.WHITE)
+        text_surface = font.render(str(var), True, self.RED)
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
@@ -502,11 +502,11 @@ class CommandsMenu(Menu):
         self.leftx, self.lefty = self.mid_w-150, self.mid_h - 80
         self.rightx, self.righty = self.mid_w-150, self.mid_h - 20
         self.cheatx, self.cheaty = self.mid_w-150, self.mid_h + 200
-        self.UpButton = ButtonPetit((0, 255, 0), self.upx, self.upy, "villageois_recrut")
-        self.DownButton = ButtonPetit((0, 255, 0), self.downx, self.downy, "villageois_recrut")
-        self.LeftButton = ButtonPetit((0, 255, 0), self.leftx, self.lefty, "villageois_recrut")
-        self.RightButton = ButtonPetit((0, 255, 0), self.rightx, self.righty, "villageois_recrut")
-        self.CheatButton = ButtonPetit((0, 255, 0), self.cheatx, self.cheaty, "villageois_recrut")
+        self.UpButton = ButtonPetit((0, 255, 0), self.upx-60, self.upy-20, "villageois_recrut")
+        self.DownButton = ButtonPetit((0, 255, 0), self.downx-60, self.downy-20, "villageois_recrut")
+        self.LeftButton = ButtonPetit((0, 255, 0), self.leftx-60, self.lefty-20, "villageois_recrut")
+        self.RightButton = ButtonPetit((0, 255, 0), self.rightx-60, self.righty-20, "villageois_recrut")
+        self.CheatButton = ButtonGrand((0, 255, 0), self.cheatx-100, self.cheaty-20, "villageois_recrut")
         self.up, self.down, self.left, self.right, self.cheat = False, False, False, False, False
 
     def display_menu(self):
@@ -532,7 +532,7 @@ class CommandsMenu(Menu):
             self.gestion.draw_text2('Autre', 60, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 + 100)
             self.gestion.draw_text("Menu de Triches", 20, self.cheatx, self.cheaty)
             self.gestion.draw_text_from_var(pygame.key.name(self.input_map['cheat menu']), 20, self.cheatx + 200, self.cheaty)
-
+            settings.commands = self.input_map
             self.blit_screen()
 
     def check_input(self):
@@ -578,7 +578,7 @@ class CommandsMenu(Menu):
                 self.input_map['move left'] = self.gestion.key
                 self.left = False
             if self.cheat:
-                self.input_map['move cheat'] = self.gestion.key
+                self.input_map['cheat menu'] = self.gestion.key
                 self.cheat = False
 
 
