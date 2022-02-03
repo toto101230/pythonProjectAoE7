@@ -166,7 +166,7 @@ class Game:
         self.camera.update()
         self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
-        self.minimap.update(self.world)
+        self.minimap.update()
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)
 

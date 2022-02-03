@@ -34,7 +34,7 @@ class Minimap:
         self.newSurf = pygame.Surface(self.rect.size).convert()
         ### UPDATE DE LA MINIMAP
         self.row = 0
-        self.updateMapsurf(self.world)  # update de base à la créa de l'objet minimap
+        self.updateMapsurf()  # update de base à la créa de l'objet minimap
 
         ### add
         self.red_crop = (0, 20, self.world.grid_length_x, self.world.grid_length_y)
@@ -68,16 +68,14 @@ class Minimap:
         screen.blit(pygame.transform.rotate(self.border, -45), self.bordrect)
         screen.blit(self.intermediate, self.rect)
 
-    def update(self, world):
-        self.updateMapsurf(world)
+    def update(self):
+        self.updateMapsurf()
         self.updateRowOfSurf()
         self.surf.blit(self.mapSurf, (-3 * GAP + 1 / 5 * SIZE - 1, -2 * GAP - 4 + 1 / 4 * SIZE))
         self.updateCameraRect()
 
-    def updateMapsurf(self, world):
-        self.world = world
-        gridy = self.world.grid_length_y
-        for i in range(gridy):
+    def updateMapsurf(self):
+        for i in range(30):
             self.updateRowOfSurf()
 
     def updateRowOfSurf(self):
@@ -94,7 +92,7 @@ class Minimap:
             elif case == "tree":
                 colour = GREEN
             elif case == "buisson":
-                colour = CREAM
+                colour = FRUITORANGE
             elif case == "sable":
                 colour = SANDYELLOW
             elif case == "eau":
@@ -110,6 +108,9 @@ class Minimap:
                     colour = TEAMPINK
                 elif building.joueur.diplomatie[self.idplayer] == "ennemi":
                     colour = BRIGHTRED
+            for animal in self.world.animaux:
+                if animal.pos[0] == self.row and animal.pos[1] == y:
+                    colour = GREYBROWN
             for unit in self.world.unites:
                 if unit.pos[0] == self.row and unit.pos[1] == y:
                     if unit.joueur.diplomatie[self.idplayer] == "neutre" and unit.joueur.numero != self.idplayer:
