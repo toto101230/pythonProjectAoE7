@@ -58,6 +58,7 @@ class Game:
                 self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
         self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager)
+        self.camera.box = self.cheat_box
         self.chargement(15)
 
         self.hud = Hud(self.resources_manager, self.width, self.height, len(self.joueurs) - 1)
@@ -73,9 +74,11 @@ class Game:
             self.world.unites = unites
         if animaux:
             self.world.animaux = animaux
+        self.cheat_box.world = self.world
         self.chargement(70)
 
         self.minimap = Minimap(self.world, self.screen, self.camera, self.width, self.height)
+        self.world.minimap = self.minimap
         self.chargement(80)
 
         self.camera.to_pos(self.joueurs[0].hdv_pos)
@@ -161,8 +164,8 @@ class Game:
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)
-            self.minimap.handle_event(event)
-            
+            self.minimap.handle_event()
+
         if self.hud.diplo_actif:
             self.playing = False
             self.menu_diplo = True
@@ -172,7 +175,7 @@ class Game:
         self.camera.update()
         self.hud.update(self.joueurs, self.camera, self.world)
         self.cheat_box.update()
-        self.minimap.update()
+        self.minimap.update(self.world)
         self.selection.update()
         self.group.update(self.selection, self.world, self.camera)
 
@@ -199,4 +202,5 @@ class Game:
         draw_text(self.screen, "pop : {}".format(self.joueurs[1].resource_manager.population["population_actuelle"]), 25, (255, 255, 255), (320, 80))
         draw_text(self.screen, "pop_max : {}".format(self.joueurs[1].resource_manager.population["population_maximale"]), 25, (255, 255, 255), (420, 80))
         draw_text(self.screen, "nbr_clubman : {}".format(self.joueurs[1].ia.nbr_clubman), 25, (255, 255, 255), (550, 80))
+
         pygame.display.flip()

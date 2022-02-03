@@ -3,21 +3,10 @@ from abc import ABCMeta
 from model.joueur import Joueur
 from time import time
 from model.animal import Animal
+from utils import Node
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
-
-
-class Node:
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __eq__(self, other):
-        return self.position == other.position
 
 
 class Unite(metaclass=ABCMeta):
@@ -47,6 +36,9 @@ class Unite(metaclass=ABCMeta):
 
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
+
+        if not 0 <= pos_end[0] < grid_length_x or 0 <= pos_end[1] < grid_length_y:
+            return
 
         u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
         if u and u is not self:
@@ -346,7 +338,8 @@ class Unite(metaclass=ABCMeta):
 
 
 class Villageois(Unite):
-
+    speed_build = 5
+    time_limit_gathering = 0.1
     def __init__(self, pos, joueur):
         if joueur.age.name == "sombre":
             self.spawn_health = 25
@@ -363,6 +356,14 @@ class Villageois(Unite):
         self.stockage = 0
         self.posWork = ()
         self.resource_manager.villageois["rien"].append(self)
+
+    @staticmethod
+    def set_speed_build(value):
+        Villageois.speed_build = value
+
+    @staticmethod
+    def set_time_limit_gathering(value):
+        Villageois.time_limit_gathering = value
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
@@ -467,10 +468,10 @@ class Villageois(Unite):
 
     def working(self, grid_length_x, grid_length_y, unites, world, buildings, animaux):
         if self.work != "default" and not self.path and self.xpixel == 0 and self.ypixel == 0:
-            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > 0.1:
+            if self.pos_work_is_neighbours() and time() - self.time_recup_ressource > Villageois.time_limit_gathering:
                 if self.work == "builder":
                     building = buildings[self.posWork[0]][self.posWork[1]]
-                    building.health += 10
+                    building.health += Villageois.speed_build
                     if building.health >= building.max_health:
                         building.construit = True
                         building.resource_manager.update_population_max(building.place_unite)
@@ -517,9 +518,9 @@ class Villageois(Unite):
                             self.action = "idle"
                             self.work = "default"
 
-
-                #ici pour modifier le nombre de ressource qu'il ramene
-                #faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que cette civilisation ramene 40 de bois au lieu de 20
+                # ici pour modifier le nombre de ressource qu'il ramene
+                # faire un if self.stockage >= 40 && self.work = "lumber" ... <pareil> pour faire en sorte que
+                # cette civilisation ramene 40 de bois au lieu de 20
                 if self.stockage >= 20:
                     self.stockage = 20
                     pos_end = self.findstockage(grid_length_x, grid_length_y, world, buildings, unites, animaux)
@@ -656,3 +657,7 @@ class Clubman(Unite):
             self.spawn_health = 60
             self.spawn_attack = 9
         super().__init__("clubman", pos, self.spawn_health, 1.2, self.spawn_attack, 1, 1.5, 1, joueur)
+
+class BigDaddy(Unite):
+    def __init__(self, pos, joueur):
+        super().__init__("bigdaddy", pos, 2000, 1.2, 30, 3, 3, 0, joueur)

@@ -16,6 +16,8 @@ class Camera:
         self.dy = 0
         self.speed = 30
 
+        self.box = None
+
         self.yBoolM, self.yBoolP, self.xBoolM, self.xBoolP, = False, False, False, False
 
         self.nb_villa_select = [0, 0, 0, 0, 0]
@@ -29,23 +31,20 @@ class Camera:
 
         self.scroll.x = -(world_x + 100 * TILE_SIZE)
         self.scroll.y = -world_y
-        
-        self.bscroll.x = -(world_x + 100 * TILE_SIZE)
-        self.bscroll.y = -world_y
 
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
 
-        if mouse_pos[0] > self.width * 0.97:
+        if mouse_pos[0] > self.width * 0.99:
             self.dx = -self.speed
-        elif mouse_pos[0] < self.width * 0.03:
+        elif mouse_pos[0] < self.width * 0.01:
             self.dx = self.speed
         elif not self.yBoolM and not self.yBoolP and not self.xBoolM and not self.xBoolP:
             self.dx = 0
 
-        if mouse_pos[1] > self.height * 0.97:
+        if mouse_pos[1] > self.height * 0.99:
             self.dy = -self.speed
-        elif mouse_pos[1] < self.height * 0.03:
+        elif mouse_pos[1] < self.height * 0.01:
             self.dy = self.speed
         elif not self.yBoolM and not self.yBoolP and not self.xBoolM and not self.xBoolP:
             self.dy = 0
@@ -57,11 +56,12 @@ class Camera:
         self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
         self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
 
-        self.viewArea = pygame.Rect((-self.bscroll.x-6900,-self.bscroll.y+500),(int(self.width),int(self.height)))
+        self.viewArea = pygame.Rect((-self.bscroll.x-1350,-self.bscroll.y+650),(int(self.width),int(self.height)))
         #
 
     def events(self, event):
-        if event.type == pygame.KEYDOWN:
+
+        if event.type == pygame.KEYDOWN and not self.box.active:
             if event.key == settings.commands['move down']:
                 self.yBoolM = True
             if event.key == settings.commands['move up']:

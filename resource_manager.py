@@ -4,16 +4,16 @@ class ResourceManager:
 
         # resources
         self.resources = {
-            "wood": 1000,
-            "food": 3000,
-            "gold": 1000,
-            "stone": 3000
+            "wood": 4000,
+            "food": 5000,
+            "gold": 3000,
+            "stone": 4000
         }
 
         # population
         self.population = {
             "population_actuelle": 0,
-            "population_maximale": 100
+            "population_maximale": 0
         }
 
         self.villageois = {
@@ -28,12 +28,14 @@ class ResourceManager:
         self.costs = {
             "villageois": {"food": 50},
             "clubman": {"food": 50},
+            "bigdaddy": {"food": 0},
             "hdv": {"wood": 200},
             "caserne": {"wood": 125},
             "house": {"wood": 30},
             "grenier": {"wood": 130},
-            "sombre" : {"wood" : 500, "food" : 500, "stone" : 500},
-            "feodal" : {"wood" : 800, "food" : 800, "stone" : 800}
+            "sombre": {"wood": 500, "food": 500, "stone": 500},
+            "feodal": {"wood": 800, "food": 800, "stone": 800},
+            "tower": {"stone": 150},
         }
 
     def stay_place(self):
