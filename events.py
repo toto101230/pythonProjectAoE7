@@ -16,3 +16,7 @@ ia_events = [ia_play_0_event, ia_play_1_event, ia_play_2_event, ia_play_3_event,
 
 victory = pygame.USEREVENT + 100
 defeat = pygame.USEREVENT + 101
+
+
+save_event = pygame.USEREVENT + 102
+load_event = pygame.USEREVENT + 103

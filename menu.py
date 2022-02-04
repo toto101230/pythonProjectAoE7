@@ -110,7 +110,8 @@ class MainMenu(Menu):
             self.check_input()
             self.gestion.display.fill(self.gestion.BLACK)
             self.gestion.display.blit(image, (0, 0))
-            self.gestion.draw_text2('Age of (Cheap) Empires', 80, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
+            self.gestion.draw_text2('Age of (Cheap) Empires', 80, self.gestion.DISPLAY_W / 2,
+                                    self.gestion.DISPLAY_H / 2 - 200)
             self.gestion.draw_text("Jouer", 40, self.startx, self.starty - 40)
             self.gestion.draw_text("Options", 40, self.optionsx, self.optionsy - 10)
             self.gestion.draw_text("Credits", 40, self.creditsx, self.creditsy + 20)
@@ -280,7 +281,7 @@ class NewGame(Menu):
             self.gestion.draw_text("Nombre de Joueurs:", 30, self.joueursx, self.joueursy)
 
             self.gestion.draw_text("Seed:", 30, self.seedx, self.seedy)
-            self.gestion.draw_text(str(self.seed), 30, self.seedx+500, self.seedy)
+            self.gestion.draw_text(str(self.seed), 30, self.seedx + 550, self.seedy)
 
             self.gestion.draw_text("Play", 25, self.playx, self.playy)
             self.blit_screen()
@@ -587,60 +588,3 @@ class CommandsMenu(Menu):
             if self.cheat:
                 self.input_map['cheat menu'] = self.gestion.key
                 self.cheat = False
-
-
-class PauseMenu(Menu):
-    def __init__(self, gestion):
-        Menu.__init__(self, gestion)
-        self.state = "Pause"
-        self.savex, self.savey = self.mid_w, self.mid_h + 30
-        self.loadx, self.loady = self.mid_w, self.mid_h + 50
-        self.exitx, self.exity = self.mid_w, self.mid_h + 90
-        self.SaveButton = ButtonPetit((0, 255, 0), self.savex - 45, self.savey - 60, "villageois_recrut")
-        self.LoadButton = ButtonPetit((0, 255, 0), self.loadx - 80, self.loady - 40, "villageois_recrut")
-        self.ExitButton = ButtonPetit((0, 255, 0), self.exitx - 40, self.exity + 30, "villageois_recrut")
-        self.sauvegarde = ""
-
-    def display_menu(self):
-        pygame.display.init()
-        image = pygame.image.load("assets/Polices&Wallpaper/sparta.jpeg").convert_alpha()
-        self.run_display = True
-        while self.run_display:
-            self.gestion.check_events()
-
-            self.check_input()
-            self.gestion.display.fill(self.gestion.BLACK)
-            self.gestion.display.blit(image, (0, 0))
-            self.gestion.draw_text2('Pause', 80, self.gestion.DISPLAY_W / 2, self.gestion.DISPLAY_H / 2 - 200)
-            self.gestion.draw_text("Sauvegarder", 40, self.savex, self.savey - 40)
-            self.gestion.draw_text("Charger", 40, self.loadx, self.loady - 10)
-            self.gestion.draw_text("Exit", 40, self.exitx, self.exity + 50)
-            if self.sauvegarde == "oui":
-                self.gestion.draw_text("Partie Sauvegardée", 20, self.exitx - 100, self.exity + 100)
-            self.blit_screen()
-
-    def check_input(self):
-        if self.gestion.CLICK:
-            mouse_pos = pygame.mouse.get_pos()
-            if self.SaveButton.is_over(mouse_pos):
-                self.game.save()
-                self.gestion.CLICK = False
-            elif self.LoadButton.is_over(mouse_pos):
-                if self.save.hasload():
-                    donnee = self.save.load()
-                    self.game.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
-                                          donnee[5])
-
-                    self.PartieChargee = 1
-                    self.gestion.playing = True
-                    self.gestion.running = False
-                    self.gestion.CLICK = False
-
-                if not self.save.hasload():
-                    self.etat = "Pas de Partie"
-                    self.gestion.CLICK = False
-
-            elif self.ExitButton.is_over(mouse_pos):
-                self.gestion.curr_menu = self.gestion.main_menu
-                self.gestion.CLICK = False
-            self.run_display = False

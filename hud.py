@@ -1,9 +1,11 @@
+import sys
 from os import walk
 
 import pygame as pg
 import pygame.image
 
 from camera import Camera
+from events import save_event, load_event
 from model.joueur import Joueur
 from resource_manager import ResourceManager
 from unite import Villageois
@@ -11,7 +13,7 @@ from unite import Unite
 from buildings import Batiment
 from model.animal import Animal
 from utils import draw_text
-from bouton import Button
+from bouton import Button, ButtonVide
 
 
 class Hud:
@@ -24,31 +26,31 @@ class Hud:
         self.height = height
         self.hud_colour = (198, 155, 93, 175)
 
-        self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA)
+        self.hud_haut_surface = pg.Surface((width * 0.484, height * 0.08), pg.SRCALPHA).convert_alpha()
         self.hud_haut_rect = self.hud_haut_surface.get_rect(topleft=(0, 0))
         # self.hud_haut_surface.fill(self.hud_colour)
-        self.hud_haut = pg.image.load("assets/hud/hud_haut.png")
+        self.hud_haut = pg.image.load("assets/hud/hud_haut.png").convert_alpha()
 
-        self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age2_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
-        self.hud_age3_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA)
+        self.hud_age_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA).convert_alpha()
+        self.hud_age2_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA).convert_alpha()
+        self.hud_age3_surface = pg.Surface((width * 0.30, height * 0.08), pg.SRCALPHA).convert_alpha()
         self.hud_age_rect = self.hud_age_surface.get_rect(topleft=(self.width - 290, 0))
         self.hud_age2_rect = self.hud_age2_surface.get_rect(topleft=(self.width - 290, 0))
         self.hud_age3_rect = self.hud_age3_surface.get_rect(topleft=(self.width - 290, 0))
         # self.hud_age_surface.fill(self.hud_colour)
-        self.hud_age = pg.image.load("assets/hud/hud_age.png")
-        self.hud_age2 = pg.image.load("assets/hud/hud_age2.png")
-        self.hud_age3 = pg.image.load("assets/hud/hud_age3.png")
+        self.hud_age = pg.image.load("assets/hud/hud_age.png").convert_alpha()
+        self.hud_age2 = pg.image.load("assets/hud/hud_age2.png").convert_alpha()
+        self.hud_age3 = pg.image.load("assets/hud/hud_age3.png").convert_alpha()
 
-        self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA)
+        self.hud_action_surface = pg.Surface((width * 0.35, height * 0.29), pg.SRCALPHA).convert_alpha()
         self.hud_action_rect = self.hud_action_surface.get_rect(topleft=(self.width - 413, self.height - 205))
         # self.hud_action_surface.fill(self.hud_colour)
-        self.hud_action = pg.image.load("assets/hud/hud_action.png")
+        self.hud_action = pg.image.load("assets/hud/hud_action.png").convert_alpha()
 
-        self.hud_info_surface = pg.Surface((width * 0.6, height * 0.29), pg.SRCALPHA)
+        self.hud_info_surface = pg.Surface((width * 0.6, height * 0.29), pg.SRCALPHA).convert_alpha()
         self.hud_info_rect = self.hud_info_surface.get_rect(topleft=(self.width - 1180, self.height - 205))
         # self.hud_info_surface.fill(self.hud_colour)
-        self.hud_info = pg.image.load("assets/hud/hud_info.png")
+        self.hud_info = pg.image.load("assets/hud/hud_info.png").convert_alpha()
 
         # diplomatie
         self.diplo_surface = pg.Surface((450, 100 * nb_joueur + 50), pg.SRCALPHA)
@@ -62,6 +64,13 @@ class Hud:
                                      Button(None, self.width / 2 - 225 + 300,
                                             self.height / 2 - self.diplo_surface.get_height() / 2 - 50 + 25 + 75 + 100 * i,
                                             'Ennemi')] for i in range(nb_joueur)]
+
+        # pause
+        self.pause_surface = pg.image.load("assets/hud/pause.png")
+        self.save_button = ButtonVide(None, (self.width / 2) - 249 + 115, (self.height / 2) - 349 + 206, 'inv', 264, 48)
+        self.load_button = ButtonVide(None, (self.width / 2) - 249 + 161, (self.height / 2) - 349 + 336, 'inv', 171, 48)
+        self.continue_button = ButtonVide(None, (self.width / 2) - 249 + 143, (self.height / 2) - 349 + 461, 'inv', 210, 48)
+        self.exit_button = ButtonVide(None, (self.width / 2) - 249 + 171, (self.height / 2) - 349 + 589, 'inv', 149, 48)
 
         self.images = self.load_images()
         self.tiles = self.create_build_hud()
@@ -85,6 +94,7 @@ class Hud:
         self.diplo_bouton = Button(None, self.hud_haut.get_width() + 30, 10, 'diplomatie')
 
         self.diplo_actif = False
+        self.pause = False
 
     def create_build_hud(self):
 
@@ -216,6 +226,36 @@ class Hud:
                     if self.option_diplo_bouton[i][j].is_press and not mouse_action[0]:
                         self.option_diplo_bouton[i][j].is_press = False
 
+    def update_pause(self):
+
+        mouse_pos = pg.mouse.get_pos()
+        mouse_action = pg.mouse.get_pressed(3)
+
+        if mouse_action[0] and self.save_button.is_over(mouse_pos) and not self.save_button.is_press:
+            pygame.time.set_timer(save_event, 10, loops=1)
+            self.save_button.is_press = True
+
+        if self.save_button.is_press and not mouse_action[0]:
+            self.save_button.is_press = False
+
+        if mouse_action[0] and self.load_button.is_over(mouse_pos) and not self.load_button.is_press:
+            pygame.time.set_timer(load_event, 10, loops=1)
+            self.load_button.is_press = True
+
+        if self.load_button.is_press and not mouse_action[0]:
+            self.load_button.is_press = False
+
+        if mouse_action[0] and self.continue_button.is_over(mouse_pos) and not self.continue_button.is_press:
+            self.pause = False
+            self.continue_button.is_press = True
+
+        if self.continue_button.is_press and not mouse_action[0]:
+            self.continue_button.is_press = False
+
+        if mouse_action[0] and self.exit_button.is_over(mouse_pos) and not self.exit_button.is_press:
+            pygame.quit()
+            sys.exit()
+
     def draw(self, screen, joueurs: list[Joueur]):
         mouse_pos = pg.mouse.get_pos()
 
@@ -224,7 +264,7 @@ class Hud:
             screen.blit(self.hud_age_surface, (self.width - 290, 0))
         elif joueurs[0].age.numero == "2":
             screen.blit(self.hud_age2_surface, (self.width - 290, 0))
-        else :
+        else:
             screen.blit(self.hud_age3_surface, (self.width - 290, 0))
 
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
@@ -265,6 +305,9 @@ class Hud:
             for boutons in self.option_diplo_bouton:
                 for bouton in boutons:
                     bouton.draw(screen)
+
+        if self.pause:
+            screen.blit(self.pause_surface, (self.width / 2 - 249, self.height / 2 - 349))
 
         # si un objet est selectionné
         if self.examined_tile is not None:
