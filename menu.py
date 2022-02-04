@@ -324,10 +324,10 @@ class NewGame(Menu):
                 self.etatDifficulte = "Inter"
 
             if self.DifficileButton.is_over(mouse_pos):
-                settings.IASTART_WOOD = 5000
-                settings.IASTART_FOOD = 5000
-                settings.IASTART_STONE = 5000
-                settings.IASTART_GOLD = 5000
+                settings.IASTART_WOOD = 500
+                settings.IASTART_FOOD = 500
+                settings.IASTART_STONE = 500
+                settings.IASTART_GOLD = 500
 
                 settings.START_WOOD = 50
                 settings.START_FOOD = 50
