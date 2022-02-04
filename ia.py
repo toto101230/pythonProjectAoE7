@@ -2,6 +2,7 @@ import numpy as np
 
 from buildings import Hdv, House, Caserne
 from unite import Villageois
+from utils import find_unite_pos
 
 
 class Ia:
@@ -129,7 +130,7 @@ class Ia:
                     if b.pos[0] + x >= world.grid_length_x or b.pos[0] + x < 0 or b.pos[1] + y >= world.grid_length_y \
                             or b.pos[1] + y < 0:
                         continue
-                    u = world.find_unite_pos(b.pos[0] + x, b.pos[0] + y)
+                    u = find_unite_pos(b.pos[0] + x, b.pos[0] + y, world.animaux)
                     if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie":
                         if joueur.diplomatie[u.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(u.pos)
@@ -152,7 +153,7 @@ class Ia:
                 if pos[0] + x >= world.grid_length_x or pos[0] + x < 0 or pos[1] + y >= world.grid_length_y \
                         or pos[1] + y < 0:
                     continue
-                u = world.find_unite_pos(pos[0] + x, pos[0] + y)
+                u = find_unite_pos(pos[0] + x, pos[0] + y, world.animaux)
                 if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie" and u.pos not in ennemi:
                     ennemi.append(u.pos)
                 v = world.buildings[pos[0] + x][pos[1] + y]
@@ -253,8 +254,8 @@ class Ia:
         count = 0
         for u in self.soldats:
             # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
-            if u.cible and u.cible == world.find_unite_pos(self.rodeurs[numero_rodeurs][count // 2][0],
-                                                           self.rodeurs[numero_rodeurs][count // 2][1]):
+            if u.cible and u.cible == find_unite_pos(self.rodeurs[numero_rodeurs][count // 2][0],
+                                                     self.rodeurs[numero_rodeurs][count // 2][1], world.animaux):
                 count += 1
             else:
                 u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
@@ -437,8 +438,8 @@ class Ia:
                 if self.nbr_clubman >= len(pos_ennemi) * 2 or self.nbr_clubman >= 20:
                     count = 0
                     for u in self.soldats:
-                        if u.cible and u.cible == world.find_unite_pos(pos_ennemi[count // 2][0],
-                                                                       pos_ennemi[count // 2][1]):
+                        if u.cible and u.cible == find_unite_pos(pos_ennemi[count // 2][0],
+                                                                       pos_ennemi[count // 2][1], world.animaux):
                             count += 1
                         else:
                             u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
