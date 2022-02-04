@@ -362,6 +362,9 @@ class Villageois(Unite):
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
+        if not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
+            return
+
         tile = world[pos_end[0]][pos_end[1]]["tile"]
         if tile == "sable":
             tile = ""
