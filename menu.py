@@ -1,4 +1,4 @@
-from bouton2 import *
+import pygame
 import settings
 from save import Save
 from bouton import ButtonPetit, ButtonGrand

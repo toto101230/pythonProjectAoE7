@@ -6,13 +6,13 @@ import pygame.image
 
 from camera import Camera
 from events import save_event, load_event
-from model.joueur import Joueur
+from joueur import Joueur
 from resource_manager import ResourceManager
 from unite import Villageois
 from unite import Unite
 from buildings import Batiment
-from model.animal import Animal
-from utils import draw_text
+from animal import Animal
+from utils import draw_text, scale_image
 from bouton import Button, ButtonVide
 
 
@@ -112,12 +112,12 @@ class Hud:
         self.hud_info_surface.blit(self.hud_info, (0, 0))
 
         tiles = []
-        i=0
+        i = 0
         for image_name, image in self.images.items():
-            i+=1
+            i += 1
             pos = render_pos.copy()
             image_tmp = image.copy()
-            image_scale = self.scale_image(image_tmp, w=object_width)
+            image_scale = scale_image(image_tmp, w=object_width)
             rect = image_scale.get_rect(topleft=pos)
 
             tiles.append(
@@ -269,16 +269,16 @@ class Hud:
 
         screen.blit(self.hud_action_surface, (self.width - 413, self.height - 205))
         # a voir
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]-45))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]-45))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["gold"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]-45))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]-45))
-        # draw_text(screen, str(len(joueurs[0].resource_manager.villageois["rien"])), 20, "#ffffff",
-        #           (self.hud_haut_rect.bottomleft[0] + 42 + 530, self.hud_haut_rect.bottomleft[1]-45))
+        draw_text(screen, str(len(joueurs[0].resource_manager.villageois["wood"])), 20, "#ffffff",
+                  (self.hud_haut_rect.bottomleft[0] + 45, self.hud_haut_rect.bottomleft[1]-45))
+        draw_text(screen, str(len(joueurs[0].resource_manager.villageois["food"])), 20, "#ffffff",
+                  (self.hud_haut_rect.bottomleft[0] + 44 + 110, self.hud_haut_rect.bottomleft[1]-45))
+        draw_text(screen, str(len(joueurs[0].resource_manager.villageois["gold"])), 20, "#ffffff",
+                  (self.hud_haut_rect.bottomleft[0] + 43 + 220, self.hud_haut_rect.bottomleft[1]-45))
+        draw_text(screen, str(len(joueurs[0].resource_manager.villageois["stone"])), 20, "#ffffff",
+                  (self.hud_haut_rect.bottomleft[0] + 42 + 330, self.hud_haut_rect.bottomleft[1]-45))
+        draw_text(screen, str(len(joueurs[0].resource_manager.villageois["rien"])), 20, "#ffffff",
+                  (self.hud_haut_rect.bottomleft[0] + 42 + 530, self.hud_haut_rect.bottomleft[1]-45))
 
         self.diplo_bouton.draw(screen)
 
@@ -327,13 +327,14 @@ class Hud:
                     draw_text(screen, str(self.examined_tile.ressource), 30, (255, 255, 255),
                               (self.hud_info_rect.center[0], self.hud_info_rect.center[1] + 20))
 
-                if self.examined_tile is not None and self.examined_tile.name == "hdv" and self.examined_tile.joueur.name == "joueur 1":
+                if self.examined_tile is not None and self.examined_tile.name == "hdv" and \
+                        self.examined_tile.joueur.name == "joueur 1":
                     self.clubman_bouton.can_press = False
                     if self.resource_manager.stay_place():
                         self.villageois_bouton.draw(screen)
                         self.villageois_bouton.can_press = True
 
-                    if self.examined_tile.joueur.age.name == "sombre":  # and self.examined_tile.joueur.age.can_pass_age():
+                    if self.examined_tile.joueur.age.name == "sombre":
                         self.age_feodal_bouton.draw(screen)
                     if self.examined_tile.joueur.age.name == "feodal":
                         self.age_castel_bouton.draw(screen)
@@ -371,7 +372,8 @@ class Hud:
 
                 if tile["rect"].collidepoint(mouse_pos):
                     ressource = self.resource_manager.get_cost(tile["name"][:-1])
-                    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(mouse_pos[0], mouse_pos[1] - len(ressource) * 40, 150, len(ressource)*40 ))
+                    pygame.draw.rect(screen, (255, 255, 255),
+                                     pygame.Rect(mouse_pos[0], mouse_pos[1] - len(ressource) * 40, 150, len(ressource)*40))
                     pos = (mouse_pos[0]+10, mouse_pos[1] - len(ressource) * 40 + 10)
                     for cle, valeur in ressource.items():
                         if self.resource_manager.resources[cle] >= valeur:
@@ -468,26 +470,9 @@ class Hud:
 
         w, h = self.hud_info_rect.width, self.hud_info_rect.height
         for i in images:
-            images[i] = self.scale_image(images[i], h=h * 0.7)
+            images[i] = scale_image(images[i], h=h * 0.7)
 
         return images
-
-    def scale_image(self, image, w=None, h=None):
-
-        if (w is None) and (h is None):
-            pass
-        elif h is None:
-            scale = w / image.get_width()
-            h = scale * image.get_height()
-            image = pg.transform.scale(image, (int(w), int(h)))
-        elif w is None:
-            scale = h / image.get_height()
-            w = scale * image.get_width()
-            image = pg.transform.scale(image, (int(w), int(h)))
-        else:
-            image = pg.transform.scale(image, (int(w), int(h)))
-
-        return image
 
     def load_image_terre(self):
         images = {}
@@ -495,7 +480,7 @@ class Hud:
             for nom in fichiers:
                 image = pygame.image.load(repertoire + "/" + nom).convert_alpha()
                 rect = image.get_rect(topleft=(0, 0))
-                images[nom] = self.scale_image(image, h=rect.height * 1.8, w=rect.width * 1.8)
+                images[nom] = scale_image(image, h=rect.height * 1.8, w=rect.width * 1.8)
 
         return images
 

@@ -1,6 +1,6 @@
 import pygame
 import settings
-from model.joueur import Joueur
+from joueur import Joueur
 from settings import TILE_SIZE
 
 
@@ -52,12 +52,11 @@ class Camera:
         self.scroll.x += self.dx
         self.scroll.y += self.dy
 
-        #MINIMAP
-        self.bscroll.x += self.dx*0.00008 # scroll bcp plus smooth en x
-        self.bscroll.y += self.dy*0.00008 # scroll bcp plus smooth en y
+        # MINIMAP
+        self.bscroll.x += self.dx*0.00008  # scroll bcp plus smooth en x
+        self.bscroll.y += self.dy*0.00008  # scroll bcp plus smooth en y
 
-        self.viewArea = pygame.Rect((-self.bscroll.x-1350,-self.bscroll.y+650),(int(self.width),int(self.height)))
-        #
+        self.viewArea = pygame.Rect((-self.bscroll.x-1350, -self.bscroll.y+650), (int(self.width), int(self.height)))
 
     def events(self, event):
 
@@ -93,7 +92,8 @@ class Camera:
     def tp_villageois(self, joueur: Joueur, i, world, hud):
         key = ["wood", "food", "gold", "stone", "rien"]
         if len(joueur.resource_manager.villageois[key[i]]) > 0:
-            num = self.nb_villa_select[i] if self.nb_villa_select[i] < len(joueur.resource_manager.villageois[key[i]]) else 0
+            num = self.nb_villa_select[i] if self.nb_villa_select[i] < len(joueur.resource_manager.villageois[key[i]]) \
+                else 0
             u = joueur.resource_manager.villageois[key[i]][num]
             self.nb_villa_select[i] = num + 1
             self.to_pos(u.pos)

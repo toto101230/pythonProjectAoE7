@@ -8,11 +8,12 @@ from settings import TILE_SIZE
 from buildings import Caserne, House, Hdv, Grenier, Batiment, Tower
 from unite import Unite, Villageois, Clubman, neighbours, BigDaddy
 from time import time
-from model.joueur import Joueur
+from joueur import Joueur
 from os import walk
 from age import Feodal, Castle
 
-from model.animal import Gazelle, Animal
+from animal import Gazelle, Animal
+from utils import find_unite_pos, find_animal_pos, scale_image
 
 iso = lambda x, y: ((x - y), ((x + y) / 2))
 
@@ -100,8 +101,8 @@ class World:
         elif self.can_place_tile(grid_pos):
             tile = self.world[grid_pos[0]][grid_pos[1]]["tile"]
             building = self.buildings[grid_pos[0]][grid_pos[1]]
-            unite = self.find_unite_pos(grid_pos[0], grid_pos[1])
-            animal = self.find_animal_pos(grid_pos[0], grid_pos[1])
+            unite = find_unite_pos(grid_pos[0], grid_pos[1], self.unites)
+            animal = find_animal_pos(grid_pos[0], grid_pos[1], self.animaux)
 
             if not pygame.key.get_pressed()[pygame.K_LCTRL]:
                 if mouse_action[0] and tile != '' and tile != "eau" and tile != "sable":
@@ -501,9 +502,9 @@ class World:
         gazelle_mort = pygame.image.load("assets/animaux/gazelle_mort.png").convert_alpha()
 
         rect = gazelle.get_rect(topleft=(0, 0))
-        gazelle = self.scale_image(gazelle, h=rect.height * 1.8, w=rect.width * 1.8)
+        gazelle = scale_image(gazelle, h=rect.height * 1.8, w=rect.width * 1.8)
         rect = gazelle_mort.get_rect(topleft=(0, 0))
-        gazelle_mort = self.scale_image(gazelle_mort, h=rect.height * 1.8, w=rect.width * 1.8)
+        gazelle_mort = scale_image(gazelle_mort, h=rect.height * 1.8, w=rect.width * 1.8)
 
         images = {
             "grass": grass,
@@ -538,26 +539,9 @@ class World:
             for nom in fichiers:
                 image = pygame.image.load(repertoire + "/" + nom).convert_alpha()
                 rect = image.get_rect(topleft=(0, 0))
-                images[nom] = self.scale_image(image, h=rect.height*1.8, w=rect.width*1.8)
+                images[nom] = scale_image(image, h=rect.height*1.8, w=rect.width*1.8)
 
         return images
-
-    def scale_image(self, image, w=None, h=None):
-
-        if (w is None) and (h is None):
-            pass
-        elif h is None:
-            scale = w / image.get_width()
-            h = scale * image.get_height()
-            image = pygame.transform.scale(image, (int(w), int(h)))
-        elif w is None:
-            scale = h / image.get_height()
-            w = scale * image.get_width()
-            image = pygame.transform.scale(image, (int(w), int(h)))
-        else:
-            image = pygame.transform.scale(image, (int(w), int(h)))
-
-        return image
 
     def load_images_unites(self):
         images = {}
@@ -574,18 +558,11 @@ class World:
         for rect in [self.hud.hud_haut_rect, self.hud.hud_age_rect, self.hud.hud_action_rect, self.hud.hud_info_rect]:
             if rect == self.hud.hud_info_rect and self.hud.examined_tile is None:
                 continue
-            if rect.collidepoint(pygame.mouse.get_pos()) or self.minimap.intermediate.get_rect(topleft=self.minimap.
-                    rect.topleft).collidepoint(pygame.mouse.get_pos()):
+            if rect.collidepoint(pygame.mouse.get_pos()) or self.minimap.intermediate.get_rect(
+                    topleft=self.minimap.rect.topleft).collidepoint(pygame.mouse.get_pos()):
                 mouse_on_panel = True
         world_bounds = (0 <= grid_pos[0] < self.grid_length_x) and (0 <= grid_pos[1] < self.grid_length_y)
         return world_bounds and not mouse_on_panel
-
-    # recherche s'il y a une unité pour la pos donnée
-    def find_unite_pos(self, x, y) -> Unite:
-        for u in self.unites:
-            if u.pos[0] == x and u.pos[1] == y:
-                return u
-        return None
 
     def pop_end_path(self, grid_pos):
         for u in self.unites:
@@ -621,12 +598,12 @@ class World:
 
             if not collision and visible:
                 if name == "caserne":
-                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
-                        grid_pos[0] + 1, grid_pos[1]) is not None
-                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
-                        grid_pos[0], grid_pos[1] + 1) is not None
-                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
-                        grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1], self.unites) is not None
+                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or find_unite_pos(
+                        grid_pos[0], grid_pos[1] + 1, self.unites) is not None
+                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1] + 1, self.unites) is not None
                     if not collision1 and not collision2 and not collision3:
                         ent = Caserne((grid_pos[0] + 1, grid_pos[1] + 1), joueur)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
@@ -644,12 +621,12 @@ class World:
                     self.buildings[grid_pos[0]][grid_pos[1]] = ent
                     self.buildings_update.append(ent)
                 elif name == "grenier":
-                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or self.find_unite_pos(
-                        grid_pos[0] + 1, grid_pos[1]) is not None
-                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
-                        grid_pos[0], grid_pos[1] + 1) is not None
-                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or self.find_unite_pos(
-                        grid_pos[0] + 1, grid_pos[1] + 1) is not None
+                    collision1 = self.world[grid_pos[0] + 1][grid_pos[1]]["collision"] or find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1], self.unites) is not None
+                    collision2 = self.world[grid_pos[0]][grid_pos[1] + 1]["collision"] or find_unite_pos(
+                        grid_pos[0], grid_pos[1] + 1, self.unites) is not None
+                    collision3 = self.world[grid_pos[0] + 1][grid_pos[1] + 1]["collision"] or find_unite_pos(
+                        grid_pos[0] + 1, grid_pos[1] + 1, self.unites) is not None
                     if not collision1 and not collision2 and not collision3:
                         ent = Grenier((grid_pos[0] + 1, grid_pos[1] + 1), joueur)
                         self.buildings[grid_pos[0]][grid_pos[1]] = ent
@@ -679,14 +656,14 @@ class World:
                 for neighbour in neighbours:
                     x, y = pos_a_degage[0] + neighbour[0], pos_a_degage[1] + neighbour[1]
                     if (self.world[x][y]["tile"] == "" or self.world[x][y]["tile"] == "sable") and \
-                            self.buildings[x][y] is None and self.find_unite_pos(x, y) is None and \
+                            self.buildings[x][y] is None and find_unite_pos(x, y, self.unites) is None and \
                             (x, y) not in pos_visitee:
-                        unite = self.find_unite_pos(pos_a_degage[0], pos_a_degage[1])
+                        unite = find_unite_pos(pos_a_degage[0], pos_a_degage[1], self.unites)
                         unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world,
                                           self.buildings, self.animaux, (x, y))
                         return pos_a_degage
                     else:
-                        if self.find_unite_pos(x, y) and (x, y) not in pos_visitee:
+                        if find_unite_pos(x, y, self.unites) and (x, y) not in pos_visitee:
                             unite_a_degage.append((x, y))
                 pos_visitee.append(pos_a_degage)
                 return ()
@@ -700,14 +677,14 @@ class World:
                         pos_min = (x, y)
                 return pos_min
 
-            if self.find_unite_pos(pos[0], pos[1]):
+            if find_unite_pos(pos[0], pos[1], self.unites):
                 last = degage_unite(pos)
                 while last == ():
                     pos = unite_a_degage.pop(0)
                     last = degage_unite(pos)
                 if last != pos_ini:
                     des = find_closer_pos(last)
-                    u = self.find_unite_pos(des[0], des[1])
+                    u = find_unite_pos(des[0], des[1], self.unites)
                     if u is None:
                         joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]["food"]
                         return
@@ -716,7 +693,7 @@ class World:
                     while des != pos_ini:
                         last = des
                         des = find_closer_pos(last)
-                        u = self.find_unite_pos(des[0], des[1])
+                        u = find_unite_pos(des[0], des[1], self.unites)
                         if u is None:
                             joueur.resource_manager.resources["food"] += joueur.resource_manager.costs[nom_unite]["food"]
                             return
@@ -737,7 +714,8 @@ class World:
         return u
 
     def deplace_unite(self, pos, unite):
-        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux, pos)
+        return unite.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
+                                 self.animaux, pos)
 
     def pass_feodal(self, joueur):
         if joueur.age.can_pass_age():
@@ -912,7 +890,8 @@ class World:
         self.unites.append(BigDaddy((spos[0]+1, spos[1]+3), self.joueurs[0]))
 
     def collision_pos(self, x, y):
-        return self.world[x][y]["collision"] or self.find_unite_pos(x, y) is not None or self.find_animal_pos(x, y)
+        return self.world[x][y]["collision"] or find_unite_pos(x, y, self.unites) is not None or \
+               find_animal_pos(x, y, self.animaux)
 
     def create_pos_hdv(self):
         poss = [[(10, 10), (self.grid_length_x-10, self.grid_length_y-10)],

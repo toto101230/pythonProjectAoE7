@@ -1,9 +1,9 @@
 from settings import TILE_SIZE
 from abc import ABCMeta
-from model.joueur import Joueur
+from joueur import Joueur
 from time import time
-from model.animal import Animal
-from utils import Node
+from animal import Animal
+from utils import Node, find_unite_pos, find_animal_pos
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
@@ -40,7 +40,7 @@ class Unite(metaclass=ABCMeta):
         if not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
             return
 
-        u = self.find_unite_pos(pos_end[0], pos_end[1], unites)
+        u = find_unite_pos(pos_end[0], pos_end[1], unites)
         if u and u is not self:
             if u.joueur != self.joueur and self.joueur.diplomatie[u.joueur.numero] != "allié":
                 self.cible = u
@@ -54,7 +54,7 @@ class Unite(metaclass=ABCMeta):
         if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
             self.cible = buildings[pos_end[0]][pos_end[1]]
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
-        animal = self.find_animal_pos(pos_end[0], pos_end[1], animaux)
+        animal = find_animal_pos(pos_end[0], pos_end[1], animaux)
         if animal:
             self.cible = animal
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
@@ -105,10 +105,10 @@ class Unite(metaclass=ABCMeta):
                 if buildings[x][y] is not None:
                     continue
 
-                if self.find_unite_pos(x, y, unites):
+                if find_unite_pos(x, y, unites):
                     continue
 
-                if self.find_animal_pos(x, y, animaux):
+                if find_animal_pos(x, y, animaux):
                     continue
 
                 new_node = Node(current_node, (x, y))
@@ -169,7 +169,7 @@ class Unite(metaclass=ABCMeta):
 
                     if deplacement:
                         pos = self.path[0]
-                        if self.find_unite_pos(pos[0], pos[1], unites):
+                        if find_unite_pos(pos[0], pos[1], unites):
                             self.ypixel = 0
                             self.xpixel = 0
                             return -1
@@ -198,18 +198,6 @@ class Unite(metaclass=ABCMeta):
         self.frameNumber += 0.3
         if round(self.frameNumber) >= 0:
             self.frameNumber = 0
-
-    def find_unite_pos(self, x, y, unites):
-        for u in unites:
-            if u.pos[0] == x and u.pos[1] == y:
-                return u
-        return None
-
-    def find_animal_pos(self, x, y, animaux):
-        for a in animaux:
-            if a.pos[0] == x and a.pos[1] == y:
-                return a
-        return None
 
     def find_closer_pos(self, pos_end, world, buildings, unites, animaux) -> tuple:
         path = []
@@ -244,9 +232,9 @@ class Unite(metaclass=ABCMeta):
                     x, y = pos_current
                     if len(world) > x > 0 and len(world[0]) > y > 0 and (world[x][y]["tile"] == "" or
                                                                          world[x][y]["tile"] == "sable") and \
-                            buildings[x][y] is None and (self.find_unite_pos(x, y, unites) is None or
-                                                         self.find_unite_pos(x, y, unites) == self) and \
-                            self.find_animal_pos(x, y, animaux) is None:
+                            buildings[x][y] is None and (find_unite_pos(x, y, unites) is None or
+                                                         find_unite_pos(x, y, unites) == self) and \
+                            find_animal_pos(x, y, animaux) is None:
                         return pos_current
                     ns = []
                     x = -1 if self.pos[0] < pos_current[0] else (1 if self.pos[0] > pos_current[0] else 0)
@@ -286,10 +274,10 @@ class Unite(metaclass=ABCMeta):
                         if buildings[x][y] is not None:
                             continue
 
-                        if self.find_unite_pos(x, y, unites) and self.find_unite_pos(x, y, unites) != self:
+                        if find_unite_pos(x, y, unites) and find_unite_pos(x, y, unites) != self:
                             continue
 
-                        if self.find_animal_pos(x, y, animaux):
+                        if find_animal_pos(x, y, animaux):
                             continue
                         return x, y
                 print("Quoi ?")
@@ -322,7 +310,8 @@ class Unite(metaclass=ABCMeta):
     # attaque les autres unités des joueurs adverses si elles sont sur la même case que cette unité
     def attaque(self, unites, buildings, grid_length_x, grid_length_y, world, animaux):
         if self.cible and not self.path:
-            neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1) for y in range(-self.range_attack, self.range_attack + 1)]
+            neighbours_unite = [(x, y) for x in range(-self.range_attack, self.range_attack + 1)
+                                for y in range(-self.range_attack, self.range_attack + 1)]
             neighbours_unite.remove((0, 0))
             x, y = self.pos[0] - self.cible.pos[0], self.pos[1] - self.cible.pos[1]
 
@@ -340,6 +329,7 @@ class Unite(metaclass=ABCMeta):
 class Villageois(Unite):
     speed_build = 5
     time_limit_gathering = 0.1
+
     def __init__(self, pos, joueur):
         if joueur.age.name == "sombre":
             self.spawn_health = 25
@@ -376,7 +366,7 @@ class Villageois(Unite):
                     self.def_metier(tile)
                 self.posWork = pos_end
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
-        elif self.find_animal_pos(pos_end[0], pos_end[1], animaux):
+        elif find_animal_pos(pos_end[0], pos_end[1], animaux):
             if not self.posWork or not self.is_good_work("animal"):
                 self.def_metier("animal")
                 self.posWork = pos_end
@@ -384,7 +374,8 @@ class Villageois(Unite):
             if(buildings[pos_end[0]][pos_end[1]].name == "hdv" or buildings[pos_end[0]][pos_end[1]].name == "grenier") \
                     and self.stockage > 0:
                 pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
-            elif buildings[pos_end[0]][pos_end[1]].joueur == self.joueur and not buildings[pos_end[0]][pos_end[1]].construit:
+            elif buildings[pos_end[0]][pos_end[1]].joueur == self.joueur and \
+                    not buildings[pos_end[0]][pos_end[1]].construit:
                 self.def_metier("batiment")
                 self.posWork = pos_end
                 pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
@@ -476,10 +467,12 @@ class Villageois(Unite):
                         building.construit = True
                         building.resource_manager.update_population_max(building.place_unite)
 
-                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork, animaux, buildings)
+                        self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.posWork,
+                                                                  animaux, buildings)
 
                         if self.posWork:
-                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux,
+                                             self.posWork)
                         else:
                             self.def_metier("")
                             self.action = "idle"
@@ -489,8 +482,8 @@ class Villageois(Unite):
                 if self.work == "hunter":
                     if self.cible:
                         return
-                    if self.find_animal_pos(self.posWork[0], self.posWork[1], animaux):
-                        ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                    if find_animal_pos(self.posWork[0], self.posWork[1], animaux):
+                        ressource = find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
                     else:
                         ressource = 0
                 else:
@@ -499,7 +492,7 @@ class Villageois(Unite):
                 if ressource > 0:
                     self.stockage += 1
                     if self.work == "hunter":
-                        self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource -= 1
+                        find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource -= 1
                     else:
                         world[self.posWork[0]][self.posWork[1]]["ressource"] -= 1
                         if world[self.posWork[0]][self.posWork[1]]["ressource"] <= 0:
@@ -547,8 +540,8 @@ class Villageois(Unite):
                 self.stockage = 0
                 if self.posWork:
                     if self.work == "hunter":
-                        if self.find_animal_pos(self.posWork[0], self.posWork[1], animaux):
-                            ressource = self.find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
+                        if find_animal_pos(self.posWork[0], self.posWork[1], animaux):
+                            ressource = find_animal_pos(self.posWork[0], self.posWork[1], animaux).ressource
                         else:
                             ressource = 0
                     else:
@@ -559,7 +552,8 @@ class Villageois(Unite):
                         self.posWork = self.find_closer_ressource(grid_length_x, grid_length_y, world, self.pos,
                                                                   animaux, buildings)
                         if self.posWork:
-                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux, self.posWork)
+                            self.create_path(grid_length_x, grid_length_y, unites, world, buildings, animaux,
+                                             self.posWork)
                         else:
                             self.action = "idle"
                             self.work = "default"
@@ -638,8 +632,8 @@ class Villageois(Unite):
                         self.is_good_work(world[x][y]["tile"]) and world[x][y]["ressource"] > 0:
                     return x, y
 
-                if self.find_animal_pos(x, y, animaux) is not None and self.is_good_work("animal") and \
-                        self.find_animal_pos(x, y, animaux).ressource > 0:
+                if find_animal_pos(x, y, animaux) is not None and self.is_good_work("animal") and \
+                        find_animal_pos(x, y, animaux).ressource > 0:
                     return x, y
 
                 count = cout + 1
@@ -660,6 +654,7 @@ class Clubman(Unite):
             self.spawn_health = 60
             self.spawn_attack = 9
         super().__init__("clubman", pos, self.spawn_health, 1.2, self.spawn_attack, 1, 1.5, 1, joueur)
+
 
 class BigDaddy(Unite):
     def __init__(self, pos, joueur):

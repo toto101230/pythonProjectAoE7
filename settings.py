@@ -52,5 +52,3 @@ Volume = 50
 CheatsActive = 0
 
 NbJoueurs = 2
-
-seed = ""

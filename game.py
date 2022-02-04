@@ -13,7 +13,7 @@ from minimap import Minimap
 from group import Group
 from selection import Selection
 from save import Save
-from model.joueur import Joueur
+from joueur import Joueur
 from ia import Ia
 from settings import delaiTour
 from events import ia_events, victory, defeat, save_event, load_event
