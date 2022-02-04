@@ -358,8 +358,7 @@ class Ia:
                 self.gestion_ressource(world, joueur, "tree")
                 return
 
-            if joueur.resource_manager.resources["stone"] < 300 and len(
-                    joueur.resource_manager.villageois["stone"]) < 4:
+            if joueur.resource_manager.resources["stone"] < 300 and len(joueur.resource_manager.villageois["stone"]) < 4:
                 self.gestion_ressource(world, joueur, "rock")
                 return
 
