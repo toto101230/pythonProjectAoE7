@@ -91,13 +91,13 @@ class InputBox:
             elif strcmp(message, self.cheatlist[4]):    # checkstate
                 for i in range(1, len(self.players)):
                     if self.players[i].ia.plan_debut:
-                        self.text = "AI[" + str(i) + "] : " + "plan debut"
+                        self.text += "AI[" + str(i) + "] : " + "plan debut - "
                     elif self.players[i].ia.plan_petite_armee:
-                        self.text = "AI[" + str(i) + "] : " + "plan petite armée"
+                        self.text += "AI[" + str(i) + "] : " + "plan petite armée - "
                     elif self.players[i].ia.plan_attaque:
-                        self.text = "AI[" + str(i) + "] : " + "plan attaque"
+                        self.text += "AI[" + str(i) + "] : " + "plan attaque - "
                     elif self.players[i].ia.plan_defense:
-                        self.text = "AI[" + str(i) + "] : " + "plan defense"
+                        self.text += "AI[" + str(i) + "] : " + "plan defense - "
 
             return message
 
