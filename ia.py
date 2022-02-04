@@ -2,6 +2,7 @@ import numpy as np
 
 from buildings import Hdv, House, Caserne
 from unite import Villageois
+from utils import find_unite_pos
 
 
 class Ia:
@@ -64,7 +65,8 @@ class Ia:
                     t_cout[x][y] = count
                     list_case.append((x, y))
 
-    def cherche_ennemi(self, grid_length_x, grid_length_y, world, joueur, pos_start):
+    @staticmethod
+    def cherche_ennemi(grid_length_x, grid_length_y, world, joueur, pos_start):
         t_cout = [[-1 for _ in range(100)] for _ in range(100)]
 
         list_case = [pos_start]
@@ -128,7 +130,7 @@ class Ia:
                     if b.pos[0] + x >= world.grid_length_x or b.pos[0] + x < 0 or b.pos[1] + y >= world.grid_length_y \
                             or b.pos[1] + y < 0:
                         continue
-                    u = world.find_unite_pos(b.pos[0] + x, b.pos[0] + y)
+                    u = find_unite_pos(b.pos[0] + x, b.pos[0] + y, world.unites)
                     if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie":
                         if joueur.diplomatie[u.joueur.numero] == "neutre" and u.pos not in rodeurs_neutres:
                             rodeurs_neutres.append(u.pos)
@@ -143,14 +145,15 @@ class Ia:
         self.rodeurs = [rodeurs_neutres, rodeurs_ennemis]
         return
 
-    def trouve_ennemi_attaque(self, world, joueur, pos):
+    @staticmethod
+    def trouve_ennemi_attaque(world, joueur, pos):
         ennemi = []
         for x in range(-20, 21):
             for y in range(-20, 21):
                 if pos[0] + x >= world.grid_length_x or pos[0] + x < 0 or pos[1] + y >= world.grid_length_y \
                         or pos[1] + y < 0:
                     continue
-                u = world.find_unite_pos(pos[0] + x, pos[0] + y)
+                u = find_unite_pos(pos[0] + x, pos[0] + y, world.unites)
                 if u and u.joueur != joueur and joueur.diplomatie[u.joueur.numero] != "allie" and u.pos not in ennemi:
                     ennemi.append(u.pos)
                 v = world.buildings[pos[0] + x][pos[1] + y]
@@ -158,14 +161,14 @@ class Ia:
                     ennemi.append(v.pos)
         return ennemi
 
-    def deplacement_villageois(self, world, joueur, origine, cible, pos):
+    @staticmethod
+    def deplacement_villageois(world, joueur, origine, cible, pos):
         villageois = joueur.resource_manager.villageois[origine][0]
         villageois.def_metier(cible)
         if not pos:
             pos = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
                                                    villageois.pos, world.animaux, world.buildings)
         world.deplace_unite(pos, villageois)
-        # world.deplace_unite(pos, villageois)
 
     def gestion_construction_batiment_wood(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
@@ -251,8 +254,8 @@ class Ia:
         count = 0
         for u in self.soldats:
             # rodeurs[1]== ennemis, [0 if count <= 2 else 1] première ou deuxième ennemi, [0] == position (x)
-            if u.cible and u.cible == world.find_unite_pos(self.rodeurs[numero_rodeurs][count // 2][0],
-                                                           self.rodeurs[numero_rodeurs][count // 2][1]):
+            if u.cible and u.cible == find_unite_pos(self.rodeurs[numero_rodeurs][count // 2][0],
+                                                     self.rodeurs[numero_rodeurs][count // 2][1], world.unites):
                 count += 1
             else:
                 u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
@@ -420,7 +423,8 @@ class Ia:
                 return
 
             if joueur.resource_manager.resources["food"] > 600 and joueur.resource_manager.resources["wood"] > 600 \
-                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman >= 8 and joueur.numero_age == 2:
+                    and joueur.resource_manager.resources["stone"] > 400 and self.nbr_clubman >= 8 and \
+                    joueur.numero_age == 2:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
             return
@@ -434,8 +438,8 @@ class Ia:
                 if self.nbr_clubman >= len(pos_ennemi) * 2 or self.nbr_clubman >= 20:
                     count = 0
                     for u in self.soldats:
-                        if u.cible and u.cible == world.find_unite_pos(pos_ennemi[count // 2][0],
-                                                                       pos_ennemi[count // 2][1]):
+                        if u.cible and u.cible == find_unite_pos(pos_ennemi[count // 2][0],
+                                                                 pos_ennemi[count // 2][1], world.unites):
                             count += 1
                         else:
                             u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,
@@ -503,8 +507,8 @@ class Ia:
                 return
 
             if joueur.resource_manager.resources["food"] > 1000 and joueur.resource_manager.resources["wood"] > 1000 \
-                    and joueur.resource_manager.resources[
-                "stone"] > 800 and self.nbr_clubman > 12 and joueur.numero_age == 3:
+                    and joueur.resource_manager.resources["stone"] > 800 and self.nbr_clubman > 12 and \
+                    joueur.numero_age == 3:
                 self.plan_continuite = False
                 self.plan_attaque = True
             return

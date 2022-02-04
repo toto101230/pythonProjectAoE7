@@ -1,6 +1,6 @@
 import pygame
 from unite import Villageois
-from settings import *
+from settings import ORANGE
 
 pygame.font.init()
 COLOR_INACTIVE = (138, 138, 138)

@@ -1,5 +1,7 @@
 from time import time
 
+from utils import find_unite_pos
+
 
 class Batiment:
 
@@ -16,7 +18,6 @@ class Batiment:
         self.place_batiment = place_batiment
         self.construit = False
         self.pos_spawn_u = ()
-
 
 
 class Hdv(Batiment):
@@ -110,7 +111,7 @@ class Tower(Batiment):
                         return
 
     def attaque_pos(self, i, j, world):
-        u = world.find_unite_pos(self.pos[0] - i, self.pos[1] - j) if world else self.cible
+        u = find_unite_pos(self.pos[0] - i, self.pos[1] - j, world.unites) if world else self.cible
         if u and u.joueur != self.joueur:
             u.health -= self.attack
             self.cible = u if u.health > 0 else None

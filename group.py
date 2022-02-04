@@ -38,9 +38,6 @@ class Group:
         t2 = self.tri_area(C, B, unite.pos)
         t3 = self.tri_area(B, D, unite.pos)
         t4 = self.tri_area(D, A, unite.pos)
-        # print(self.poly_area(A,B,C))
-        # print("t down")
-        # print(t1+t2+t3+t4)
         if t1 + t2 + t3 + t4 - self.poly_area(A, B, C) <= 2:
             return True
         return False
@@ -55,28 +52,22 @@ class Group:
         p = (a + b + c) / 2
         if (p * (p - a) * (p - b) * (p - c)) > 0:
             return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)))  # formule de Héron
-        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)+0.0000001)) #prend en compte le cas ou on a 0.0 dans le sqrt
-
-    def tri_perimeter(self, A, B, C):  # not used
-        return self.segment_len(A, B) + self.segment_len(B, C) + self.segment_len(C, A)
+        return math.floor(math.sqrt(p * (p - a) * (p - b) * (p - c)+0.0000001))
 
     def segment_len(self, A, B):
         return math.sqrt((B[0] - A[0]) ** 2 + (B[1] - A[1]) ** 2)
-
-    ####---------------------------------------------------------------------------------
 
     def isqrt_dicho_rec(self, n):
         low = 0
         high = n
 
-        def borne(low, high):
-            if high - low > 1:
-                middle = (low + high) // 2
+        def borne(bas, haut):
+            if haut - bas > 1:
+                middle = (bas + haut) // 2
                 if middle * middle > n:
-                    return borne(low, middle)
+                    return borne(bas, middle)
                 else:
-                    return borne(middle, high)
-            # print(low,high)
-            return high if high * high <= n else low
+                    return borne(middle, haut)
+            return haut if haut * haut <= n else bas
 
         return borne(low, high)

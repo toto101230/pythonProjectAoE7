@@ -3,6 +3,7 @@ from time import time
 import numpy as np
 
 from settings import TILE_SIZE
+from utils import find_unite_pos, find_animal_pos
 
 neighbours = [(x, y) for x in range(-1, 2) for y in range(-1, 2)]
 neighbours.remove((0, 0))
@@ -72,7 +73,7 @@ class Animal:
             if time() - self.time_depla > self.next_depla:
                 for x in range(-2, 3):
                     for y in range(-2, 3):
-                        if self.find_unite_pos(x + self.pos[0], y + self.pos[1], unites):
+                        if find_unite_pos(x + self.pos[0], y + self.pos[1], unites):
                             x = -1 if self.pos[0] < self.posDepart[0] else (1 if self.pos[0] > self.posDepart[0] else 0)
                             y = -1 if self.pos[1] < self.posDepart[1] else (1 if self.pos[1] > self.posDepart[1] else 0)
                             if x == 0 and y == 0:
@@ -110,8 +111,9 @@ class Animal:
                             poss.append(pos1)
                         if self.is_good_pos(pos2, grid_length_x, grid_length_y, world, buildings, unites, animaux):
                             poss.append(pos2)
-                        if len(poss) == 0 and (self.find_animal_pos(pos[0], pos[1], animaux) or self.find_animal_pos(pos1[0], pos1[1], animaux)
-                                               or self.find_animal_pos(pos2[0], pos2[1], animaux)):
+                        if len(poss) == 0 and (find_animal_pos(pos[0], pos[1], animaux) or
+                                               find_animal_pos(pos1[0], pos1[1], animaux)
+                                               or find_animal_pos(pos2[0], pos2[1], animaux)):
                             self.time_depla = time()
                             self.next_depla = np.random.randint(1, 5)
                             return
@@ -121,14 +123,14 @@ class Animal:
 
                         self.path = poss[np.random.randint(0, len(poss))]
 
-                elif abs(self.pos[0]-self.posDepart[0]) < 4 and abs(self.pos[1]-self.posDepart[1]) < 4:
+                elif abs(self.pos[0] - self.posDepart[0]) < 4 and abs(self.pos[1] - self.posDepart[1]) < 4:
                     n = neighbours.copy()
                     coo = n.pop(np.random.randint(0, len(n)))
-                    pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
+                    pos = (self.pos[0] + coo[0], self.pos[1] + coo[1])
                     while len(n) > 0 and not self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings,
                                                               unites, animaux):
                         coo = n.pop(np.random.randint(0, len(n)))
-                        pos = (self.pos[0]+coo[0], self.pos[1]+coo[1])
+                        pos = (self.pos[0] + coo[0], self.pos[1] + coo[1])
                     if len(n) > 0 or self.is_good_pos(pos, grid_length_x, grid_length_y, world, buildings, unites,
                                                       animaux):
                         self.path = pos
@@ -137,22 +139,12 @@ class Animal:
                 self.time_depla = time()
                 self.next_depla = np.random.randint(1, 5)
 
-    def find_unite_pos(self, x, y, unites):
-        for u in unites:
-            if u.pos[0] == x and u.pos[1] == y:
-                return u
-        return None
-
-    def find_animal_pos(self, x, y, animaux):
-        for a in animaux:
-            if (a.pos[0] == x and a.pos[1] == y) or (a.path and a.path[0] == x and a.path[1] == y):
-                return a
-        return None
-
     def is_good_pos(self, pos, grid_length_x, grid_length_y, world, buildings, unites, animaux):
         x, y = pos
-        return grid_length_x > x >= 0 and grid_length_y > y >= 0 and world[x][y]["tile"] == "" and buildings[x][y] is None \
-               and self.find_unite_pos(x, y, unites) is None and self.find_animal_pos(x, y, animaux) is None
+        return grid_length_x > x >= 0 and grid_length_y > y >= 0 and (world[x][y]["tile"] == "" or
+                                                                      world[x][y]["tile"] == "sable") and \
+               buildings[x][y] is None and find_unite_pos(x, y, unites) is None and \
+               find_animal_pos(x, y, animaux) is None
 
     def find_3_pos(self, x, y):
         index = neighbours.index((x, y))

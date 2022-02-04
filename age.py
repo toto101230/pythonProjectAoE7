@@ -3,7 +3,7 @@ class Age:
     def __init__(self, numero, name, joueur):
         self.name = name
         self.joueur = joueur
-        self.resource_manager =  self.joueur.resource_manager
+        self.resource_manager = self.joueur.resource_manager
         self.numero = str(numero)
 
     def can_pass_age(self):

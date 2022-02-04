@@ -13,10 +13,10 @@ from minimap import Minimap
 from group import Group
 from selection import Selection
 from save import Save
-from model.joueur import Joueur
+from joueur import Joueur
 from ia import Ia
 from settings import delaiTour
-from events import ia_events, victory, defeat
+from events import ia_events, victory, defeat, save_event, load_event
 
 
 class Game:
@@ -48,6 +48,7 @@ class Game:
         self.cheat_box = None
 
         self.save = Save()
+        self.load = False
 
     def create_game(self, nb_joueurs, seed, world, buildings, unites, animaux, joueurs):
         self.chargement(0)
@@ -116,10 +117,9 @@ class Game:
             self.draw()
 
         while self.menu_diplo:
-            self.clock.tick(600)
+            self.clock.tick(60)
             self.events()
             self.hud.update(self.joueurs, None, None)
-            self.cheat_box.update()
             self.draw()
             if not self.hud.diplo_actif:
                 self.playing = True
@@ -129,6 +129,14 @@ class Game:
             self.clock.tick(60)
             self.events()
             self.hud.end(self.end, self.screen)
+
+        while self.hud.pause:
+            self.clock.tick(60)
+            self.events()
+            self.hud.update_pause()
+            self.draw()
+            if not self.hud.pause:
+                self.playing = True
 
     def events(self):
         for event in pygame.event.get():
@@ -145,22 +153,27 @@ class Game:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    if self.hud.diplo_actif:
+                        self.hud.diplo_actif = False
+                    else:
+                        self.hud.pause = not self.hud.pause
+                    self.playing = not self.playing
                 elif event.key == settings.commands['cheat menu']:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
-                elif event.key == pygame.K_k and not self.cheat_box.active:
-                    self.save.save(self)
-                elif event.key == pygame.K_l and not self.cheat_box.active:
-                    if self.save.hasload():
-                        donnee = self.save.load()
-                        self.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4],
-                                         donnee[5])
 
             if event.type in ia_events:
                 joueur = self.joueurs[event.type - pygame.USEREVENT]
                 joueur.ia.play(self.world, joueur)
+
+            if event.type == save_event:
+                self.save.save(self)
+            if event.type == load_event and self.save.hasload():
+                self.load = not self.load
+                if self.load:
+                    donnee = self.save.load()
+                    self.create_game(len(donnee[5]), donnee[0], donnee[1], donnee[2], donnee[3], donnee[4], donnee[5])
+                    self.load = True
 
             self.camera.events(event)
             self.cheat_box.handle_event(event)

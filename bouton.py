@@ -23,7 +23,6 @@ class Button:
         if self.color:
             pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
 
-
         screen.blit(self.image, (self.x, self.y))
 
     def is_over(self, pos):
@@ -45,3 +44,11 @@ class ButtonGrand(Button):
         self.can_press = True
         self.width = 240
         self.height = 40
+
+
+class ButtonVide(Button):
+    def __init__(self, color, x, y, text, width, height):
+        super().__init__(color, x, y, text)
+        self.can_press = True
+        self.width = width
+        self.height = height
