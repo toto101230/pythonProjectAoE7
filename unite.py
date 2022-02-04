@@ -428,7 +428,7 @@ class Villageois(Unite):
     def villageois_remove(self):
         if self.work == "lumber":
             self.joueur.resource_manager.villageois["wood"].remove(self)
-        elif self.work == "forager":
+        elif self.work == "forager" or self.work == "hunter":
             self.joueur.resource_manager.villageois["food"].remove(self)
         elif self.work == "miner_carry_stone":
             self.joueur.resource_manager.villageois["stone"].remove(self)
@@ -460,9 +460,11 @@ class Villageois(Unite):
             self.work = "miner_carry_gold"
         elif tile == "animal":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["food"].append(self)
             self.work = "hunter"
         elif tile == "batiment":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["batiment"].append(self)
             self.work = "builder"
         elif self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].append(self)
