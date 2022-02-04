@@ -164,11 +164,12 @@ class Ia:
     @staticmethod
     def deplacement_villageois(world, joueur, origine, cible, pos):
         villageois = joueur.resource_manager.villageois[origine][0]
-        villageois.def_metier(cible)
+        # villageois.def_metier(cible)
         if not pos:
             pos = villageois.find_closer_ressource(world.grid_length_x, world.grid_length_y, world.world,
                                                    villageois.pos, world.animaux, world.buildings)
-        world.deplace_unite(pos, villageois)
+        if pos:
+            world.deplace_unite(pos, villageois)
 
     def gestion_construction_batiment_wood(self, world, joueur, nom_batiment, pos_depart):
         if joueur.resource_manager.resources["wood"] > joueur.resource_manager.costs[nom_batiment]["wood"]:
