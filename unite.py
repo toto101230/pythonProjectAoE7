@@ -33,11 +33,13 @@ class Unite(metaclass=ABCMeta):
         self.tick_attaque = -1
         self.attackB = False
         self.cible = None
+        self.wait = False
+        self.pos_dest = None
 
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
 
-        if not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
+        if not pos_end or not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
             return
 
         u = find_unite_pos(pos_end[0], pos_end[1], unites)
@@ -170,9 +172,12 @@ class Unite(metaclass=ABCMeta):
                     if deplacement:
                         pos = self.path[0]
                         if find_unite_pos(pos[0], pos[1], unites):
-                            self.ypixel = 0
-                            self.xpixel = 0
-                            return -1
+                            self.xpixel = -self.xpixel
+                            self.ypixel = -self.ypixel
+                            self.wait = True
+                            self.pos_dest = self.path[-1]
+                            self.path = []
+                            return
                         self.pos = self.path.pop(0)
                     break
 
@@ -357,6 +362,9 @@ class Villageois(Unite):
 
     # création du chemin à parcourir (remplie path de tuple des pos)
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
+        if not pos_end or not 0 <= pos_end[0] < grid_length_x or not 0 <= pos_end[1] < grid_length_y:
+            return
+
         tile = world[pos_end[0]][pos_end[1]]["tile"]
         if tile == "sable":
             tile = ""
@@ -395,14 +403,14 @@ class Villageois(Unite):
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
             if self.posWork == (x, y):
                 return pos_min
-        self.posWork = self.find_closer_ressource(len(world), len(world[0]), world, pos_min, animaux, buildings)
-        return pos_min
+        if pos_min:
+            self.posWork = self.find_closer_ressource(len(world), len(world[0]), world, pos_min, animaux, buildings)
+            return pos_min
 
     def updatepos(self, world, unites):
-        i = super().updatepos(world, unites)
+        super().updatepos(world, unites)
         if 20 >= self.stockage > 0 and not self.pos_work_is_neighbours() and self.work != "default":
             self.action = "carry"
-        return i
 
     def update_frame(self):
         self.frameNumber += 0.3
@@ -420,7 +428,7 @@ class Villageois(Unite):
     def villageois_remove(self):
         if self.work == "lumber":
             self.joueur.resource_manager.villageois["wood"].remove(self)
-        elif self.work == "forager":
+        elif self.work == "forager" or self.work == "hunter":
             self.joueur.resource_manager.villageois["food"].remove(self)
         elif self.work == "miner_carry_stone":
             self.joueur.resource_manager.villageois["stone"].remove(self)
@@ -428,6 +436,9 @@ class Villageois(Unite):
             self.joueur.resource_manager.villageois["gold"].remove(self)
         elif self.work == "default" and self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].remove(self)
+        elif self.work == "builder":
+            self.joueur.resource_manager.villageois["batiment"].remove(self)
+
 
     def def_metier(self, tile):
         self.villageois_remove()
@@ -449,9 +460,11 @@ class Villageois(Unite):
             self.work = "miner_carry_gold"
         elif tile == "animal":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["food"].append(self)
             self.work = "hunter"
         elif tile == "batiment":
             self.stockage = 0
+            self.joueur.resource_manager.villageois["batiment"].append(self)
             self.work = "builder"
         elif self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].append(self)

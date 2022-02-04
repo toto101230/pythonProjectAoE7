@@ -44,7 +44,6 @@ class Game:
         self.group = Group()
         self.selection = Selection()
 
-        self.cheat_enabled = False
         self.cheat_box = None
 
         self.save = Save()
@@ -58,7 +57,7 @@ class Game:
             for i in range(1, nb_joueurs+1):
                 self.joueurs.append(Joueur(ResourceManager(), "joueur " + str(i), nb_joueurs, i-1))
         self.resources_manager = self.joueurs[0].resource_manager
-        self.cheat_box = InputBox(10, 100, 300, 60, self.cheat_enabled, self.resources_manager, self.joueurs)
+        self.cheat_box = InputBox(10, 100, 300, 60, settings.CheatsActive, self.resources_manager, self.joueurs)
         self.camera.box = self.cheat_box
         self.chargement(15)
 
@@ -158,7 +157,7 @@ class Game:
                     else:
                         self.hud.pause = not self.hud.pause
                     self.playing = not self.playing
-                elif event.key == settings.commands['cheat menu']:
+                elif event.key == settings.commands['cheat menu'] and settings.CheatsActive == 1:
                     self.cheat_box.window = not self.cheat_box.window
                     self.cheat_box.active = False
 

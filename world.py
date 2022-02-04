@@ -134,10 +134,13 @@ class World:
                     self.hud.examined_tile.pos_spawn_u = grid_pos
 
         for u in self.unites:
-            if u.updatepos(self.world, self.unites) == -1:
-                pos = u.posWork if isinstance(u, Villageois) and u.posWork else u.path[-1]
+            if u.wait and u.xpixel == 0 and u.ypixel == 0:
+                pos = u.posWork if isinstance(u, Villageois) and u.posWork else u.pos_dest
                 u.create_path(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings,
                               self.animaux, pos)
+                u.wait = False
+            else:
+                u.updatepos(self.world, self.unites)
             if isinstance(u, Villageois):
                 u.working(self.grid_length_x, self.grid_length_y, self.unites, self.world, self.buildings, self.animaux)
             u.update_frame()
@@ -878,12 +881,6 @@ class World:
             if self.joueurs[i].ia:
                 self.joueurs[i].ia.nbr_clubman += 1
                 self.joueurs[i].ia.soldats.append(c)
-
-        # a enlever quand l'ia sera finis
-        self.unites.append(Clubman((65, 65), self.joueurs[0]))
-        self.unites.append(Clubman((65, 66), self.joueurs[0]))
-        self.unites.append(Clubman((66, 66), self.joueurs[0]))
-        self.unites.append(Clubman((66, 65), self.joueurs[0]))
 
     def create_bigdaddy(self):
         spos = self.joueurs[0].hdv_pos
