@@ -21,7 +21,8 @@ class ResourceManager:
             "wood": [],
             "stone": [],
             "gold": [],
-            "rien": []
+            "rien": [],
+            "batiment": []
         }
 
         # costs

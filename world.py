@@ -883,10 +883,10 @@ class World:
                 self.joueurs[i].ia.soldats.append(c)
 
         # a enlever quand l'ia sera finis
-        self.unites.append(Clubman((65, 65), self.joueurs[0]))
-        self.unites.append(Clubman((65, 66), self.joueurs[0]))
-        self.unites.append(Clubman((66, 66), self.joueurs[0]))
-        self.unites.append(Clubman((66, 65), self.joueurs[0]))
+        #self.unites.append(Clubman((65, 65), self.joueurs[0]))
+        #self.unites.append(Clubman((65, 66), self.joueurs[0]))
+        #self.unites.append(Clubman((66, 66), self.joueurs[0]))
+        #self.unites.append(Clubman((66, 65), self.joueurs[0]))
 
     def create_bigdaddy(self):
         spos = self.joueurs[0].hdv_pos

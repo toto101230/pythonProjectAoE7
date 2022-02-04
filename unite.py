@@ -436,6 +436,9 @@ class Villageois(Unite):
             self.joueur.resource_manager.villageois["gold"].remove(self)
         elif self.work == "default" and self.stockage == 0:
             self.joueur.resource_manager.villageois["rien"].remove(self)
+        elif self.work == "builder":
+            self.joueur.resource_manager.villageois["batiment"].remove(self)
+
 
     def def_metier(self, tile):
         self.villageois_remove()
