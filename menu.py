@@ -200,6 +200,7 @@ class NewGame(Menu):
     def __init__(self, gestion, game):
         Menu.__init__(self, gestion)
         self.game = game
+        self.seed = 0
 
         self.playx, self.playy = self.mid_w, self.mid_h + 200
 
@@ -279,6 +280,7 @@ class NewGame(Menu):
             self.gestion.draw_text("Nombre de Joueurs:", 30, self.joueursx, self.joueursy)
 
             self.gestion.draw_text("Seed:", 30, self.seedx, self.seedy)
+            self.gestion.draw_text(str(self.seed), 30, self.seedx+500, self.seedy)
 
             self.gestion.draw_text("Play", 25, self.playx, self.playy)
             self.blit_screen()
@@ -355,7 +357,7 @@ class NewGame(Menu):
                 self.gestion.CLICK = False
 
             if self.PlayButton.is_over(mouse_pos):
-                self.game.create_game(settings.NbJoueurs, 0, None, None, None, None, None)
+                self.game.create_game(settings.NbJoueurs, self.seed, None, None, None, None, None)
                 self.game.joueurs[0].resource_manager.resources = {
                     "wood": settings.START_WOOD,
                     "food": settings.START_FOOD,
@@ -378,6 +380,15 @@ class NewGame(Menu):
 
             self.run_display = False
             pass
+
+        if self.gestion.BACK_KEY and self.seed > 0:
+            self.seed = int(self.seed // 10)
+
+        if self.gestion.key and self.seed < 9999999:
+            nb = pygame.key.name(self.gestion.key)
+            if nb.isnumeric():
+                self.seed = self.seed * 10 + int(nb)
+                self.gestion.key = 0
 
 
 class OptionsMenu(Menu):
