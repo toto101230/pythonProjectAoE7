@@ -1,5 +1,5 @@
 # Projet de python du groupe 7
-##Membres :
+## Membres :
 Adam Medragh
 Mateo Pena
 Mathieu Pene
