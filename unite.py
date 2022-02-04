@@ -33,6 +33,8 @@ class Unite(metaclass=ABCMeta):
         self.tick_attaque = -1
         self.attackB = False
         self.cible = None
+        self.wait = False
+        self.pos_dest = None
 
     def create_path(self, grid_length_x, grid_length_y, unites, world, buildings, animaux, pos_end):
         self.path = []
@@ -170,9 +172,12 @@ class Unite(metaclass=ABCMeta):
                     if deplacement:
                         pos = self.path[0]
                         if find_unite_pos(pos[0], pos[1], unites):
-                            self.ypixel = 0
-                            self.xpixel = 0
-                            return -1
+                            self.xpixel = -self.xpixel
+                            self.ypixel = -self.ypixel
+                            self.wait = True
+                            self.pos_dest = self.path[-1]
+                            self.path = []
+                            return
                         self.pos = self.path.pop(0)
                     break
 
@@ -395,14 +400,14 @@ class Villageois(Unite):
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
             if self.posWork == (x, y):
                 return pos_min
-        self.posWork = self.find_closer_ressource(len(world), len(world[0]), world, pos_min, animaux, buildings)
-        return pos_min
+        if pos_min:
+            self.posWork = self.find_closer_ressource(len(world), len(world[0]), world, pos_min, animaux, buildings)
+            return pos_min
 
     def updatepos(self, world, unites):
-        i = super().updatepos(world, unites)
+        super().updatepos(world, unites)
         if 20 >= self.stockage > 0 and not self.pos_work_is_neighbours() and self.work != "default":
             self.action = "carry"
-        return i
 
     def update_frame(self):
         self.frameNumber += 0.3
