@@ -39,6 +39,10 @@ class World:
 
         self.buildings = self.create_buildings()
         self.buildings_update = []
+        for x in range(self.grid_length_x):
+            for y in range(self.grid_length_y):
+                if self.buildings[x][y] and self.buildings[x][y].name == "Tower":
+                    self.buildings_update.append(self.buildings[x][y])
 
         self.unites = []
 
