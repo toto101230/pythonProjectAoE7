@@ -291,6 +291,7 @@ class Ia:
                     return
             else:
                 world.achat_villageois(joueur, self.pos_hdv, "villageois")
+                self.batiments_a_const.append(b)
             return
 
         self.trouve_rodeur(world, joueur)
@@ -359,7 +360,7 @@ class Ia:
                 return
 
             if joueur.resource_manager.resources["stone"] < 300 and len(joueur.resource_manager.villageois["stone"]) < 4:
-                self.gestion_ressource(world, joueur, "rock")
+                self.gestion_ressource(world, joueur, "stone")
                 return
 
             caserne = False
@@ -397,7 +398,7 @@ class Ia:
 
             if joueur.resource_manager.resources["stone"] < 400 and len(
                     joueur.resource_manager.villageois["stone"]) < 4:
-                self.gestion_ressource(world, joueur, "rock")
+                self.gestion_ressource(world, joueur, "stone")
                 return
 
             for u in world.unites:
@@ -482,7 +483,7 @@ class Ia:
 
             if joueur.resource_manager.resources["stone"] < 800 and len(
                     joueur.resource_manager.villageois["stone"]) < 4:
-                self.gestion_ressource(world, joueur, "rock")
+                self.gestion_ressource(world, joueur, "stone")
                 return
 
             for u in world.unites:
