@@ -111,7 +111,7 @@ class Tower(Batiment):
                         return
 
     def attaque_pos(self, i, j, world):
-        u = find_unite_pos(self.pos[0] - i, self.pos[1] - j, world.animaux) if world else self.cible
+        u = find_unite_pos(self.pos[0] - i, self.pos[1] - j, world.unites) if world else self.cible
         if u and u.joueur != self.joueur:
             u.health -= self.attack
             self.cible = u if u.health > 0 else None

@@ -378,7 +378,7 @@ class World:
 
         if world_tree[grid_x][grid_y] <= 15:
             tile = "tree"
-            ressource = 10
+            ressource = 150
             frame = world_frame[grid_x * self.grid_length_x+grid_y]
         else:
             r = world_random[grid_x][grid_y]

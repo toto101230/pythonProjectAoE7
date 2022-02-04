@@ -577,7 +577,8 @@ class Villageois(Unite):
                 if not (0 <= x < grid_length_x and 0 <= y < grid_length_y):
                     continue
                 if buildings[x][y] is not None:
-                    if (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier") \
+                    if (buildings[x][y].name == "hdv" or (buildings[x][y].name == "grenier" and
+                                                          buildings[x][y].construit)) \
                             and buildings[x][y].joueur == self.joueur:
                         return self.find_closer_pos((x, y), world, buildings, unites, animaux)
                     pass
@@ -598,7 +599,8 @@ class Villageois(Unite):
         for neighbour in neighbours:
             x, y = self.pos[0] + neighbour[0], self.pos[1] + neighbour[1]
             if len(buildings) > x >= 0 and len(buildings[0]) > y >= 0 and\
-                    buildings[x][y] and (buildings[x][y].name == "hdv" or buildings[x][y].name == "grenier"):
+                    buildings[x][y] and (buildings[x][y].name == "hdv" or (buildings[x][y].name == "grenier" and
+                                                                           buildings[x][y].construit)):
                 return True
         return False
 

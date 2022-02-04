@@ -158,26 +158,19 @@ class Hud:
             if self.clubman_bouton.is_press and not mouse_action[0]:
                 self.clubman_bouton.is_press = False
 
-            if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press and\
-                    self.examined_tile.name == "hdv":
-                if mouse_action[0]:
-                    self.action_age = "feodal"
-                    self.age_feodal_bouton.is_press = True
-            elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press and\
-                    self.examined_tile.name == "hdv":
-                if mouse_action[0]:
-                    self.action_age = "castle"
-                    self.age_castel_bouton.is_press = True
-            else:
-                self.action_age = None
-
-            # if self.unite_bouton.is_over(mouse_pos) and not self.unite_bouton.is_press:
-            #     self.unite_bouton.color = '#FFFB00'
-            #     if mouse_action[0]:
-            #         self.unite_recrut = self.unite_bouton.text[:-7]
-            #         self.unite_bouton.is_press = True
-            # elif self.resource_manager.stay_place():
-            #     self.unite_bouton.color = self.unite_bouton.color_de_base
+            if isinstance(self.examined_tile, Batiment):
+                if self.age_feodal_bouton.is_over(mouse_pos) and not self.age_feodal_bouton.is_press and\
+                        self.examined_tile.name == "hdv":
+                    if mouse_action[0]:
+                        self.action_age = "feodal"
+                        self.age_feodal_bouton.is_press = True
+                elif self.age_castel_bouton.is_over(mouse_pos) and not self.age_castel_bouton.is_press and\
+                        self.examined_tile.name == "hdv":
+                    if mouse_action[0]:
+                        self.action_age = "castle"
+                        self.age_castel_bouton.is_press = True
+                else:
+                    self.action_age = None
 
         if mouse_action[0] and self.diplo_bouton.is_over(mouse_pos) and not self.diplo_bouton.is_press:
             self.diplo_actif = not self.diplo_actif
