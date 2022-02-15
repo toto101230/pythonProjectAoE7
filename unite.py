@@ -56,10 +56,17 @@ class Unite(metaclass=ABCMeta):
         if buildings[pos_end[0]][pos_end[1]] and buildings[pos_end[0]][pos_end[1]].joueur != self.joueur:
             self.cible = buildings[pos_end[0]][pos_end[1]]
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+
+        if not pos_end:
+            return
+
         animal = find_animal_pos(pos_end[0], pos_end[1], animaux)
         if animal:
             self.cible = animal
             pos_end = self.find_closer_pos(pos_end, world, buildings, unites, animaux)
+
+        if not pos_end:
+            return
 
         if (world[pos_end[0]][pos_end[1]]["tile"] != "" and world[pos_end[0]][pos_end[1]]["tile"] != "sable") or \
                 buildings[pos_end[0]][pos_end[1]] is not None:
@@ -438,7 +445,6 @@ class Villageois(Unite):
             self.joueur.resource_manager.villageois["rien"].remove(self)
         elif self.work == "builder":
             self.joueur.resource_manager.villageois["batiment"].remove(self)
-
 
     def def_metier(self, tile):
         self.villageois_remove()

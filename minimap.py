@@ -13,9 +13,6 @@ def find_closest(pix, tab):
 
 
 class Minimap:
-    # STATIC ATTRIBUTES
-    tab = []
-
     def __init__(self, world, screen, camera, width, height, nrplayer):
         self.idplayer = nrplayer
         # SPECS WORLD / CAMERA / SCREEN
@@ -45,20 +42,22 @@ class Minimap:
         self.viewArea = (0, 0)
         self.view = [(0, 0), (0, 0), (0, 0), (0, 0)]
 
+        self.grid_length_x = self.world.grid_length_x
+        self.grid_length_y = self.world.grid_length_y
+
         self.draw(screen)
 
-        Minimap.tab_coord_filler()
+        self.tab = []
+        self.tab_coord_filler()
 
-    @staticmethod
-    def tab_coord_filler():
-        for x in range(100):
-            for y in range(100):
-                Minimap.tab.append((int(70 + (x - y) * 70 / 99), int((y + x) * 70 / 99)))
+    def tab_coord_filler(self):
+        for x in range(self.grid_length_x):
+            for y in range(self.grid_length_y):
+                self.tab.append((int(70 + (x - y) * 70 / 99), int((y + x) * 70 / 99)))
 
-    @staticmethod
-    def mmap_to_coord(pix):
-        return int(Minimap.tab.index(find_closest(pix, Minimap.tab)) / 100), int(
-            Minimap.tab.index(find_closest(pix, Minimap.tab)) % 100)
+    def mmap_to_coord(self, pix):
+        return int(self.tab.index(find_closest(pix, self.tab)) / self.grid_length_x), int(
+            self.tab.index(find_closest(pix, self.tab)) % self.grid_length_y)
 
     def mmap_to_pos(self, pix):
         x, y = pix
@@ -77,7 +76,7 @@ class Minimap:
         self.update_camera_rect()
 
     def update_mapsurf(self):
-        for i in range(30):
+        for i in range(10):
             self.update_row_of_surf()
 
     def update_row_of_surf(self):
@@ -149,4 +148,4 @@ class Minimap:
                                 topleft=self.rect.topleft).y)) != 0:  # empecher de cliquer sur le fond noir autour minimap
                             x = int((self.mpos[0] - self.intermediate.get_rect(topleft=self.rect.topleft).x) // 2)
                             y = int((self.mpos[1] - self.intermediate.get_rect(topleft=self.rect.topleft).y) // 2)
-                            self.camera.to_pos(Minimap.mmap_to_coord((x, y)))
+                            self.camera.to_pos(self.mmap_to_coord((x, y)))

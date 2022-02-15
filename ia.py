@@ -431,8 +431,6 @@ class Ia:
                 self.plan_petite_armee = False
                 self.plan_attaque = True
             return
-        # regardé si les villageois ne font pas trop de trajet
-        # regardé toute les 10 secondes pour eviter de trop calculé
 
         if self.plan_attaque:
             pos = self.cherche_ennemi(world.grid_length_x, world.grid_length_y, world, joueur, self.pos_hdv)
@@ -441,8 +439,10 @@ class Ia:
                 if self.nbr_clubman >= len(pos_ennemi) * 2 or self.nbr_clubman >= 20:
                     count = 0
                     for u in self.soldats:
-                        if u.cible and u.cible == find_unite_pos(pos_ennemi[count // 2][0],
-                                                                 pos_ennemi[count // 2][1], world.unites):
+                        if u.cible:
+                            # todo à revoir
+                            # and u.cible == find_unite_pos(pos_ennemi[count // 2][0],
+                            #                                      pos_ennemi[count // 2][1], world.unites):
                             count += 1
                         else:
                             u.create_path(world.grid_length_x, world.grid_length_y, world.unites, world.world,

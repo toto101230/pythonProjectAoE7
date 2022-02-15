@@ -236,6 +236,10 @@ class World:
                                 self.examine_tile = None
                                 self.hud.examined_tile = None
                             self.buildings[x][y] = None
+                            if building.place_batiment == 4:
+                                self.buildings[x-1][y] = None
+                                self.buildings[x][y-1] = None
+                                self.buildings[x-1][y-1] = None
 
                         if self.examine_tile and self.buildings[self.examine_tile[0]][self.examine_tile[1]] == building:
                             mask = pygame.mask.from_surface(self.tiles[building.name+building.joueur.age.numero]).outline()
@@ -402,18 +406,18 @@ class World:
                 ressource = 0
                 frame = 0
 
-        if world_tree[grid_x][grid_y] > 85:
+        if world_tree[grid_x][grid_y] > 90:
             tile = "eau"
             ressource = 0
         else:
-            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 85) or \
-                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 85) or \
-                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 85) or \
-                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 85) or \
-                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y - 1] > 85) or \
-                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 85) or \
-                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 85) or \
-                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 85):
+            if (-1 < grid_x - 1 and world_tree[grid_x - 1][grid_y] > 90) or \
+                    (self.grid_length_x > grid_x+1 and world_tree[grid_x + 1][grid_y] > 90) or \
+                    (-1 < grid_y - 1 and world_tree[grid_x][grid_y - 1] > 90) or \
+                    (self.grid_length_y > grid_y+1 and world_tree[grid_x][grid_y + 1] > 90) or \
+                    (-1 < grid_x - 1 and -1 < grid_y - 1 and world_tree[grid_x - 1][grid_y - 1] > 90) or \
+                    (self.grid_length_x > grid_x + 1 and -1 < grid_y - 1 and world_tree[grid_x + 1][grid_y - 1] > 90) or \
+                    (-1 < grid_x - 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x - 1][grid_y + 1] > 90) or \
+                    (self.grid_length_x > grid_x + 1 and self.grid_length_y > grid_y + 1 and world_tree[grid_x + 1][grid_y + 1] > 90):
                 tile = "sable"
                 ressource = 0
 
@@ -472,10 +476,6 @@ class World:
         grass = pygame.image.load("assets/tilegraphic.png").convert_alpha()
         eau = pygame.image.load("assets/eau.png").convert_alpha()
         sable = pygame.image.load("assets/sable.png").convert_alpha()
-
-        # rock = pygame.transform.scale(rock, (78, 52)).convert_alpha()
-        # tree = pygame.transform.scale(tree, (152, 138)).convert_alpha()
-        # buisson0 = pygame.transform.scale(buisson0, (88, 62)).convert_alpha()
 
         # bâtiments
         caserne1 = pygame.image.load("assets/batiments/caserne.png").convert_alpha()
@@ -586,9 +586,12 @@ class World:
             iso_poly = self.world[grid_pos[0]][grid_pos[1]]["iso_poly"]
             collision = False
             if name == "caserne" or name == "grenier":
-                collision = self.collision_pos(grid_pos[0]+1, grid_pos[1]) or \
-                            self.collision_pos(grid_pos[0], grid_pos[1]+1) or \
-                            self.collision_pos(grid_pos[0]+1, grid_pos[1]+1)
+                if grid_pos[0]+1 >= self.grid_length_x or grid_pos[1]+1 >= self.grid_length_y:
+                    collision = True
+                else:
+                    collision = self.collision_pos(grid_pos[0]+1, grid_pos[1]) or \
+                                self.collision_pos(grid_pos[0], grid_pos[1]+1) or \
+                                self.collision_pos(grid_pos[0]+1, grid_pos[1]+1)
             collision = collision or self.collision_pos(grid_pos[0], grid_pos[1])
 
             self.temp_tile = {

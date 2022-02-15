@@ -49,6 +49,6 @@ commands = {'move right': pygame.K_d, 'move left': pygame.K_q, 'move up': pygame
             'cheat menu': pygame.K_DOLLAR}
 Volume = 50
 
-CheatsActive = 0
+CheatsActive = 1
 
-NbJoueurs = 2
+NbJoueurs = 4

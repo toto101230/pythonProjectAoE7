@@ -1,7 +1,7 @@
 import pygame
 from game import Game
 from menu import GestionMenu
-from pygame import mixer
+from pygame import mixer, FULLSCREEN, HWSURFACE, HWACCEL
 import settings
 
 
@@ -10,7 +10,8 @@ def main():
     mixer.init()
 
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((0, 0), FULLSCREEN | HWSURFACE | HWACCEL)
+    screen.set_alpha(None)
     pygame.display.set_caption("Age of Cheap Empires")
     icon = pygame.image.load("assets/logo.png")
     pygame.display.set_icon(icon)

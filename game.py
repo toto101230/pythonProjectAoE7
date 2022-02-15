@@ -49,9 +49,11 @@ class Game:
         self.save = Save()
         self.load = False
 
+        self.time_start = 0
+
     def create_game(self, nb_joueurs, seed, world, buildings, unites, animaux, joueurs):
         self.chargement(0)
-        self.seed = seed
+        self.seed = 8355725
         self.joueurs = joueurs if joueurs else []
         if not joueurs:
             for i in range(1, nb_joueurs+1):
@@ -86,6 +88,8 @@ class Game:
             self.lancement_ia()
         if not unites:
             self.world.create_unites()
+
+        self.time_start = time.time()
         self.chargement(100)
 
     def chargement(self, pourcentage):
@@ -202,17 +206,20 @@ class Game:
 
         draw_text(self.screen, 'fps = {}'.format(round(self.clock.get_fps())), 25, (255, 255, 255), (10, 60))
 
-        mouse_pos = pygame.mouse.get_pos()
-        grid_pos = World.mouse_to_grid(self.world, mouse_pos[0], mouse_pos[1], self.camera.scroll)
-        draw_text(self.screen, '{} | {}'.format(grid_pos[0], grid_pos[1]), 25, (255, 255, 255), (150, 60))
+        # mouse_pos = pygame.mouse.get_pos()
+        # grid_pos = World.mouse_to_grid(self.world, mouse_pos[0], mouse_pos[1], self.camera.scroll)
+        # draw_text(self.screen, '{} | {}'.format(grid_pos[0], grid_pos[1]), 25, (255, 255, 255), (150, 60))
 
-        draw_text(self.screen, '{}{}:{}{}'.format((pygame.time.get_ticks()//60000//10), (pygame.time.get_ticks()//60000) % 10, (pygame.time.get_ticks()//10000) % 6, (pygame.time.get_ticks()//1000) % 10), 25, (255, 255, 255), (230, 60))
+        # draw_text(self.screen, '{}{}:{}{}'.format((pygame.time.get_ticks()//60000//10), (pygame.time.get_ticks()//60000) % 10, (pygame.time.get_ticks()//10000) % 6, (pygame.time.get_ticks()//1000) % 10), 25, (255, 255, 255), (230, 60))
 
-        draw_text(self.screen, "food : {}".format(self.joueurs[1].resource_manager.resources["food"]), 25, (255, 255, 255), (10, 80))
-        draw_text(self.screen, "wood : {}".format(self.joueurs[1].resource_manager.resources["wood"]), 25, (255, 255, 255), (120, 80))
-        draw_text(self.screen, "stone : {}".format(self.joueurs[1].resource_manager.resources["stone"]), 25, (255, 255, 255), (220, 80))
-        draw_text(self.screen, "pop : {}".format(self.joueurs[1].resource_manager.population["population_actuelle"]), 25, (255, 255, 255), (320, 80))
-        draw_text(self.screen, "pop_max : {}".format(self.joueurs[1].resource_manager.population["population_maximale"]), 25, (255, 255, 255), (420, 80))
-        draw_text(self.screen, "nbr_clubman : {}".format(self.joueurs[1].ia.nbr_clubman), 25, (255, 255, 255), (550, 80))
+        temps = int(time.time() - self.time_start)
+        draw_text(self.screen, '{}:{}'.format("0" + str(temps // 60) if temps // 60 < 10 else temps // 60, "0" + str(temps % 60) if temps % 60 < 10 else temps % 60), 25, (255, 255, 255), (230, 60))
+
+        # draw_text(self.screen, "food : {}".format(self.joueurs[1].resource_manager.resources["food"]), 25, (255, 255, 255), (10, 80))
+        # draw_text(self.screen, "wood : {}".format(self.joueurs[1].resource_manager.resources["wood"]), 25, (255, 255, 255), (120, 80))
+        # draw_text(self.screen, "stone : {}".format(self.joueurs[1].resource_manager.resources["stone"]), 25, (255, 255, 255), (220, 80))
+        # draw_text(self.screen, "pop : {}".format(self.joueurs[1].resource_manager.population["population_actuelle"]), 25, (255, 255, 255), (320, 80))
+        # draw_text(self.screen, "pop_max : {}".format(self.joueurs[1].resource_manager.population["population_maximale"]), 25, (255, 255, 255), (420, 80))
+        # draw_text(self.screen, "nbr_clubman : {}".format(self.joueurs[1].ia.nbr_clubman), 25, (255, 255, 255), (550, 80))
 
         pygame.display.flip()
